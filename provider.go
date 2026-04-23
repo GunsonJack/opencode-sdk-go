@@ -293,6 +293,7 @@ func (r ProviderAuthParams) URLQuery() (v url.Values) {
 }
 
 type ProviderOAuthAuthorizeParams struct {
+	// Index of the chosen auth method from the ProviderService.Auth response.
 	Method    param.Field[int64]             `json:"method,required"`
 	Inputs    param.Field[map[string]string] `json:"inputs"`
 	Workspace param.Field[string]            `query:"workspace"`
@@ -312,6 +313,7 @@ func (r ProviderOAuthAuthorizeParams) URLQuery() (v url.Values) {
 }
 
 type ProviderOAuthCallbackParams struct {
+	// Index of the chosen auth method from the ProviderService.Auth response.
 	Method    param.Field[int64]  `json:"method,required"`
 	Code      param.Field[string] `json:"code"`
 	Workspace param.Field[string] `query:"workspace"`
