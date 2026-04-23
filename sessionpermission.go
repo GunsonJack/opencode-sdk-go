@@ -39,6 +39,8 @@ func NewSessionPermissionService(opts ...option.RequestOption) (r *SessionPermis
 	return
 }
 
+// Deprecated: Respond is a legacy compatibility route. Use [PermissionService.Reply] instead.
+//
 // Respond to a permission request
 func (r *SessionPermissionService) Respond(ctx context.Context, id string, permissionID string, params SessionPermissionRespondParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)

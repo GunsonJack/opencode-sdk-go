@@ -26,8 +26,10 @@ type Client struct {
 	Config  *ConfigService
 	Command *CommandService
 	Project *ProjectService
-	Session *SessionService
-	Tui     *TuiService
+	Session    *SessionService
+	Tui        *TuiService
+	Permission *PermissionService
+	Question   *QuestionService
 }
 
 // DefaultClientOptions read from the environment (OPENCODE_BASE_URL). This should
@@ -60,6 +62,8 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Project = NewProjectService(opts...)
 	r.Session = NewSessionService(opts...)
 	r.Tui = NewTuiService(opts...)
+	r.Permission = NewPermissionService(opts...)
+	r.Question = NewQuestionService(opts...)
 
 	return
 }
