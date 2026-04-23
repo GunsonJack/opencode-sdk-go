@@ -34,6 +34,18 @@ type Client struct {
 	Auth       *AuthService
 	Lsp        *LspService
 	Formatter  *FormatterService
+	Global     *GlobalService
+	Instance   *InstanceService
+	Mcp        *McpService
+	Pty        *PtyService
+	Vcs        *VcsService
+	Worktree   *WorktreeService
+	Workspace  *WorkspaceService
+	Sync       *SyncService
+	Skill      *SkillService
+	Tool       *ToolService
+	Resource   *ResourceService
+	Console    *ConsoleService
 }
 
 // DefaultClientOptions read from the environment (OPENCODE_BASE_URL). This should
@@ -72,6 +84,18 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Auth = NewAuthService(opts...)
 	r.Lsp = NewLspService(opts...)
 	r.Formatter = NewFormatterService(opts...)
+	r.Global = NewGlobalService(opts...)
+	r.Instance = NewInstanceService(opts...)
+	r.Mcp = NewMcpService(opts...)
+	r.Pty = NewPtyService(opts...)
+	r.Vcs = NewVcsService(opts...)
+	r.Worktree = NewWorktreeService(opts...)
+	r.Workspace = NewWorkspaceService(opts...)
+	r.Sync = NewSyncService(opts...)
+	r.Skill = NewSkillService(opts...)
+	r.Tool = NewToolService(opts...)
+	r.Resource = NewResourceService(opts...)
+	r.Console = NewConsoleService(opts...)
 
 	return
 }
