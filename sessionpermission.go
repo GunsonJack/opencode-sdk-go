@@ -4,7 +4,6 @@ package opencode
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -44,12 +43,12 @@ func NewSessionPermissionService(opts ...option.RequestOption) (r *SessionPermis
 // Respond to a permission request
 func (r *SessionPermissionService) Respond(ctx context.Context, id string, permissionID string, params SessionPermissionRespondParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
-	if permissionID == "" {
-		err = errors.New("missing required permissionID parameter")
+	permissionID, err = requestconfig.EncodePathSegment(permissionID, "permissionID")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/permissions/%s", id, permissionID)

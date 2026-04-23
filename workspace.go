@@ -56,6 +56,10 @@ func (r *WorkspaceService) Adaptors(ctx context.Context, query WorkspaceAdaptors
 
 func (r *WorkspaceService) Remove(ctx context.Context, id string, params WorkspaceRemoveParams, opts ...option.RequestOption) (res *Workspace, err error) {
 	opts = slices.Concat(r.Options, opts)
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("experimental/workspace/%s", id)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, params, &res, opts...)
 	return
@@ -63,6 +67,10 @@ func (r *WorkspaceService) Remove(ctx context.Context, id string, params Workspa
 
 func (r *WorkspaceService) SessionRestore(ctx context.Context, id string, params WorkspaceSessionRestoreParams, opts ...option.RequestOption) (res *WorkspaceSessionRestoreResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("experimental/workspace/%s/session-restore", id)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return

@@ -4,7 +4,6 @@ package opencode
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -47,8 +46,8 @@ func (r *QuestionService) List(ctx context.Context, query QuestionListParams, op
 // Reply to a question
 func (r *QuestionService) Reply(ctx context.Context, requestID string, params QuestionReplyParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if requestID == "" {
-		err = errors.New("missing required requestID parameter")
+	requestID, err = requestconfig.EncodePathSegment(requestID, "requestID")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("question/%s/reply", requestID)
@@ -59,8 +58,8 @@ func (r *QuestionService) Reply(ctx context.Context, requestID string, params Qu
 // Reject a question
 func (r *QuestionService) Reject(ctx context.Context, requestID string, params QuestionRejectParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if requestID == "" {
-		err = errors.New("missing required requestID parameter")
+	requestID, err = requestconfig.EncodePathSegment(requestID, "requestID")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("question/%s/reject", requestID)
@@ -69,10 +68,10 @@ func (r *QuestionService) Reject(ctx context.Context, requestID string, params Q
 }
 
 type QuestionRequest struct {
-	ID        string           `json:"id,required"`
-	SessionID string           `json:"sessionID,required"`
-	Questions []QuestionInfo   `json:"questions,required"`
-	Tool      QuestionTool     `json:"tool"`
+	ID        string              `json:"id,required"`
+	SessionID string              `json:"sessionID,required"`
+	Questions []QuestionInfo      `json:"questions,required"`
+	Tool      QuestionTool        `json:"tool"`
 	JSON      questionRequestJSON `json:"-"`
 }
 
@@ -94,12 +93,12 @@ func (r questionRequestJSON) RawJSON() string {
 }
 
 type QuestionInfo struct {
-	Question string             `json:"question,required"`
-	Header   string             `json:"header,required"`
-	Options  []QuestionOption   `json:"options,required"`
-	Multiple bool               `json:"multiple"`
-	Custom   bool               `json:"custom"`
-	JSON        questionInfoJSON `json:"-"`
+	Question string           `json:"question,required"`
+	Header   string           `json:"header,required"`
+	Options  []QuestionOption `json:"options,required"`
+	Multiple bool             `json:"multiple"`
+	Custom   bool             `json:"custom"`
+	JSON     questionInfoJSON `json:"-"`
 }
 
 type questionInfoJSON struct {
@@ -179,8 +178,8 @@ func (r QuestionListParams) URLQuery() (v url.Values) {
 
 type QuestionReplyParams struct {
 	Answers   param.Field[[]QuestionAnswer] `json:"answers,required"`
-	Workspace param.Field[string]            `query:"workspace"`
-	Directory param.Field[string]            `query:"directory"`
+	Workspace param.Field[string]           `query:"workspace"`
+	Directory param.Field[string]           `query:"directory"`
 }
 
 func (r QuestionReplyParams) MarshalJSON() (data []byte, err error) {

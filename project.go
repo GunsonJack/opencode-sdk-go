@@ -54,6 +54,10 @@ func (r *ProjectService) Current(ctx context.Context, query ProjectCurrentParams
 // Update a project
 func (r *ProjectService) Update(ctx context.Context, projectID string, params ProjectUpdateParams, opts ...option.RequestOption) (res *Project, err error) {
 	opts = slices.Concat(r.Options, opts)
+	projectID, err = requestconfig.EncodePathSegment(projectID, "projectID")
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("project/%s", projectID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
 	return
@@ -136,15 +140,15 @@ func (r projectSummaryJSON) RawJSON() string {
 }
 
 type Project struct {
-	ID       string          `json:"id,required"`
-	Time     ProjectTime     `json:"time,required"`
-	Worktree string          `json:"worktree,required"`
-	Sandboxes []string       `json:"sandboxes,required"`
-	Name     string          `json:"name"`
-	Icon     ProjectIcon     `json:"icon"`
-	Commands ProjectCommands `json:"commands"`
-	Vcs      ProjectVcs      `json:"vcs"`
-	JSON     projectJSON     `json:"-"`
+	ID        string          `json:"id,required"`
+	Time      ProjectTime     `json:"time,required"`
+	Worktree  string          `json:"worktree,required"`
+	Sandboxes []string        `json:"sandboxes,required"`
+	Name      string          `json:"name"`
+	Icon      ProjectIcon     `json:"icon"`
+	Commands  ProjectCommands `json:"commands"`
+	Vcs       ProjectVcs      `json:"vcs"`
+	JSON      projectJSON     `json:"-"`
 }
 
 // projectJSON contains the JSON metadata for the struct [Project]
@@ -234,7 +238,7 @@ func (r ProjectCurrentParams) URLQuery() (v url.Values) {
 }
 
 type ProjectUpdateParams struct {
-	Name      param.Field[string]                     `json:"name"`
+	Name      param.Field[string]                      `json:"name"`
 	Icon      param.Field[ProjectUpdateParamsIcon]     `json:"icon"`
 	Commands  param.Field[ProjectUpdateParamsCommands] `json:"commands"`
 	Directory param.Field[string]                      `query:"directory"`

@@ -4,7 +4,6 @@ package opencode
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -52,8 +51,8 @@ func (r *SessionService) New(ctx context.Context, params SessionNewParams, opts 
 // Update session properties
 func (r *SessionService) Update(ctx context.Context, id string, params SessionUpdateParams, opts ...option.RequestOption) (res *Session, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s", id)
@@ -72,8 +71,8 @@ func (r *SessionService) List(ctx context.Context, query SessionListParams, opts
 // Delete a session and all its data
 func (r *SessionService) Delete(ctx context.Context, id string, body SessionDeleteParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s", id)
@@ -84,8 +83,8 @@ func (r *SessionService) Delete(ctx context.Context, id string, body SessionDele
 // Abort a session
 func (r *SessionService) Abort(ctx context.Context, id string, body SessionAbortParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/abort", id)
@@ -96,8 +95,8 @@ func (r *SessionService) Abort(ctx context.Context, id string, body SessionAbort
 // Get a session's children
 func (r *SessionService) Children(ctx context.Context, id string, query SessionChildrenParams, opts ...option.RequestOption) (res *[]Session, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/children", id)
@@ -108,8 +107,8 @@ func (r *SessionService) Children(ctx context.Context, id string, query SessionC
 // Send a new command to a session
 func (r *SessionService) Command(ctx context.Context, id string, params SessionCommandParams, opts ...option.RequestOption) (res *SessionCommandResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/command", id)
@@ -120,8 +119,8 @@ func (r *SessionService) Command(ctx context.Context, id string, params SessionC
 // Get session
 func (r *SessionService) Get(ctx context.Context, id string, query SessionGetParams, opts ...option.RequestOption) (res *Session, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s", id)
@@ -132,8 +131,8 @@ func (r *SessionService) Get(ctx context.Context, id string, query SessionGetPar
 // Analyze the app and create an AGENTS.md file
 func (r *SessionService) Init(ctx context.Context, id string, params SessionInitParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/init", id)
@@ -144,12 +143,12 @@ func (r *SessionService) Init(ctx context.Context, id string, params SessionInit
 // Get a message from a session
 func (r *SessionService) Message(ctx context.Context, id string, messageID string, query SessionMessageParams, opts ...option.RequestOption) (res *SessionMessageResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
-	if messageID == "" {
-		err = errors.New("missing required messageID parameter")
+	messageID, err = requestconfig.EncodePathSegment(messageID, "messageID")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/message/%s", id, messageID)
@@ -160,8 +159,8 @@ func (r *SessionService) Message(ctx context.Context, id string, messageID strin
 // List messages for a session
 func (r *SessionService) Messages(ctx context.Context, id string, query SessionMessagesParams, opts ...option.RequestOption) (res *[]SessionMessagesResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/message", id)
@@ -172,8 +171,8 @@ func (r *SessionService) Messages(ctx context.Context, id string, query SessionM
 // Create and send a new message to a session
 func (r *SessionService) Prompt(ctx context.Context, id string, params SessionPromptParams, opts ...option.RequestOption) (res *SessionPromptResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/message", id)
@@ -184,8 +183,8 @@ func (r *SessionService) Prompt(ctx context.Context, id string, params SessionPr
 // Revert a message
 func (r *SessionService) Revert(ctx context.Context, id string, params SessionRevertParams, opts ...option.RequestOption) (res *Session, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/revert", id)
@@ -196,8 +195,8 @@ func (r *SessionService) Revert(ctx context.Context, id string, params SessionRe
 // Share a session
 func (r *SessionService) Share(ctx context.Context, id string, body SessionShareParams, opts ...option.RequestOption) (res *Session, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/share", id)
@@ -208,8 +207,8 @@ func (r *SessionService) Share(ctx context.Context, id string, body SessionShare
 // Run a shell command
 func (r *SessionService) Shell(ctx context.Context, id string, params SessionShellParams, opts ...option.RequestOption) (res *SessionShellResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/shell", id)
@@ -220,8 +219,8 @@ func (r *SessionService) Shell(ctx context.Context, id string, params SessionShe
 // Summarize the session
 func (r *SessionService) Summarize(ctx context.Context, id string, params SessionSummarizeParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/summarize", id)
@@ -232,8 +231,8 @@ func (r *SessionService) Summarize(ctx context.Context, id string, params Sessio
 // Restore all reverted messages
 func (r *SessionService) Unrevert(ctx context.Context, id string, body SessionUnrevertParams, opts ...option.RequestOption) (res *Session, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/unrevert", id)
@@ -244,8 +243,8 @@ func (r *SessionService) Unrevert(ctx context.Context, id string, body SessionUn
 // Unshare the session
 func (r *SessionService) Unshare(ctx context.Context, id string, body SessionUnshareParams, opts ...option.RequestOption) (res *Session, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/share", id)
@@ -264,8 +263,8 @@ func (r *SessionService) Status(ctx context.Context, query SessionStatusParams, 
 // Get a session's todos
 func (r *SessionService) Todo(ctx context.Context, id string, query SessionTodoParams, opts ...option.RequestOption) (res *[]Todo, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/todo", id)
@@ -276,8 +275,8 @@ func (r *SessionService) Todo(ctx context.Context, id string, query SessionTodoP
 // Fork a session
 func (r *SessionService) Fork(ctx context.Context, id string, body SessionForkParams, opts ...option.RequestOption) (res *Session, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/fork", id)
@@ -288,8 +287,8 @@ func (r *SessionService) Fork(ctx context.Context, id string, body SessionForkPa
 // Get a session's diff
 func (r *SessionService) Diff(ctx context.Context, id string, query SessionDiffParams, opts ...option.RequestOption) (res *[]SnapshotFileDiff, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/diff", id)
@@ -300,12 +299,12 @@ func (r *SessionService) Diff(ctx context.Context, id string, query SessionDiffP
 // Delete a message from a session
 func (r *SessionService) DeleteMessage(ctx context.Context, id string, messageID string, body SessionDeleteMessageParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
-	if messageID == "" {
-		err = errors.New("missing required messageID parameter")
+	messageID, err = requestconfig.EncodePathSegment(messageID, "messageID")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/message/%s", id, messageID)
@@ -316,16 +315,16 @@ func (r *SessionService) DeleteMessage(ctx context.Context, id string, messageID
 // Update a part
 func (r *SessionService) UpdatePart(ctx context.Context, id string, messageID string, partID string, params SessionUpdatePartParams, opts ...option.RequestOption) (res *Part, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
-	if messageID == "" {
-		err = errors.New("missing required messageID parameter")
+	messageID, err = requestconfig.EncodePathSegment(messageID, "messageID")
+	if err != nil {
 		return
 	}
-	if partID == "" {
-		err = errors.New("missing required partID parameter")
+	partID, err = requestconfig.EncodePathSegment(partID, "partID")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/message/%s/part/%s", id, messageID, partID)
@@ -336,16 +335,16 @@ func (r *SessionService) UpdatePart(ctx context.Context, id string, messageID st
 // Delete a part
 func (r *SessionService) DeletePart(ctx context.Context, id string, messageID string, partID string, body SessionDeletePartParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
-	if messageID == "" {
-		err = errors.New("missing required messageID parameter")
+	messageID, err = requestconfig.EncodePathSegment(messageID, "messageID")
+	if err != nil {
 		return
 	}
-	if partID == "" {
-		err = errors.New("missing required partID parameter")
+	partID, err = requestconfig.EncodePathSegment(partID, "partID")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/message/%s/part/%s", id, messageID, partID)
@@ -356,8 +355,8 @@ func (r *SessionService) DeletePart(ctx context.Context, id string, messageID st
 // Send a new prompt to a session asynchronously.
 func (r *SessionService) PromptAsync(ctx context.Context, id string, params SessionPromptAsyncParams, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
-	if id == "" {
-		err = errors.New("missing required id parameter")
+	id, err = requestconfig.EncodePathSegment(id, "id")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/prompt_async", id)
@@ -1139,9 +1138,9 @@ type Message struct {
 	Format interface{} `json:"format"`
 	Mode   string      `json:"mode"`
 	// This field can have the runtime type of [UserMessageModel].
-	Model   interface{} `json:"model"`
-	ModelID string      `json:"modelID"`
-	ParentID string     `json:"parentID"`
+	Model    interface{} `json:"model"`
+	ModelID  string      `json:"modelID"`
+	ParentID string      `json:"parentID"`
 	// This field can have the runtime type of [AssistantMessagePath].
 	Path       interface{} `json:"path"`
 	ProviderID string      `json:"providerID"`
@@ -1243,17 +1242,17 @@ func (r MessageRole) IsKnown() bool {
 }
 
 type Part struct {
-	ID        string   `json:"id,required"`
-	MessageID string   `json:"messageID,required"`
-	SessionID string   `json:"sessionID,required"`
-	Type      PartType `json:"type,required"`
-	Agent     string   `json:"agent"`
-	Attempt   float64  `json:"attempt"`
-	Auto      bool     `json:"auto"`
-	CallID    string   `json:"callID"`
-	Command   string   `json:"command"`
-	Cost      float64  `json:"cost"`
-	Description string `json:"description"`
+	ID          string   `json:"id,required"`
+	MessageID   string   `json:"messageID,required"`
+	SessionID   string   `json:"sessionID,required"`
+	Type        PartType `json:"type,required"`
+	Agent       string   `json:"agent"`
+	Attempt     float64  `json:"attempt"`
+	Auto        bool     `json:"auto"`
+	CallID      string   `json:"callID"`
+	Command     string   `json:"command"`
+	Cost        float64  `json:"cost"`
+	Description string   `json:"description"`
 	// This field can have the runtime type of [PartRetryPartError].
 	Error    interface{} `json:"error"`
 	Filename string      `json:"filename"`
@@ -1262,14 +1261,14 @@ type Part struct {
 	Hash    string      `json:"hash"`
 	Ignored bool        `json:"ignored"`
 	// This field can have the runtime type of [map[string]interface{}].
-	Metadata interface{} `json:"metadata"`
-	Mime     string      `json:"mime"`
+	Metadata interface{}      `json:"metadata"`
+	Mime     string           `json:"mime"`
 	Model    SubtaskPartModel `json:"model"`
-	Name     string      `json:"name"`
-	Overflow bool        `json:"overflow"`
-	Prompt   string      `json:"prompt"`
-	Reason   string      `json:"reason"`
-	Snapshot string      `json:"snapshot"`
+	Name     string           `json:"name"`
+	Overflow bool             `json:"overflow"`
+	Prompt   string           `json:"prompt"`
+	Reason   string           `json:"reason"`
+	Snapshot string           `json:"snapshot"`
 	// This field can have the runtime type of [FilePartSource], [AgentPartSource].
 	Source interface{} `json:"source"`
 	// This field can have the runtime type of [ToolPartState].
@@ -1690,20 +1689,20 @@ func (r ReasoningPartType) IsKnown() bool {
 }
 
 type Session struct {
-	ID        string         `json:"id,required"`
-	Directory string         `json:"directory,required"`
-	ProjectID string         `json:"projectID,required"`
-	Slug      string         `json:"slug,required"`
-	Time      SessionTime    `json:"time,required"`
-	Title     string         `json:"title,required"`
-	Version   string         `json:"version,required"`
-	ParentID  string         `json:"parentID"`
-	Permission []PermissionRule `json:"permission"`
-	Revert    SessionRevert  `json:"revert"`
-	Share     SessionShare   `json:"share"`
-	Summary   SessionSummary `json:"summary"`
-	WorkspaceID string       `json:"workspaceID"`
-	JSON      sessionJSON    `json:"-"`
+	ID          string           `json:"id,required"`
+	Directory   string           `json:"directory,required"`
+	ProjectID   string           `json:"projectID,required"`
+	Slug        string           `json:"slug,required"`
+	Time        SessionTime      `json:"time,required"`
+	Title       string           `json:"title,required"`
+	Version     string           `json:"version,required"`
+	ParentID    string           `json:"parentID"`
+	Permission  []PermissionRule `json:"permission"`
+	Revert      SessionRevert    `json:"revert"`
+	Share       SessionShare     `json:"share"`
+	Summary     SessionSummary   `json:"summary"`
+	WorkspaceID string           `json:"workspaceID"`
+	JSON        sessionJSON      `json:"-"`
 }
 
 // sessionJSON contains the JSON metadata for the struct [Session]
@@ -2714,17 +2713,17 @@ func (r toolStateRunningTimeJSON) RawJSON() string {
 }
 
 type UserMessage struct {
-	ID        string           `json:"id,required"`
-	Agent     string           `json:"agent,required"`
-	Model     UserMessageModel `json:"model,required"`
-	Role      UserMessageRole  `json:"role,required"`
-	SessionID string           `json:"sessionID,required"`
-	Time      UserMessageTime  `json:"time,required"`
-	Format    interface{}      `json:"format"`
+	ID        string             `json:"id,required"`
+	Agent     string             `json:"agent,required"`
+	Model     UserMessageModel   `json:"model,required"`
+	Role      UserMessageRole    `json:"role,required"`
+	SessionID string             `json:"sessionID,required"`
+	Time      UserMessageTime    `json:"time,required"`
+	Format    interface{}        `json:"format"`
 	Summary   UserMessageSummary `json:"summary"`
-	System    string           `json:"system"`
-	Tools     map[string]bool  `json:"tools"`
-	JSON      userMessageJSON  `json:"-"`
+	System    string             `json:"system"`
+	Tools     map[string]bool    `json:"tools"`
+	JSON      userMessageJSON    `json:"-"`
 }
 
 // userMessageJSON contains the JSON metadata for the struct [UserMessage]
@@ -2788,10 +2787,10 @@ func (r userMessageTimeJSON) RawJSON() string {
 }
 
 type UserMessageSummary struct {
-	Diffs     []UserMessageSummaryDiff `json:"diffs,required"`
-	Body      string                   `json:"body"`
-	Title     string                   `json:"title"`
-	JSON      userMessageSummaryJSON   `json:"-"`
+	Diffs []UserMessageSummaryDiff `json:"diffs,required"`
+	Body  string                   `json:"body"`
+	Title string                   `json:"title"`
+	JSON  userMessageSummaryJSON   `json:"-"`
 }
 
 // userMessageSummaryJSON contains the JSON metadata for the struct
@@ -3054,15 +3053,15 @@ func (r SessionChildrenParams) URLQuery() (v url.Values) {
 }
 
 type SessionCommandParams struct {
-	Arguments param.Field[string] `json:"arguments,required"`
-	Command   param.Field[string] `json:"command,required"`
-	Directory param.Field[string] `query:"directory"`
-	Workspace param.Field[string] `query:"workspace"`
-	Agent     param.Field[string] `json:"agent"`
-	MessageID param.Field[string] `json:"messageID"`
-	Model     param.Field[string] `json:"model"`
+	Arguments param.Field[string]                     `json:"arguments,required"`
+	Command   param.Field[string]                     `json:"command,required"`
+	Directory param.Field[string]                     `query:"directory"`
+	Workspace param.Field[string]                     `query:"workspace"`
+	Agent     param.Field[string]                     `json:"agent"`
+	MessageID param.Field[string]                     `json:"messageID"`
+	Model     param.Field[string]                     `json:"model"`
 	Parts     param.Field[[]SessionCommandParamsPart] `json:"parts"`
-	Variant   param.Field[string] `json:"variant"`
+	Variant   param.Field[string]                     `json:"variant"`
 }
 
 func (r SessionCommandParams) MarshalJSON() (data []byte, err error) {
@@ -3193,9 +3192,9 @@ type SessionPromptParamsPartUnion interface {
 type SessionPromptParamsPartsType string
 
 const (
-	SessionPromptParamsPartsTypeText  SessionPromptParamsPartsType = "text"
-	SessionPromptParamsPartsTypeFile  SessionPromptParamsPartsType = "file"
-	SessionPromptParamsPartsTypeAgent SessionPromptParamsPartsType = "agent"
+	SessionPromptParamsPartsTypeText    SessionPromptParamsPartsType = "text"
+	SessionPromptParamsPartsTypeFile    SessionPromptParamsPartsType = "file"
+	SessionPromptParamsPartsTypeAgent   SessionPromptParamsPartsType = "agent"
 	SessionPromptParamsPartsTypeSubtask SessionPromptParamsPartsType = "subtask"
 )
 
@@ -3288,11 +3287,11 @@ func (r SessionShareParams) URLQuery() (v url.Values) {
 }
 
 type SessionShellParams struct {
-	Agent     param.Field[string]                `json:"agent,required"`
-	Command   param.Field[string]                `json:"command,required"`
-	Directory param.Field[string]                `query:"directory"`
-	Workspace param.Field[string]                `query:"workspace"`
-	MessageID param.Field[string]                `json:"messageID"`
+	Agent     param.Field[string]                  `json:"agent,required"`
+	Command   param.Field[string]                  `json:"command,required"`
+	Directory param.Field[string]                  `query:"directory"`
+	Workspace param.Field[string]                  `query:"workspace"`
+	MessageID param.Field[string]                  `json:"messageID"`
 	Model     param.Field[SessionShellParamsModel] `json:"model"`
 }
 
@@ -3656,9 +3655,9 @@ func (r userMessageModelJSON) RawJSON() string {
 }
 
 type AssistantMessageErrorStructuredOutputError struct {
-	Data interface{}                                        `json:"data,required"`
-	Name AssistantMessageErrorStructuredOutputErrorName     `json:"name,required"`
-	JSON assistantMessageErrorStructuredOutputErrorJSON     `json:"-"`
+	Data interface{}                                    `json:"data,required"`
+	Name AssistantMessageErrorStructuredOutputErrorName `json:"name,required"`
+	JSON assistantMessageErrorStructuredOutputErrorJSON `json:"-"`
 }
 
 // assistantMessageErrorStructuredOutputErrorJSON contains the JSON metadata for
@@ -3695,9 +3694,9 @@ func (r AssistantMessageErrorStructuredOutputErrorName) IsKnown() bool {
 }
 
 type AssistantMessageErrorContextOverflowError struct {
-	Data interface{}                                       `json:"data,required"`
-	Name AssistantMessageErrorContextOverflowErrorName     `json:"name,required"`
-	JSON assistantMessageErrorContextOverflowErrorJSON     `json:"-"`
+	Data interface{}                                   `json:"data,required"`
+	Name AssistantMessageErrorContextOverflowErrorName `json:"name,required"`
+	JSON assistantMessageErrorContextOverflowErrorJSON `json:"-"`
 }
 
 // assistantMessageErrorContextOverflowErrorJSON contains the JSON metadata for

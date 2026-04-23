@@ -48,6 +48,10 @@ func (r *ProviderService) Auth(ctx context.Context, query ProviderAuthParams, op
 // Initiate OAuth authorization for a provider.
 func (r *ProviderService) OAuthAuthorize(ctx context.Context, providerID string, params ProviderOAuthAuthorizeParams, opts ...option.RequestOption) (res *ProviderAuthAuthorization, err error) {
 	opts = slices.Concat(r.Options, opts)
+	providerID, err = requestconfig.EncodePathSegment(providerID, "providerID")
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("provider/%s/oauth/authorize", providerID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return
@@ -56,6 +60,10 @@ func (r *ProviderService) OAuthAuthorize(ctx context.Context, providerID string,
 // Complete OAuth callback for a provider.
 func (r *ProviderService) OAuthCallback(ctx context.Context, providerID string, params ProviderOAuthCallbackParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
+	providerID, err = requestconfig.EncodePathSegment(providerID, "providerID")
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("provider/%s/oauth/callback", providerID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return
@@ -134,9 +142,9 @@ type ProviderAuthMethodPrompt struct {
 	Key         string                           `json:"key,required"`
 	Message     string                           `json:"message,required"`
 	Placeholder string                           `json:"placeholder"`
-	Options     []ProviderAuthMethodPromptOption  `json:"options"`
-	When        *ProviderAuthMethodPromptWhen     `json:"when"`
-	JSON        providerAuthMethodPromptJSON      `json:"-"`
+	Options     []ProviderAuthMethodPromptOption `json:"options"`
+	When        *ProviderAuthMethodPromptWhen    `json:"when"`
+	JSON        providerAuthMethodPromptJSON     `json:"-"`
 }
 
 // providerAuthMethodPromptJSON contains the JSON metadata for the struct

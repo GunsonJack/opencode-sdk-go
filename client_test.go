@@ -511,7 +511,7 @@ func TestSessionCommandSerializesFileParts(t *testing.T) {
 					}
 					return &http.Response{
 						StatusCode: http.StatusOK,
-						Body: io.NopCloser(strings.NewReader(`{"info":{"id":"msg_1","agent":"build","cost":0,"mode":"primary","modelID":"model","parentID":"msg_0","path":{"cwd":"/tmp","root":"/tmp"},"providerID":"provider","role":"assistant","sessionID":"ses_123","time":{"created":0},"tokens":{"cache":{"read":0,"write":0},"input":0,"output":0,"reasoning":0}},"parts":[]}`)),
+						Body:       io.NopCloser(strings.NewReader(`{"info":{"id":"msg_1","agent":"build","cost":0,"mode":"primary","modelID":"model","parentID":"msg_0","path":{"cwd":"/tmp","root":"/tmp"},"providerID":"provider","role":"assistant","sessionID":"ses_123","time":{"created":0},"tokens":{"cache":{"read":0,"write":0},"input":0,"output":0,"reasoning":0}},"parts":[]}`)),
 						Header:     http.Header{"Content-Type": []string{"application/json"}},
 					}, nil
 				},
@@ -592,6 +592,32 @@ func TestAuthSetEscapesProviderIDPathSegment(t *testing.T) {
 		t.Fatal(err)
 	}
 	if path != "/auth/provider%2Fwith%20space" {
+		t.Fatalf("unexpected path: %s", path)
+	}
+}
+
+func TestAuthSetPreservesDotDotProviderIDPathSegment(t *testing.T) {
+	var path string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					path = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Auth.Set(context.Background(), "..", opencode.AuthSetParams{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if path != "/auth/%2E%2E" {
 		t.Fatalf("unexpected path: %s", path)
 	}
 }

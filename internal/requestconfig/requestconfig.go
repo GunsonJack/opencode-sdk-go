@@ -621,6 +621,16 @@ func PreRequestOptions(opts ...RequestOption) (RequestConfig, error) {
 	return cfg, nil
 }
 
+func EncodePathSegment(value string, name string) (string, error) {
+	if value == "" {
+		return "", fmt.Errorf("missing required %s parameter", name)
+	}
+	if value == "." || value == ".." {
+		return strings.ReplaceAll(value, ".", "%2E"), nil
+	}
+	return url.PathEscape(value), nil
+}
+
 // WithDefaultBaseURL returns a RequestOption that sets the client's default Base URL.
 // This is always overridden by setting a base URL with WithBaseURL.
 // WithBaseURL should be used instead of WithDefaultBaseURL except in internal code.

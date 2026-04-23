@@ -4,7 +4,6 @@ package opencode
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -47,8 +46,8 @@ func (r *PermissionService) List(ctx context.Context, query PermissionListParams
 // Reply to a permission request
 func (r *PermissionService) Reply(ctx context.Context, requestID string, params PermissionReplyParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
-	if requestID == "" {
-		err = errors.New("missing required requestID parameter")
+	requestID, err = requestconfig.EncodePathSegment(requestID, "requestID")
+	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("permission/%s/reply", requestID)
@@ -57,22 +56,22 @@ func (r *PermissionService) Reply(ctx context.Context, requestID string, params 
 }
 
 type PermissionRequest struct {
-	ID         string                  `json:"id,required"`
-	SessionID  string                  `json:"sessionID,required"`
-	Permission string                  `json:"permission,required"`
-	Patterns   []string                `json:"patterns,required"`
-	Metadata   map[string]interface{}  `json:"metadata,required"`
-	Always     []string                `json:"always,required"`
-	Tool       PermissionRequestTool   `json:"tool"`
-	JSON       permissionRequestJSON   `json:"-"`
+	ID         string                 `json:"id,required"`
+	SessionID  string                 `json:"sessionID,required"`
+	Permission string                 `json:"permission,required"`
+	Patterns   []string               `json:"patterns,required"`
+	Metadata   map[string]interface{} `json:"metadata,required"`
+	Always     []string               `json:"always,required"`
+	Tool       PermissionRequestTool  `json:"tool"`
+	JSON       permissionRequestJSON  `json:"-"`
 }
 
 // PermissionRequestTool represents the optional tool reference on a permission
 // request.
 type PermissionRequestTool struct {
-	MessageID string                     `json:"messageID"`
-	CallID    string                     `json:"callID"`
-	JSON      permissionRequestToolJSON  `json:"-"`
+	MessageID string                    `json:"messageID"`
+	CallID    string                    `json:"callID"`
+	JSON      permissionRequestToolJSON `json:"-"`
 }
 
 // permissionRequestToolJSON contains the JSON metadata for the struct

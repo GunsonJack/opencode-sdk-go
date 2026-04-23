@@ -48,6 +48,10 @@ func (r *PtyService) Create(ctx context.Context, params PtyCreateParams, opts ..
 // Get retrieves a PTY session by ID.
 func (r *PtyService) Get(ctx context.Context, ptyID string, query PtyGetParams, opts ...option.RequestOption) (res *Pty, err error) {
 	opts = slices.Concat(r.Options, opts)
+	ptyID, err = requestconfig.EncodePathSegment(ptyID, "ptyID")
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("pty/%s", ptyID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
@@ -56,6 +60,10 @@ func (r *PtyService) Get(ctx context.Context, ptyID string, query PtyGetParams, 
 // Update updates a PTY session.
 func (r *PtyService) Update(ctx context.Context, ptyID string, params PtyUpdateParams, opts ...option.RequestOption) (res *Pty, err error) {
 	opts = slices.Concat(r.Options, opts)
+	ptyID, err = requestconfig.EncodePathSegment(ptyID, "ptyID")
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("pty/%s", ptyID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, params, &res, opts...)
 	return
@@ -64,6 +72,10 @@ func (r *PtyService) Update(ctx context.Context, ptyID string, params PtyUpdateP
 // Remove deletes a PTY session.
 func (r *PtyService) Remove(ctx context.Context, ptyID string, params PtyRemoveParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
+	ptyID, err = requestconfig.EncodePathSegment(ptyID, "ptyID")
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("pty/%s", ptyID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, params, &res, opts...)
 	return
@@ -72,6 +84,10 @@ func (r *PtyService) Remove(ctx context.Context, ptyID string, params PtyRemoveP
 // Connect initiates a WebSocket connection to a PTY session.
 func (r *PtyService) Connect(ctx context.Context, ptyID string, query PtyConnectParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
+	ptyID, err = requestconfig.EncodePathSegment(ptyID, "ptyID")
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("pty/%s/connect", ptyID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
@@ -172,10 +188,10 @@ func (r PtyGetParams) URLQuery() (v url.Values) {
 }
 
 type PtyUpdateParams struct {
-	Title     param.Field[string]         `json:"title"`
-	Size      param.Field[PtyUpdateSize]  `json:"size"`
-	Directory param.Field[string]         `query:"directory"`
-	Workspace param.Field[string]         `query:"workspace"`
+	Title     param.Field[string]        `json:"title"`
+	Size      param.Field[PtyUpdateSize] `json:"size"`
+	Directory param.Field[string]        `query:"directory"`
+	Workspace param.Field[string]        `query:"workspace"`
 }
 
 func (r PtyUpdateParams) MarshalJSON() (data []byte, err error) {

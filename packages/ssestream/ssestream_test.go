@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestDecoderFlushesFinalEventAtEOF(t *testing.T) {
+func TestSSEDecoderFlushesFinalEventAtEOF(t *testing.T) {
 	decoder := NewDecoder(&http.Response{
 		Header: http.Header{"Content-Type": []string{"text/event-stream"}},
 		Body:   io.NopCloser(strings.NewReader("event: message\ndata: {\"ok\":true}")),

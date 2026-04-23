@@ -50,6 +50,10 @@ func (r *McpService) Add(ctx context.Context, params McpAddParams, opts ...optio
 // Connect connects to an MCP server.
 func (r *McpService) Connect(ctx context.Context, name string, params McpConnectParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
+	name, err = requestconfig.EncodePathSegment(name, "name")
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("mcp/%s/connect", name)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return
@@ -58,6 +62,10 @@ func (r *McpService) Connect(ctx context.Context, name string, params McpConnect
 // Disconnect disconnects from an MCP server.
 func (r *McpService) Disconnect(ctx context.Context, name string, params McpDisconnectParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
+	name, err = requestconfig.EncodePathSegment(name, "name")
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("mcp/%s/disconnect", name)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return
@@ -66,6 +74,10 @@ func (r *McpService) Disconnect(ctx context.Context, name string, params McpDisc
 // AuthStart initiates authentication for an MCP server.
 func (r *McpService) AuthStart(ctx context.Context, name string, params McpAuthStartParams, opts ...option.RequestOption) (res *McpAuthStartResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
+	name, err = requestconfig.EncodePathSegment(name, "name")
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("mcp/%s/auth", name)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return
@@ -74,6 +86,10 @@ func (r *McpService) AuthStart(ctx context.Context, name string, params McpAuthS
 // AuthRemove removes authentication for an MCP server.
 func (r *McpService) AuthRemove(ctx context.Context, name string, params McpAuthRemoveParams, opts ...option.RequestOption) (res *McpAuthRemoveResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
+	name, err = requestconfig.EncodePathSegment(name, "name")
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("mcp/%s/auth", name)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, params, &res, opts...)
 	return
@@ -82,6 +98,10 @@ func (r *McpService) AuthRemove(ctx context.Context, name string, params McpAuth
 // AuthAuthenticate authenticates with an MCP server.
 func (r *McpService) AuthAuthenticate(ctx context.Context, name string, params McpAuthAuthenticateParams, opts ...option.RequestOption) (res *McpStatus, err error) {
 	opts = slices.Concat(r.Options, opts)
+	name, err = requestconfig.EncodePathSegment(name, "name")
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("mcp/%s/auth/authenticate", name)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return
@@ -90,6 +110,10 @@ func (r *McpService) AuthAuthenticate(ctx context.Context, name string, params M
 // AuthCallback completes the OAuth callback for an MCP server.
 func (r *McpService) AuthCallback(ctx context.Context, name string, params McpAuthCallbackParams, opts ...option.RequestOption) (res *McpStatus, err error) {
 	opts = slices.Concat(r.Options, opts)
+	name, err = requestconfig.EncodePathSegment(name, "name")
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("mcp/%s/auth/callback", name)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return
@@ -182,7 +206,7 @@ func (r *McpStatusConnected) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 func (r mcpStatusConnectedJSON) RawJSON() string  { return r.raw }
-func (r McpStatusConnected) implementsMcpStatus()  {}
+func (r McpStatusConnected) implementsMcpStatus() {}
 
 type McpStatusDisabled struct {
 	Status string                `json:"status,required"`
@@ -217,7 +241,7 @@ type mcpStatusFailedJSON struct {
 func (r *McpStatusFailed) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
-func (r mcpStatusFailedJSON) RawJSON() string { return r.raw }
+func (r mcpStatusFailedJSON) RawJSON() string  { return r.raw }
 func (r McpStatusFailed) implementsMcpStatus() {}
 
 type McpStatusNeedsAuth struct {
@@ -235,12 +259,12 @@ func (r *McpStatusNeedsAuth) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 func (r mcpStatusNeedsAuthJSON) RawJSON() string  { return r.raw }
-func (r McpStatusNeedsAuth) implementsMcpStatus()  {}
+func (r McpStatusNeedsAuth) implementsMcpStatus() {}
 
 type McpStatusNeedsClientRegistration struct {
-	Status string                                   `json:"status,required"`
-	Error  string                                   `json:"error,required"`
-	JSON   mcpStatusNeedsClientRegistrationJSON      `json:"-"`
+	Status string                               `json:"status,required"`
+	Error  string                               `json:"error,required"`
+	JSON   mcpStatusNeedsClientRegistrationJSON `json:"-"`
 }
 
 type mcpStatusNeedsClientRegistrationJSON struct {
@@ -253,8 +277,8 @@ type mcpStatusNeedsClientRegistrationJSON struct {
 func (r *McpStatusNeedsClientRegistration) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
-func (r mcpStatusNeedsClientRegistrationJSON) RawJSON() string          { return r.raw }
-func (r McpStatusNeedsClientRegistration) implementsMcpStatus()         {}
+func (r mcpStatusNeedsClientRegistrationJSON) RawJSON() string  { return r.raw }
+func (r McpStatusNeedsClientRegistration) implementsMcpStatus() {}
 
 // McpAuthStartResponse is the response from POST /mcp/{name}/auth.
 type McpAuthStartResponse struct {
@@ -340,9 +364,9 @@ func (r McpStatusParams) URLQuery() (v url.Values) {
 
 type McpAddParams struct {
 	Name      param.Field[string]      `json:"name,required"`
-	Config    param.Field[interface{}]  `json:"config,required"`
-	Directory param.Field[string]       `query:"directory"`
-	Workspace param.Field[string]       `query:"workspace"`
+	Config    param.Field[interface{}] `json:"config,required"`
+	Directory param.Field[string]      `query:"directory"`
+	Workspace param.Field[string]      `query:"workspace"`
 }
 
 func (r McpAddParams) MarshalJSON() (data []byte, err error) {

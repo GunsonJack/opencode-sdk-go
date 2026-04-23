@@ -34,6 +34,10 @@ func NewAuthService(opts ...option.RequestOption) (r *AuthService) {
 // Set credentials for a provider.
 func (r *AuthService) Set(ctx context.Context, providerID string, params AuthSetParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
+	providerID, err = requestconfig.EncodePathSegment(providerID, "providerID")
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("auth/%s", providerID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPut, path, params, &res, opts...)
 	return
@@ -42,6 +46,10 @@ func (r *AuthService) Set(ctx context.Context, providerID string, params AuthSet
 // Remove credentials for a provider.
 func (r *AuthService) Remove(ctx context.Context, providerID string, params AuthRemoveParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
+	providerID, err = requestconfig.EncodePathSegment(providerID, "providerID")
+	if err != nil {
+		return
+	}
 	path := fmt.Sprintf("auth/%s", providerID)
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, params, &res, opts...)
 	return
@@ -53,11 +61,11 @@ func (r *AuthService) Remove(ctx context.Context, providerID string, params Auth
 type Auth struct {
 	Type string `json:"type,required"`
 	// OAuth fields
-	Refresh       string `json:"refresh"`
-	Access        string `json:"access"`
+	Refresh       string  `json:"refresh"`
+	Access        string  `json:"access"`
 	Expires       float64 `json:"expires"`
-	AccountID     string `json:"accountId"`
-	EnterpriseURL string `json:"enterpriseUrl"`
+	AccountID     string  `json:"accountId"`
+	EnterpriseURL string  `json:"enterpriseUrl"`
 	// API fields
 	Key      string            `json:"key"`
 	Metadata map[string]string `json:"metadata"`
@@ -129,12 +137,12 @@ func init() {
 }
 
 type AuthOAuth struct {
-	Type          string       `json:"type,required"`
-	Refresh       string       `json:"refresh,required"`
-	Access        string       `json:"access,required"`
-	Expires       float64      `json:"expires,required"`
-	AccountID     string       `json:"accountId"`
-	EnterpriseURL string       `json:"enterpriseUrl"`
+	Type          string        `json:"type,required"`
+	Refresh       string        `json:"refresh,required"`
+	Access        string        `json:"access,required"`
+	Expires       float64       `json:"expires,required"`
+	AccountID     string        `json:"accountId"`
+	EnterpriseURL string        `json:"enterpriseUrl"`
 	JSON          authOAuthJSON `json:"-"`
 }
 
