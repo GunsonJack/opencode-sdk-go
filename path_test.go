@@ -27,6 +27,7 @@ func TestPathGetWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Path.Get(context.TODO(), opencode.PathGetParams{
 		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
 		var apierr *opencode.Error

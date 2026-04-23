@@ -20,6 +20,8 @@ Response Types:
 
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Path">Path</a>
 
+Note: `Path` now includes `Home` field.
+
 Methods:
 
 - <code title="get /path">client.Path.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#PathService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#PathGetParams">PathGetParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Path">Path</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
@@ -98,6 +100,10 @@ Response Types:
 
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Symbol">Symbol</a>
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#FindTextResponse">FindTextResponse</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#FindFilesParamsDirs">FindFilesParamsDirs</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#FindFilesParamsType">FindFilesParamsType</a>
+
+Note: `FindFilesParams` now includes `Dirs`, `Type`, and `Limit` fields.
 
 Methods:
 
@@ -112,6 +118,9 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#File">File</a>
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#FileNode">FileNode</a>
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#FileReadResponse">FileReadResponse</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#FileReadResponseType">FileReadResponseType</a>
+
+Note: `FileReadResponseType` now includes `binary`.
 
 Methods:
 
@@ -152,6 +161,9 @@ Methods:
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Command">Command</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#CommandSource">CommandSource</a>
+
+Note: `Command` now includes `Source` and `Hints` fields.
 
 Methods:
 
@@ -162,11 +174,16 @@ Methods:
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Project">Project</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProjectIcon">ProjectIcon</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProjectCommands">ProjectCommands</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProjectSummary">ProjectSummary</a>
 
 Methods:
 
 - <code title="get /project">client.Project.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProjectService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProjectListParams">ProjectListParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Project">Project</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="get /project/current">client.Project.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProjectService.Current">Current</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProjectCurrentParams">ProjectCurrentParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Project">Project</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="patch /project/{projectID}">client.Project.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProjectService.Update">Update</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, projectID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProjectUpdateParams">ProjectUpdateParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Project">Project</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /project/git/init">client.Project.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProjectService.InitGit">InitGit</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProjectInitGitParams">ProjectInitGitParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # Session
 
@@ -284,6 +301,10 @@ Methods:
 
 # Tui
 
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiControlNextResponse">TuiControlNextResponse</a>
+
 Methods:
 
 - <code title="post /tui/append-prompt">client.Tui.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiService.AppendPrompt">AppendPrompt</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiAppendPromptParams">TuiAppendPromptParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
@@ -293,5 +314,35 @@ Methods:
 - <code title="post /tui/open-models">client.Tui.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiService.OpenModels">OpenModels</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiOpenModelsParams">TuiOpenModelsParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /tui/open-sessions">client.Tui.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiService.OpenSessions">OpenSessions</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiOpenSessionsParams">TuiOpenSessionsParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /tui/open-themes">client.Tui.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiService.OpenThemes">OpenThemes</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiOpenThemesParams">TuiOpenThemesParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /tui/publish">client.Tui.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiService.Publish">Publish</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiPublishParams">TuiPublishParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /tui/select-session">client.Tui.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiService.SelectSession">SelectSession</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiSelectSessionParams">TuiSelectSessionParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /tui/show-toast">client.Tui.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiService.ShowToast">ShowToast</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiShowToastParams">TuiShowToastParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /tui/submit-prompt">client.Tui.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiService.SubmitPrompt">SubmitPrompt</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiSubmitPromptParams">TuiSubmitPromptParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+## Control
+
+Methods:
+
+- <code title="get /tui/control/next">client.Tui.Control.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiControlService.Next">Next</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiControlNextParams">TuiControlNextParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiControlNextResponse">TuiControlNextResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /tui/control/response">client.Tui.Control.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiControlService.Response">Response</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiControlResponseParams">TuiControlResponseParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+# Lsp
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#LspStatus">LspStatus</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#LspStatusStatus">LspStatusStatus</a>
+
+Methods:
+
+- <code title="get /lsp">client.Lsp.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#LspService.Status">Status</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#LspStatusParams">LspStatusParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#LspStatus">LspStatus</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+# Formatter
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#FormatterStatus">FormatterStatus</a>
+
+Methods:
+
+- <code title="get /formatter">client.Formatter.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#FormatterService.Status">Status</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#FormatterStatusParams">FormatterStatusParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#FormatterStatus">FormatterStatus</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>

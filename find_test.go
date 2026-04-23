@@ -27,7 +27,11 @@ func TestFindFilesWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Find.Files(context.TODO(), opencode.FindFilesParams{
 		Query:     opencode.F("query"),
+		Dirs:      opencode.F(opencode.FindFilesParamsDirsTrue),
 		Directory: opencode.F("directory"),
+		Limit:     opencode.F(int64(0)),
+		Type:      opencode.F(opencode.FindFilesParamsTypeFile),
+		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
 		var apierr *opencode.Error
@@ -53,6 +57,7 @@ func TestFindSymbolsWithOptionalParams(t *testing.T) {
 	_, err := client.Find.Symbols(context.TODO(), opencode.FindSymbolsParams{
 		Query:     opencode.F("query"),
 		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
 		var apierr *opencode.Error
@@ -78,6 +83,7 @@ func TestFindTextWithOptionalParams(t *testing.T) {
 	_, err := client.Find.Text(context.TODO(), opencode.FindTextParams{
 		Pattern:   opencode.F("pattern"),
 		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
 		var apierr *opencode.Error

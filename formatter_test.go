@@ -13,7 +13,7 @@ import (
 	"github.com/GunsonJack/opencode-sdk-go/option"
 )
 
-func TestCommandListWithOptionalParams(t *testing.T) {
+func TestFormatterStatusWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -25,8 +25,7 @@ func TestCommandListWithOptionalParams(t *testing.T) {
 	client := opencode.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Command.List(context.TODO(), opencode.CommandListParams{
-		Directory: opencode.F("directory"),
+	_, err := client.Formatter.Status(context.TODO(), opencode.FormatterStatusParams{
 		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {

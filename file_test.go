@@ -28,6 +28,7 @@ func TestFileListWithOptionalParams(t *testing.T) {
 	_, err := client.File.List(context.TODO(), opencode.FileListParams{
 		Path:      opencode.F("path"),
 		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
 		var apierr *opencode.Error
@@ -53,6 +54,7 @@ func TestFileReadWithOptionalParams(t *testing.T) {
 	_, err := client.File.Read(context.TODO(), opencode.FileReadParams{
 		Path:      opencode.F("path"),
 		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
 		var apierr *opencode.Error
@@ -77,6 +79,7 @@ func TestFileStatusWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.File.Status(context.TODO(), opencode.FileStatusParams{
 		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
 		var apierr *opencode.Error

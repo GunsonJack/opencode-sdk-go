@@ -32,6 +32,8 @@ type Client struct {
 	Question   *QuestionService
 	Provider   *ProviderService
 	Auth       *AuthService
+	Lsp        *LspService
+	Formatter  *FormatterService
 }
 
 // DefaultClientOptions read from the environment (OPENCODE_BASE_URL). This should
@@ -68,6 +70,8 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Question = NewQuestionService(opts...)
 	r.Provider = NewProviderService(opts...)
 	r.Auth = NewAuthService(opts...)
+	r.Lsp = NewLspService(opts...)
+	r.Formatter = NewFormatterService(opts...)
 
 	return
 }
