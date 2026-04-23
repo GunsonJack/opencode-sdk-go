@@ -29,19 +29,64 @@ Methods:
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Model">Model</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ModelCapabilities">ModelCapabilities</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ModelCapabilitiesModality">ModelCapabilitiesModality</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ModelCapabilitiesInterleaved">ModelCapabilitiesInterleaved</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ModelAPI">ModelAPI</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ModelCostCache">ModelCostCache</a>
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Provider">Provider</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProviderSource">ProviderSource</a>
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AppProvidersResponse">AppProvidersResponse</a>
+
+Note: `AppProvidersResponse` shape changed: `Providers` field renamed to `All`, added `Connected` field.
 
 Methods:
 
 - <code title="post /log">client.App.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AppService.Log">Log</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AppLogParams">AppLogParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="get /config/providers">client.App.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AppService.Providers">Providers</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AppProvidersParams">AppProvidersParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AppProvidersResponse">AppProvidersResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /config/providers">client.App.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AppService.Providers">Providers</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AppProvidersParams">AppProvidersParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AppProvidersResponse">AppProvidersResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code> **Deprecated: use Config.Providers**
+
+# Provider
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderListResponse</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethod</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethodType</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethodPrompt</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethodPromptOption</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethodPromptWhen</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethodPromptWhenOp</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthAuthorization</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthAuthorizationMethod</a>
+
+Methods:
+
+- <code title="get /provider">client.Provider.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProviderService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProviderListParams">ProviderListParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProviderListResponse">ProviderListResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /provider/auth">client.Provider.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProviderService.Auth">Auth</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProviderAuthParams">ProviderAuthParams</a>) (map[string][]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProviderAuthMethod">ProviderAuthMethod</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /provider/{providerID}/oauth/authorize">client.Provider.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProviderService.OAuthAuthorize">OAuthAuthorize</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, providerID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProviderOAuthAuthorizeParams">ProviderOAuthAuthorizeParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProviderAuthAuthorization">ProviderAuthAuthorization</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /provider/{providerID}/oauth/callback">client.Provider.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProviderService.OAuthCallback">OAuthCallback</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, providerID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ProviderOAuthCallbackParams">ProviderOAuthCallbackParams</a>) (bool, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+# Auth
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">Auth</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">AuthOAuth</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">AuthAPI</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">AuthWellKnown</a>
+
+Methods:
+
+- <code title="put /auth/{providerID}">client.Auth.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AuthService.Set">Set</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, providerID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AuthSetParams">AuthSetParams</a>) (bool, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="delete /auth/{providerID}">client.Auth.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AuthService.Remove">Remove</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, providerID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AuthRemoveParams">AuthRemoveParams</a>) (bool, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # Agent
 
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Agent">Agent</a>
+
+Note: Agent now uses `[]PermissionRule` for permissions (defined in Session response types).
 
 Methods:
 
@@ -79,13 +124,28 @@ Methods:
 Response Types:
 
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Config">Config</a>
-- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#KeybindsConfig">KeybindsConfig</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ServerConfig">ServerConfig</a>
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#McpLocalConfig">McpLocalConfig</a>
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#McpRemoteConfig">McpRemoteConfig</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConfigSkills">ConfigSkills</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConfigCompaction">ConfigCompaction</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConfigEnterprise">ConfigEnterprise</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConfigAgentEntry">ConfigAgentEntry</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConfigAgentEntryMode">ConfigAgentEntryMode</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConfigLogLevel">ConfigLogLevel</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConfigAutoupdateUnion">ConfigAutoupdateUnion</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConfigAutoupdateString">ConfigAutoupdateString</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConfigPluginItem">ConfigPluginItem</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#PermissionActionConfig">PermissionActionConfig</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#PermissionObjectConfig">PermissionObjectConfig</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#PermissionConfigObject">PermissionConfigObject</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#PermissionConfig">PermissionConfig</a>
 
 Methods:
 
 - <code title="get /config">client.Config.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConfigService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConfigGetParams">ConfigGetParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Config">Config</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="patch /config">client.Config.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConfigService.Update">Update</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConfigUpdateParams">ConfigUpdateParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Config">Config</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /config/providers">client.Config.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConfigService.Providers">Providers</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConfigProvidersParams">ConfigProvidersParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AppProvidersResponse">AppProvidersResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # Command
 

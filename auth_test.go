@@ -13,7 +13,7 @@ import (
 	"github.com/GunsonJack/opencode-sdk-go/option"
 )
 
-func TestConfigGetWithOptionalParams(t *testing.T) {
+func TestAuthSet(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -25,7 +25,9 @@ func TestConfigGetWithOptionalParams(t *testing.T) {
 	client := opencode.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Config.Get(context.TODO(), opencode.ConfigGetParams{
+	_, err := client.Auth.Set(context.TODO(), "openai", opencode.AuthSetParams{
+		Type:      opencode.F("api"),
+		Key:       opencode.F("sk-test-key"),
 		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
@@ -37,7 +39,7 @@ func TestConfigGetWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestConfigUpdateWithOptionalParams(t *testing.T) {
+func TestAuthRemoveWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -49,32 +51,7 @@ func TestConfigUpdateWithOptionalParams(t *testing.T) {
 	client := opencode.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Config.Update(context.TODO(), opencode.ConfigUpdateParams{
-		Model:     opencode.F("gpt-4o"),
-		Workspace: opencode.F("workspace"),
-	})
-	if err != nil {
-		var apierr *opencode.Error
-		if errors.As(err, &apierr) {
-			t.Log(string(apierr.DumpRequest(true)))
-		}
-		t.Fatalf("err should be nil: %s", err.Error())
-	}
-}
-
-func TestConfigProvidersWithOptionalParams(t *testing.T) {
-	t.Skip("Prism tests are disabled")
-	baseURL := "http://localhost:4010"
-	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
-		baseURL = envURL
-	}
-	if !testutil.CheckTestServer(t, baseURL) {
-		return
-	}
-	client := opencode.NewClient(
-		option.WithBaseURL(baseURL),
-	)
-	_, err := client.Config.Providers(context.TODO(), opencode.ConfigProvidersParams{
+	_, err := client.Auth.Remove(context.TODO(), "openai", opencode.AuthRemoveParams{
 		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {

@@ -56,7 +56,7 @@ func TestAppProvidersWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 	)
 	_, err := client.App.Providers(context.TODO(), opencode.AppProvidersParams{
-		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
 		var apierr *opencode.Error

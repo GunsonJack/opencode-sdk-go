@@ -13,7 +13,7 @@ import (
 	"github.com/GunsonJack/opencode-sdk-go/option"
 )
 
-func TestConfigGetWithOptionalParams(t *testing.T) {
+func TestProviderListWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -25,7 +25,7 @@ func TestConfigGetWithOptionalParams(t *testing.T) {
 	client := opencode.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Config.Get(context.TODO(), opencode.ConfigGetParams{
+	_, err := client.Provider.List(context.TODO(), opencode.ProviderListParams{
 		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
@@ -37,7 +37,7 @@ func TestConfigGetWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestConfigUpdateWithOptionalParams(t *testing.T) {
+func TestProviderAuthWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -49,8 +49,7 @@ func TestConfigUpdateWithOptionalParams(t *testing.T) {
 	client := opencode.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Config.Update(context.TODO(), opencode.ConfigUpdateParams{
-		Model:     opencode.F("gpt-4o"),
+	_, err := client.Provider.Auth(context.TODO(), opencode.ProviderAuthParams{
 		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
@@ -62,7 +61,7 @@ func TestConfigUpdateWithOptionalParams(t *testing.T) {
 	}
 }
 
-func TestConfigProvidersWithOptionalParams(t *testing.T) {
+func TestProviderOAuthAuthorize(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
 	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
@@ -74,7 +73,34 @@ func TestConfigProvidersWithOptionalParams(t *testing.T) {
 	client := opencode.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Config.Providers(context.TODO(), opencode.ConfigProvidersParams{
+	_, err := client.Provider.OAuthAuthorize(context.TODO(), "openai", opencode.ProviderOAuthAuthorizeParams{
+		Method:    opencode.F(int64(0)),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		var apierr *opencode.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestProviderOAuthCallbackWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := opencode.NewClient(
+		option.WithBaseURL(baseURL),
+	)
+	_, err := client.Provider.OAuthCallback(context.TODO(), "openai", opencode.ProviderOAuthCallbackParams{
+		Method:    opencode.F(int64(0)),
+		Code:      opencode.F("auth_code_123"),
 		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {

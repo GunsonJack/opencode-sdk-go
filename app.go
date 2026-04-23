@@ -6,6 +6,7 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"reflect"
 	"slices"
 
 	"github.com/GunsonJack/opencode-sdk-go/internal/apijson"
@@ -13,6 +14,7 @@ import (
 	"github.com/GunsonJack/opencode-sdk-go/internal/param"
 	"github.com/GunsonJack/opencode-sdk-go/internal/requestconfig"
 	"github.com/GunsonJack/opencode-sdk-go/option"
+	"github.com/tidwall/gjson"
 )
 
 // AppService contains methods and other services that help with interacting with
@@ -42,7 +44,9 @@ func (r *AppService) Log(ctx context.Context, params AppLogParams, opts ...optio
 	return
 }
 
-// List all providers
+// Providers lists all providers.
+//
+// Deprecated: Use [ConfigService.Providers] instead.
 func (r *AppService) Providers(ctx context.Context, query AppProvidersParams, opts ...option.RequestOption) (res *AppProvidersResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "config/providers"
@@ -51,39 +55,37 @@ func (r *AppService) Providers(ctx context.Context, query AppProvidersParams, op
 }
 
 type Model struct {
-	ID           string                 `json:"id,required"`
-	Attachment   bool                   `json:"attachment,required"`
-	Cost         ModelCost              `json:"cost,required"`
-	Limit        ModelLimit             `json:"limit,required"`
-	Name         string                 `json:"name,required"`
-	Options      map[string]interface{} `json:"options,required"`
-	Reasoning    bool                   `json:"reasoning,required"`
-	ReleaseDate  string                 `json:"release_date,required"`
-	Temperature  bool                   `json:"temperature,required"`
-	ToolCall     bool                   `json:"tool_call,required"`
-	Experimental bool                   `json:"experimental"`
-	Modalities   ModelModalities        `json:"modalities"`
-	Provider     ModelProvider          `json:"provider"`
-	Status       ModelStatus            `json:"status"`
-	JSON         modelJSON              `json:"-"`
+	ID           string                            `json:"id,required"`
+	ProviderID   string                            `json:"providerID,required"`
+	API          ModelAPI                           `json:"api,required"`
+	Name         string                            `json:"name,required"`
+	Capabilities ModelCapabilities                  `json:"capabilities,required"`
+	Cost         ModelCost                          `json:"cost,required"`
+	Limit        ModelLimit                         `json:"limit,required"`
+	Status       ModelStatus                        `json:"status,required"`
+	Options      map[string]interface{}             `json:"options,required"`
+	Headers      map[string]string                  `json:"headers,required"`
+	ReleaseDate  string                             `json:"release_date,required"`
+	Family       string                             `json:"family"`
+	Variants     map[string]map[string]interface{}  `json:"variants"`
+	JSON         modelJSON                          `json:"-"`
 }
 
 // modelJSON contains the JSON metadata for the struct [Model]
 type modelJSON struct {
 	ID           apijson.Field
-	Attachment   apijson.Field
+	ProviderID   apijson.Field
+	API          apijson.Field
+	Name         apijson.Field
+	Capabilities apijson.Field
 	Cost         apijson.Field
 	Limit        apijson.Field
-	Name         apijson.Field
-	Options      apijson.Field
-	Reasoning    apijson.Field
-	ReleaseDate  apijson.Field
-	Temperature  apijson.Field
-	ToolCall     apijson.Field
-	Experimental apijson.Field
-	Modalities   apijson.Field
-	Provider     apijson.Field
 	Status       apijson.Field
+	Options      apijson.Field
+	Headers      apijson.Field
+	ReleaseDate  apijson.Field
+	Family       apijson.Field
+	Variants     apijson.Field
 	raw          string
 	ExtraFields  map[string]apijson.Field
 }
@@ -97,19 +99,17 @@ func (r modelJSON) RawJSON() string {
 }
 
 type ModelCost struct {
-	Input      float64       `json:"input,required"`
-	Output     float64       `json:"output,required"`
-	CacheRead  float64       `json:"cache_read"`
-	CacheWrite float64       `json:"cache_write"`
-	JSON       modelCostJSON `json:"-"`
+	Input  float64        `json:"input,required"`
+	Output float64        `json:"output,required"`
+	Cache  ModelCostCache `json:"cache"`
+	JSON   modelCostJSON  `json:"-"`
 }
 
 // modelCostJSON contains the JSON metadata for the struct [ModelCost]
 type modelCostJSON struct {
 	Input       apijson.Field
 	Output      apijson.Field
-	CacheRead   apijson.Field
-	CacheWrite  apijson.Field
+	Cache       apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -122,9 +122,31 @@ func (r modelCostJSON) RawJSON() string {
 	return r.raw
 }
 
+type ModelCostCache struct {
+	Read  float64            `json:"read"`
+	Write float64            `json:"write"`
+	JSON  modelCostCacheJSON `json:"-"`
+}
+
+type modelCostCacheJSON struct {
+	Read        apijson.Field
+	Write       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ModelCostCache) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r modelCostCacheJSON) RawJSON() string {
+	return r.raw
+}
+
 type ModelLimit struct {
 	Context float64        `json:"context,required"`
 	Output  float64        `json:"output,required"`
+	Input   float64        `json:"input"`
 	JSON    modelLimitJSON `json:"-"`
 }
 
@@ -132,6 +154,7 @@ type ModelLimit struct {
 type modelLimitJSON struct {
 	Context     apijson.Field
 	Output      apijson.Field
+	Input       apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -144,117 +167,233 @@ func (r modelLimitJSON) RawJSON() string {
 	return r.raw
 }
 
-type ModelModalities struct {
-	Input  []ModelModalitiesInput  `json:"input,required"`
-	Output []ModelModalitiesOutput `json:"output,required"`
-	JSON   modelModalitiesJSON     `json:"-"`
+type ModelCapabilities struct {
+	Temperature bool                         `json:"temperature,required"`
+	Reasoning   bool                         `json:"reasoning,required"`
+	Attachment  bool                         `json:"attachment,required"`
+	Toolcall    bool                         `json:"toolcall,required"`
+	Input       ModelCapabilitiesModality    `json:"input,required"`
+	Output      ModelCapabilitiesModality    `json:"output,required"`
+	Interleaved ModelCapabilitiesInterleaved `json:"interleaved,required"`
+	JSON        modelCapabilitiesJSON        `json:"-"`
 }
 
-// modelModalitiesJSON contains the JSON metadata for the struct [ModelModalities]
-type modelModalitiesJSON struct {
+type modelCapabilitiesJSON struct {
+	Temperature apijson.Field
+	Reasoning   apijson.Field
+	Attachment  apijson.Field
+	Toolcall    apijson.Field
 	Input       apijson.Field
 	Output      apijson.Field
+	Interleaved apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *ModelModalities) UnmarshalJSON(data []byte) (err error) {
+func (r *ModelCapabilities) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r modelModalitiesJSON) RawJSON() string {
+func (r modelCapabilitiesJSON) RawJSON() string {
 	return r.raw
 }
 
-type ModelModalitiesInput string
+type ModelCapabilitiesModality struct {
+	Text  bool                          `json:"text,required"`
+	Audio bool                          `json:"audio,required"`
+	Image bool                          `json:"image,required"`
+	Video bool                          `json:"video,required"`
+	Pdf   bool                          `json:"pdf,required"`
+	JSON  modelCapabilitiesModalityJSON `json:"-"`
+}
+
+type modelCapabilitiesModalityJSON struct {
+	Text        apijson.Field
+	Audio       apijson.Field
+	Image       apijson.Field
+	Video       apijson.Field
+	Pdf         apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ModelCapabilitiesModality) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r modelCapabilitiesModalityJSON) RawJSON() string {
+	return r.raw
+}
+
+type ModelCapabilitiesInterleaved struct {
+	Field ModelCapabilitiesInterleavedField `json:"field"`
+	JSON  modelCapabilitiesInterleavedJSON  `json:"-"`
+	union ModelCapabilitiesInterleavedUnion
+}
+
+type modelCapabilitiesInterleavedJSON struct {
+	Field       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r modelCapabilitiesInterleavedJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r *ModelCapabilitiesInterleaved) UnmarshalJSON(data []byte) (err error) {
+	*r = ModelCapabilitiesInterleaved{}
+	err = apijson.UnmarshalRoot(data, &r.union)
+	if err != nil {
+		return err
+	}
+	return apijson.Port(r.union, &r)
+}
+
+func (r ModelCapabilitiesInterleaved) AsUnion() ModelCapabilitiesInterleavedUnion {
+	return r.union
+}
+
+type ModelCapabilitiesInterleavedUnion interface {
+	implementsModelCapabilitiesInterleaved()
+}
+
+type ModelCapabilitiesInterleavedBool bool
+
+func (r ModelCapabilitiesInterleavedBool) implementsModelCapabilitiesInterleaved() {}
+
+type ModelCapabilitiesInterleavedObject struct {
+	Field ModelCapabilitiesInterleavedField      `json:"field,required"`
+	JSON  modelCapabilitiesInterleavedObjectJSON `json:"-"`
+}
+
+type modelCapabilitiesInterleavedObjectJSON struct {
+	Field       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ModelCapabilitiesInterleavedObject) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r modelCapabilitiesInterleavedObjectJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ModelCapabilitiesInterleavedObject) implementsModelCapabilitiesInterleaved() {}
+
+type ModelCapabilitiesInterleavedField string
 
 const (
-	ModelModalitiesInputText  ModelModalitiesInput = "text"
-	ModelModalitiesInputAudio ModelModalitiesInput = "audio"
-	ModelModalitiesInputImage ModelModalitiesInput = "image"
-	ModelModalitiesInputVideo ModelModalitiesInput = "video"
-	ModelModalitiesInputPdf   ModelModalitiesInput = "pdf"
+	ModelCapabilitiesInterleavedFieldReasoningContent ModelCapabilitiesInterleavedField = "reasoning_content"
+	ModelCapabilitiesInterleavedFieldReasoningDetails ModelCapabilitiesInterleavedField = "reasoning_details"
 )
 
-func (r ModelModalitiesInput) IsKnown() bool {
+func (r ModelCapabilitiesInterleavedField) IsKnown() bool {
 	switch r {
-	case ModelModalitiesInputText, ModelModalitiesInputAudio, ModelModalitiesInputImage, ModelModalitiesInputVideo, ModelModalitiesInputPdf:
+	case ModelCapabilitiesInterleavedFieldReasoningContent, ModelCapabilitiesInterleavedFieldReasoningDetails:
 		return true
 	}
 	return false
 }
 
-type ModelModalitiesOutput string
-
-const (
-	ModelModalitiesOutputText  ModelModalitiesOutput = "text"
-	ModelModalitiesOutputAudio ModelModalitiesOutput = "audio"
-	ModelModalitiesOutputImage ModelModalitiesOutput = "image"
-	ModelModalitiesOutputVideo ModelModalitiesOutput = "video"
-	ModelModalitiesOutputPdf   ModelModalitiesOutput = "pdf"
-)
-
-func (r ModelModalitiesOutput) IsKnown() bool {
-	switch r {
-	case ModelModalitiesOutputText, ModelModalitiesOutputAudio, ModelModalitiesOutputImage, ModelModalitiesOutputVideo, ModelModalitiesOutputPdf:
-		return true
-	}
-	return false
+func init() {
+	apijson.RegisterUnion(
+		reflect.TypeOf((*ModelCapabilitiesInterleavedUnion)(nil)).Elem(),
+		"",
+		apijson.UnionVariant{
+			TypeFilter: gjson.True,
+			Type:       reflect.TypeOf(ModelCapabilitiesInterleavedBool(false)),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.False,
+			Type:       reflect.TypeOf(ModelCapabilitiesInterleavedBool(false)),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ModelCapabilitiesInterleavedObject{}),
+		},
+	)
 }
 
-type ModelProvider struct {
-	Npm  string            `json:"npm,required"`
-	JSON modelProviderJSON `json:"-"`
+type ModelAPI struct {
+	ID   string       `json:"id,required"`
+	URL  string       `json:"url,required"`
+	Npm  string       `json:"npm,required"`
+	JSON modelAPIJSON `json:"-"`
 }
 
-// modelProviderJSON contains the JSON metadata for the struct [ModelProvider]
-type modelProviderJSON struct {
+type modelAPIJSON struct {
+	ID          apijson.Field
+	URL         apijson.Field
 	Npm         apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *ModelProvider) UnmarshalJSON(data []byte) (err error) {
+func (r *ModelAPI) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r modelProviderJSON) RawJSON() string {
+func (r modelAPIJSON) RawJSON() string {
 	return r.raw
 }
 
 type ModelStatus string
 
 const (
-	ModelStatusAlpha ModelStatus = "alpha"
-	ModelStatusBeta  ModelStatus = "beta"
+	ModelStatusAlpha      ModelStatus = "alpha"
+	ModelStatusBeta       ModelStatus = "beta"
+	ModelStatusDeprecated ModelStatus = "deprecated"
+	ModelStatusActive     ModelStatus = "active"
 )
 
 func (r ModelStatus) IsKnown() bool {
 	switch r {
-	case ModelStatusAlpha, ModelStatusBeta:
+	case ModelStatusAlpha, ModelStatusBeta, ModelStatusDeprecated, ModelStatusActive:
+		return true
+	}
+	return false
+}
+
+type ProviderSource string
+
+const (
+	ProviderSourceEnv    ProviderSource = "env"
+	ProviderSourceConfig ProviderSource = "config"
+	ProviderSourceCustom ProviderSource = "custom"
+	ProviderSourceAPI    ProviderSource = "api"
+)
+
+func (r ProviderSource) IsKnown() bool {
+	switch r {
+	case ProviderSourceEnv, ProviderSourceConfig, ProviderSourceCustom, ProviderSourceAPI:
 		return true
 	}
 	return false
 }
 
 type Provider struct {
-	ID     string           `json:"id,required"`
-	Env    []string         `json:"env,required"`
-	Models map[string]Model `json:"models,required"`
-	Name   string           `json:"name,required"`
-	API    string           `json:"api"`
-	Npm    string           `json:"npm"`
-	JSON   providerJSON     `json:"-"`
+	ID      string                 `json:"id,required"`
+	Name    string                 `json:"name,required"`
+	Source  ProviderSource         `json:"source,required"`
+	Env     []string               `json:"env,required"`
+	Options map[string]interface{} `json:"options,required"`
+	Models  map[string]Model       `json:"models,required"`
+	Key     string                 `json:"key"`
+	JSON    providerJSON           `json:"-"`
 }
 
 // providerJSON contains the JSON metadata for the struct [Provider]
 type providerJSON struct {
 	ID          apijson.Field
-	Env         apijson.Field
-	Models      apijson.Field
 	Name        apijson.Field
-	API         apijson.Field
-	Npm         apijson.Field
+	Source      apijson.Field
+	Env         apijson.Field
+	Options     apijson.Field
+	Models      apijson.Field
+	Key         apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -268,16 +407,18 @@ func (r providerJSON) RawJSON() string {
 }
 
 type AppProvidersResponse struct {
+	All       []Provider               `json:"all,required"`
 	Default   map[string]string        `json:"default,required"`
-	Providers []Provider               `json:"providers,required"`
+	Connected []string                 `json:"connected,required"`
 	JSON      appProvidersResponseJSON `json:"-"`
 }
 
 // appProvidersResponseJSON contains the JSON metadata for the struct
 // [AppProvidersResponse]
 type appProvidersResponseJSON struct {
+	All         apijson.Field
 	Default     apijson.Field
-	Providers   apijson.Field
+	Connected   apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -333,7 +474,7 @@ func (r AppLogParamsLevel) IsKnown() bool {
 }
 
 type AppProvidersParams struct {
-	Directory param.Field[string] `query:"directory"`
+	Workspace param.Field[string] `query:"workspace"`
 }
 
 // URLQuery serializes [AppProvidersParams]'s query parameters as `url.Values`.
