@@ -10,9 +10,11 @@ Response Types:
 
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#EventListResponse">EventListResponse</a>
 
+The `EventListResponse` union has 49 variants covering session lifecycle, messages, permissions, questions, TUI control, MCP, PTY, workspace, worktree, VCS, and infrastructure events. Use `AsUnion()` and type-switch to handle specific event types.
+
 Methods:
 
-- <code title="get /event">client.Event.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#EventService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#EventListParams">EventListParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#EventListResponse">EventListResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /event">client.Event.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#EventService.ListStreaming">ListStreaming</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#EventListParams">EventListParams</a>) *<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go/packages/ssestream">ssestream</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go/packages/ssestream#Stream">Stream</a>[<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#EventListResponse">EventListResponse</a>]</code>
 
 # Path
 
