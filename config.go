@@ -117,7 +117,7 @@ type Config struct {
 	// Model to use in the format of provider/model, eg anthropic/claude-2
 	Model string `json:"model"`
 	// @deprecated Use 'agent' field instead.
-	Mode       map[string]ConfigAgentEntry `json:"mode"`
+	Mode       ConfigMode                  `json:"mode"`
 	Permission PermissionConfig            `json:"permission"`
 	Plugin     []ConfigPluginItem          `json:"plugin"`
 	// Custom provider configurations and model overrides
@@ -179,6 +179,28 @@ func (r *Config) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r configJSON) RawJSON() string {
+	return r.raw
+}
+
+type ConfigMode struct {
+	Build       ConfigAgentEntry            `json:"build"`
+	Plan        ConfigAgentEntry            `json:"plan"`
+	ExtraFields map[string]ConfigAgentEntry `json:"-,extras"`
+	JSON        configModeJSON              `json:"-"`
+}
+
+type configModeJSON struct {
+	Build       apijson.Field
+	Plan        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ConfigMode) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r configModeJSON) RawJSON() string {
 	return r.raw
 }
 

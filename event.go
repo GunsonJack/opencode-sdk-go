@@ -858,20 +858,20 @@ func (r eventListResponseEventPermissionRepliedJSON) RawJSON() string {
 func (r EventListResponseEventPermissionReplied) implementsEventListResponse() {}
 
 type EventListResponseEventPermissionRepliedProperties struct {
-	PermissionID string                                                `json:"permissionID,required"`
-	Response     string                                                `json:"response,required"`
-	SessionID    string                                                `json:"sessionID,required"`
-	JSON         eventListResponseEventPermissionRepliedPropertiesJSON `json:"-"`
+	RequestID string                                                `json:"requestID,required"`
+	Reply     PermissionReplyParamsReply                            `json:"reply,required"`
+	SessionID string                                                `json:"sessionID,required"`
+	JSON      eventListResponseEventPermissionRepliedPropertiesJSON `json:"-"`
 }
 
 // eventListResponseEventPermissionRepliedPropertiesJSON contains the JSON metadata
 // for the struct [EventListResponseEventPermissionRepliedProperties]
 type eventListResponseEventPermissionRepliedPropertiesJSON struct {
-	PermissionID apijson.Field
-	Response     apijson.Field
-	SessionID    apijson.Field
-	raw          string
-	ExtraFields  map[string]apijson.Field
+	RequestID   apijson.Field
+	Reply       apijson.Field
+	SessionID   apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
 }
 
 func (r *EventListResponseEventPermissionRepliedProperties) UnmarshalJSON(data []byte) (err error) {

@@ -36,7 +36,7 @@ func (r EventListResponseEventQuestionReplied) implementsEventListResponse() {}
 type EventListResponseEventQuestionRepliedProperties struct {
 	SessionID string                                              `json:"sessionID,required"`
 	RequestID string                                              `json:"requestID,required"`
-	Answers   []string                                            `json:"answers,required"`
+	Answers   []QuestionAnswer                                    `json:"answers,required"`
 	JSON      eventListResponseEventQuestionRepliedPropertiesJSON `json:"-"`
 }
 

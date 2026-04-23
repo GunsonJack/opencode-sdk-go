@@ -233,7 +233,7 @@ type TuiPublishParams struct {
 }
 
 func (r TuiPublishParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+	return apijson.MarshalRoot(r.Body)
 }
 
 func (r TuiPublishParams) URLQuery() (v url.Values) {
@@ -380,7 +380,7 @@ type TuiControlResponseParams struct {
 }
 
 func (r TuiControlResponseParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+	return apijson.MarshalRoot(r.Body)
 }
 
 func (r TuiControlResponseParams) URLQuery() (v url.Values) {

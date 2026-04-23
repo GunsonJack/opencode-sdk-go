@@ -353,8 +353,8 @@ func (r *SessionService) DeletePart(ctx context.Context, id string, messageID st
 	return
 }
 
-// Send a new prompt to a session asynchronously
-func (r *SessionService) PromptAsync(ctx context.Context, id string, params SessionPromptAsyncParams, opts ...option.RequestOption) (res *bool, err error) {
+// Send a new prompt to a session asynchronously.
+func (r *SessionService) PromptAsync(ctx context.Context, id string, params SessionPromptAsyncParams, opts ...option.RequestOption) (err error) {
 	opts = slices.Concat(r.Options, opts)
 	if id == "" {
 		err = errors.New("missing required id parameter")
@@ -917,6 +917,10 @@ func (r FilePartInputParam) MarshalJSON() (data []byte, err error) {
 }
 
 func (r FilePartInputParam) implementsSessionPromptParamsPartUnion() {}
+
+// SessionCommandParamsPart is the only part shape accepted by the command
+// endpoint.
+type SessionCommandParamsPart = FilePartInputParam
 
 type FilePartInputType string
 
@@ -3057,7 +3061,7 @@ type SessionCommandParams struct {
 	Agent     param.Field[string] `json:"agent"`
 	MessageID param.Field[string] `json:"messageID"`
 	Model     param.Field[string] `json:"model"`
-	Parts     param.Field[[]SessionPromptParamsPartUnion] `json:"parts"`
+	Parts     param.Field[[]SessionCommandParamsPart] `json:"parts"`
 	Variant   param.Field[string] `json:"variant"`
 }
 

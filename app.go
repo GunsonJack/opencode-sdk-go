@@ -477,6 +477,7 @@ func (r AppLogParamsLevel) IsKnown() bool {
 }
 
 type AppProvidersParams struct {
+	Directory param.Field[string] `query:"directory"`
 	Workspace param.Field[string] `query:"workspace"`
 }
 
