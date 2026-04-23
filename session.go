@@ -2936,10 +2936,12 @@ func (r sessionPromptResponseJSON) RawJSON() string {
 }
 
 type SessionNewParams struct {
-	Directory param.Field[string] `query:"directory"`
-	Workspace param.Field[string] `query:"workspace"`
-	ParentID  param.Field[string] `json:"parentID"`
-	Title     param.Field[string] `json:"title"`
+	Directory   param.Field[string]           `query:"directory"`
+	Workspace   param.Field[string]           `query:"workspace"`
+	ParentID    param.Field[string]           `json:"parentID"`
+	Permission  param.Field[[]PermissionRule] `json:"permission"`
+	Title       param.Field[string]           `json:"title"`
+	WorkspaceID param.Field[string]           `json:"workspaceID"`
 }
 
 func (r SessionNewParams) MarshalJSON() (data []byte, err error) {
@@ -3623,8 +3625,13 @@ func (r SessionTodoParams) URLQuery() (v url.Values) {
 }
 
 type SessionForkParams struct {
+	MessageID param.Field[string] `json:"messageID"`
 	Directory param.Field[string] `query:"directory"`
 	Workspace param.Field[string] `query:"workspace"`
+}
+
+func (r SessionForkParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
 }
 
 // URLQuery serializes [SessionForkParams]'s query parameters as `url.Values`.
@@ -3692,11 +3699,13 @@ type SessionPromptAsyncParams struct {
 	Directory param.Field[string]                         `query:"directory"`
 	Workspace param.Field[string]                         `query:"workspace"`
 	Agent     param.Field[string]                         `json:"agent"`
+	Format    param.Field[interface{}]                    `json:"format"`
 	MessageID param.Field[string]                         `json:"messageID"`
 	Model     param.Field[SessionPromptParamsModel]       `json:"model"`
 	NoReply   param.Field[bool]                           `json:"noReply"`
 	System    param.Field[string]                         `json:"system"`
 	Tools     param.Field[map[string]bool]                `json:"tools"`
+	Variant   param.Field[string]                         `json:"variant"`
 }
 
 func (r SessionPromptAsyncParams) MarshalJSON() (data []byte, err error) {

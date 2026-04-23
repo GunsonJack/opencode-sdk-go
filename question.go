@@ -45,7 +45,7 @@ func (r *QuestionService) List(ctx context.Context, query QuestionListParams, op
 }
 
 // Reply to a question
-func (r *QuestionService) Reply(ctx context.Context, requestID string, params QuestionReplyParams, opts ...option.RequestOption) (res *QuestionReplied, err error) {
+func (r *QuestionService) Reply(ctx context.Context, requestID string, params QuestionReplyParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if requestID == "" {
 		err = errors.New("missing required requestID parameter")
@@ -57,7 +57,7 @@ func (r *QuestionService) Reply(ctx context.Context, requestID string, params Qu
 }
 
 // Reject a question
-func (r *QuestionService) Reject(ctx context.Context, requestID string, params QuestionRejectParams, opts ...option.RequestOption) (res *QuestionRejected, err error) {
+func (r *QuestionService) Reject(ctx context.Context, requestID string, params QuestionRejectParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
 	if requestID == "" {
 		err = errors.New("missing required requestID parameter")
@@ -164,66 +164,7 @@ func (r questionToolJSON) RawJSON() string {
 	return r.raw
 }
 
-type QuestionAnswer struct {
-	Value string             `json:"value"`
-	JSON  questionAnswerJSON `json:"-"`
-}
-
-type questionAnswerJSON struct {
-	Value       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *QuestionAnswer) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r questionAnswerJSON) RawJSON() string {
-	return r.raw
-}
-
-type QuestionReplied struct {
-	RequestID string              `json:"requestID"`
-	Answer    QuestionAnswer      `json:"answer"`
-	JSON      questionRepliedJSON `json:"-"`
-}
-
-type questionRepliedJSON struct {
-	RequestID   apijson.Field
-	Answer      apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *QuestionReplied) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r questionRepliedJSON) RawJSON() string {
-	return r.raw
-}
-
-type QuestionRejected struct {
-	RequestID string               `json:"requestID"`
-	Reason    string               `json:"reason"`
-	JSON      questionRejectedJSON `json:"-"`
-}
-
-type questionRejectedJSON struct {
-	RequestID   apijson.Field
-	Reason      apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *QuestionRejected) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r questionRejectedJSON) RawJSON() string {
-	return r.raw
-}
+type QuestionAnswer = []string
 
 type QuestionListParams struct {
 	Workspace param.Field[string] `query:"workspace"`
@@ -239,9 +180,9 @@ func (r QuestionListParams) URLQuery() (v url.Values) {
 }
 
 type QuestionReplyParams struct {
-	Value     param.Field[string] `json:"value,required"`
-	Workspace param.Field[string] `query:"workspace"`
-	Directory param.Field[string] `query:"directory"`
+	Answers   param.Field[[]QuestionAnswer] `json:"answers,required"`
+	Workspace param.Field[string]            `query:"workspace"`
+	Directory param.Field[string]            `query:"directory"`
 }
 
 func (r QuestionReplyParams) MarshalJSON() (data []byte, err error) {
@@ -257,13 +198,8 @@ func (r QuestionReplyParams) URLQuery() (v url.Values) {
 }
 
 type QuestionRejectParams struct {
-	Reason    param.Field[string] `json:"reason"`
 	Workspace param.Field[string] `query:"workspace"`
 	Directory param.Field[string] `query:"directory"`
-}
-
-func (r QuestionRejectParams) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
 }
 
 // URLQuery serializes [QuestionRejectParams]'s query parameters as `url.Values`.

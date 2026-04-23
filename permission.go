@@ -57,19 +57,48 @@ func (r *PermissionService) Reply(ctx context.Context, requestID string, params 
 }
 
 type PermissionRequest struct {
-	ID         string                `json:"id,required"`
-	Permission string                `json:"permission,required"`
-	Patterns   []string              `json:"patterns"`
-	Always     bool                  `json:"always"`
-	Tool       string                `json:"tool"`
-	JSON       permissionRequestJSON `json:"-"`
+	ID         string                  `json:"id,required"`
+	SessionID  string                  `json:"sessionID,required"`
+	Permission string                  `json:"permission,required"`
+	Patterns   []string                `json:"patterns,required"`
+	Metadata   map[string]interface{}  `json:"metadata,required"`
+	Always     []string                `json:"always,required"`
+	Tool       PermissionRequestTool   `json:"tool"`
+	JSON       permissionRequestJSON   `json:"-"`
+}
+
+// PermissionRequestTool represents the optional tool reference on a permission
+// request.
+type PermissionRequestTool struct {
+	MessageID string                     `json:"messageID"`
+	CallID    string                     `json:"callID"`
+	JSON      permissionRequestToolJSON  `json:"-"`
+}
+
+// permissionRequestToolJSON contains the JSON metadata for the struct
+// [PermissionRequestTool]
+type permissionRequestToolJSON struct {
+	MessageID   apijson.Field
+	CallID      apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *PermissionRequestTool) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r permissionRequestToolJSON) RawJSON() string {
+	return r.raw
 }
 
 // permissionRequestJSON contains the JSON metadata for the struct [PermissionRequest]
 type permissionRequestJSON struct {
 	ID          apijson.Field
+	SessionID   apijson.Field
 	Permission  apijson.Field
 	Patterns    apijson.Field
+	Metadata    apijson.Field
 	Always      apijson.Field
 	Tool        apijson.Field
 	raw         string
@@ -97,10 +126,20 @@ func (r PermissionListParams) URLQuery() (v url.Values) {
 	})
 }
 
+// PermissionReplyParamsReply is the enum type for the reply field.
+type PermissionReplyParamsReply string
+
+const (
+	PermissionReplyParamsReplyOnce   PermissionReplyParamsReply = "once"
+	PermissionReplyParamsReplyAlways PermissionReplyParamsReply = "always"
+	PermissionReplyParamsReplyReject PermissionReplyParamsReply = "reject"
+)
+
 type PermissionReplyParams struct {
-	Response  param.Field[string] `json:"response,required"`
-	Workspace param.Field[string] `query:"workspace"`
-	Directory param.Field[string] `query:"directory"`
+	Reply     param.Field[PermissionReplyParamsReply] `json:"reply,required"`
+	Message   param.Field[string]                     `json:"message"`
+	Workspace param.Field[string]                     `query:"workspace"`
+	Directory param.Field[string]                     `query:"directory"`
 }
 
 func (r PermissionReplyParams) MarshalJSON() (data []byte, err error) {
