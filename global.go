@@ -242,10 +242,36 @@ func (r globalSessionJSON) RawJSON() string {
 
 type GlobalConfigUpdateParams struct {
 	// Accepts the same shape as ConfigUpdateParams body.
-	Model    param.Field[string]      `json:"model"`
-	Agent    param.Field[interface{}] `json:"agent"`
-	Plugin   param.Field[interface{}] `json:"plugin"`
-	Provider param.Field[interface{}] `json:"provider"`
+	Schema            param.Field[string]                       `json:"$schema"`
+	Agent             param.Field[map[string]interface{}]       `json:"agent"`
+	Autoshare         param.Field[bool]                         `json:"autoshare"`
+	Autoupdate        param.Field[interface{}]                  `json:"autoupdate"`
+	Command           param.Field[map[string]interface{}]       `json:"command"`
+	Compaction        param.Field[ConfigUpdateParamsCompaction] `json:"compaction"`
+	DefaultAgent      param.Field[string]                       `json:"default_agent"`
+	DisabledProviders param.Field[[]string]                     `json:"disabled_providers"`
+	EnabledProviders  param.Field[[]string]                     `json:"enabled_providers"`
+	Enterprise        param.Field[ConfigUpdateParamsEnterprise] `json:"enterprise"`
+	Experimental      param.Field[interface{}]                  `json:"experimental"`
+	Formatter         param.Field[interface{}]                  `json:"formatter"`
+	Instructions      param.Field[[]string]                     `json:"instructions"`
+	Layout            param.Field[LayoutConfig]                 `json:"layout"`
+	LogLevel          param.Field[ConfigLogLevel]               `json:"logLevel"`
+	Lsp               param.Field[interface{}]                  `json:"lsp"`
+	Mcp               param.Field[interface{}]                  `json:"mcp"`
+	Mode              param.Field[map[string]interface{}]       `json:"mode"`
+	Model             param.Field[string]                       `json:"model"`
+	Permission        param.Field[interface{}]                  `json:"permission"`
+	Plugin            param.Field[[]interface{}]                `json:"plugin"`
+	Provider          param.Field[map[string]interface{}]       `json:"provider"`
+	Server            param.Field[ConfigUpdateParamsServer]     `json:"server"`
+	Share             param.Field[ConfigShare]                  `json:"share"`
+	Skills            param.Field[ConfigUpdateParamsSkills]     `json:"skills"`
+	SmallModel        param.Field[string]                       `json:"small_model"`
+	Snapshot          param.Field[bool]                         `json:"snapshot"`
+	Tools             param.Field[map[string]bool]              `json:"tools"`
+	Username          param.Field[string]                       `json:"username"`
+	Watcher           param.Field[ConfigUpdateParamsWatcher]    `json:"watcher"`
 }
 
 func (r GlobalConfigUpdateParams) MarshalJSON() (data []byte, err error) {

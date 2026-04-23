@@ -105,6 +105,8 @@ func (r WorktreeListParams) URLQuery() (v url.Values) {
 }
 
 type WorktreeRemoveParams struct {
+	// The optional query-level directory is not modeled separately because it
+	// conflicts with the required body field name in the SDK framework.
 	Directory param.Field[string] `json:"directory,required"`
 	Workspace param.Field[string] `query:"workspace"`
 }
@@ -121,6 +123,8 @@ func (r WorktreeRemoveParams) URLQuery() (v url.Values) {
 }
 
 type WorktreeResetParams struct {
+	// The optional query-level directory is not modeled separately because it
+	// conflicts with the required body field name in the SDK framework.
 	Directory param.Field[string] `json:"directory,required"`
 	Workspace param.Field[string] `query:"workspace"`
 }

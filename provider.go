@@ -270,6 +270,7 @@ func (r ProviderAuthAuthorizationMethod) IsKnown() bool {
 
 type ProviderListParams struct {
 	Workspace param.Field[string] `query:"workspace"`
+	Directory param.Field[string] `query:"directory"`
 }
 
 // URLQuery serializes [ProviderListParams]'s query parameters as `url.Values`.
@@ -282,6 +283,7 @@ func (r ProviderListParams) URLQuery() (v url.Values) {
 
 type ProviderAuthParams struct {
 	Workspace param.Field[string] `query:"workspace"`
+	Directory param.Field[string] `query:"directory"`
 }
 
 // URLQuery serializes [ProviderAuthParams]'s query parameters as `url.Values`.
@@ -297,6 +299,7 @@ type ProviderOAuthAuthorizeParams struct {
 	Method    param.Field[int64]             `json:"method,required"`
 	Inputs    param.Field[map[string]string] `json:"inputs"`
 	Workspace param.Field[string]            `query:"workspace"`
+	Directory param.Field[string]            `query:"directory"`
 }
 
 func (r ProviderOAuthAuthorizeParams) MarshalJSON() (data []byte, err error) {
@@ -317,6 +320,7 @@ type ProviderOAuthCallbackParams struct {
 	Method    param.Field[int64]  `json:"method,required"`
 	Code      param.Field[string] `json:"code"`
 	Workspace param.Field[string] `query:"workspace"`
+	Directory param.Field[string] `query:"directory"`
 }
 
 func (r ProviderOAuthCallbackParams) MarshalJSON() (data []byte, err error) {

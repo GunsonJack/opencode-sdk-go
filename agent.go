@@ -128,6 +128,7 @@ func (r agentModelJSON) RawJSON() string {
 
 type AgentListParams struct {
 	Workspace param.Field[string] `query:"workspace"`
+	Directory param.Field[string] `query:"directory"`
 }
 
 // URLQuery serializes [AgentListParams]'s query parameters as `url.Values`.

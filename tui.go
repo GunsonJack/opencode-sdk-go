@@ -265,6 +265,7 @@ type TuiShowToastParams struct {
 	Variant   param.Field[TuiShowToastParamsVariant] `json:"variant,required"`
 	Directory param.Field[string]                    `query:"directory"`
 	Workspace param.Field[string]                    `query:"workspace"`
+	Duration  param.Field[float64]                   `json:"duration"`
 	Title     param.Field[string]                    `json:"title"`
 }
 

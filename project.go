@@ -60,7 +60,7 @@ func (r *ProjectService) Update(ctx context.Context, projectID string, params Pr
 }
 
 // Initialize git for a project
-func (r *ProjectService) InitGit(ctx context.Context, params ProjectInitGitParams, opts ...option.RequestOption) (res *bool, err error) {
+func (r *ProjectService) InitGit(ctx context.Context, params ProjectInitGitParams, opts ...option.RequestOption) (res *Project, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "project/git/init"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)

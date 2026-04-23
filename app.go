@@ -57,18 +57,18 @@ func (r *AppService) Providers(ctx context.Context, query AppProvidersParams, op
 type Model struct {
 	ID           string                            `json:"id,required"`
 	ProviderID   string                            `json:"providerID,required"`
-	API          ModelAPI                           `json:"api,required"`
+	API          ModelAPI                          `json:"api,required"`
 	Name         string                            `json:"name,required"`
-	Capabilities ModelCapabilities                  `json:"capabilities,required"`
-	Cost         ModelCost                          `json:"cost,required"`
-	Limit        ModelLimit                         `json:"limit,required"`
-	Status       ModelStatus                        `json:"status,required"`
-	Options      map[string]interface{}             `json:"options,required"`
-	Headers      map[string]string                  `json:"headers,required"`
-	ReleaseDate  string                             `json:"release_date,required"`
-	Family       string                             `json:"family"`
-	Variants     map[string]map[string]interface{}  `json:"variants"`
-	JSON         modelJSON                          `json:"-"`
+	Capabilities ModelCapabilities                 `json:"capabilities,required"`
+	Cost         ModelCost                         `json:"cost,required"`
+	Limit        ModelLimit                        `json:"limit,required"`
+	Status       ModelStatus                       `json:"status,required"`
+	Options      map[string]interface{}            `json:"options,required"`
+	Headers      map[string]string                 `json:"headers,required"`
+	ReleaseDate  string                            `json:"release_date,required"`
+	Family       string                            `json:"family"`
+	Variants     map[string]map[string]interface{} `json:"variants"`
+	JSON         modelJSON                         `json:"-"`
 }
 
 // modelJSON contains the JSON metadata for the struct [Model]
@@ -99,19 +99,21 @@ func (r modelJSON) RawJSON() string {
 }
 
 type ModelCost struct {
-	Input  float64        `json:"input,required"`
-	Output float64        `json:"output,required"`
-	Cache  ModelCostCache `json:"cache"`
-	JSON   modelCostJSON  `json:"-"`
+	Input                float64                       `json:"input,required"`
+	Output               float64                       `json:"output,required"`
+	Cache                ModelCostCache                `json:"cache,required"`
+	ExperimentalOver200K ModelCostExperimentalOver200K `json:"experimentalOver200K"`
+	JSON                 modelCostJSON                 `json:"-"`
 }
 
 // modelCostJSON contains the JSON metadata for the struct [ModelCost]
 type modelCostJSON struct {
-	Input       apijson.Field
-	Output      apijson.Field
-	Cache       apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+	Input                apijson.Field
+	Output               apijson.Field
+	Cache                apijson.Field
+	ExperimentalOver200K apijson.Field
+	raw                  string
+	ExtraFields          map[string]apijson.Field
 }
 
 func (r *ModelCost) UnmarshalJSON(data []byte) (err error) {
@@ -123,8 +125,8 @@ func (r modelCostJSON) RawJSON() string {
 }
 
 type ModelCostCache struct {
-	Read  float64            `json:"read"`
-	Write float64            `json:"write"`
+	Read  float64            `json:"read,required"`
+	Write float64            `json:"write,required"`
 	JSON  modelCostCacheJSON `json:"-"`
 }
 
@@ -140,6 +142,29 @@ func (r *ModelCostCache) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r modelCostCacheJSON) RawJSON() string {
+	return r.raw
+}
+
+type ModelCostExperimentalOver200K struct {
+	Input  float64                           `json:"input,required"`
+	Output float64                           `json:"output,required"`
+	Cache  ModelCostCache                    `json:"cache,required"`
+	JSON   modelCostExperimentalOver200KJSON `json:"-"`
+}
+
+type modelCostExperimentalOver200KJSON struct {
+	Input       apijson.Field
+	Output      apijson.Field
+	Cache       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ModelCostExperimentalOver200K) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r modelCostExperimentalOver200KJSON) RawJSON() string {
 	return r.raw
 }
 
@@ -406,30 +431,8 @@ func (r providerJSON) RawJSON() string {
 	return r.raw
 }
 
-type AppProvidersResponse struct {
-	All       []Provider               `json:"all,required"`
-	Default   map[string]string        `json:"default,required"`
-	Connected []string                 `json:"connected,required"`
-	JSON      appProvidersResponseJSON `json:"-"`
-}
-
-// appProvidersResponseJSON contains the JSON metadata for the struct
-// [AppProvidersResponse]
-type appProvidersResponseJSON struct {
-	All         apijson.Field
-	Default     apijson.Field
-	Connected   apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *AppProvidersResponse) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r appProvidersResponseJSON) RawJSON() string {
-	return r.raw
-}
+// Deprecated: use ConfigProvidersResponse.
+type AppProvidersResponse = ConfigProvidersResponse
 
 type AppLogParams struct {
 	// Log level

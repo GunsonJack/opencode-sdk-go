@@ -71,8 +71,7 @@ func (r *QuestionService) Reject(ctx context.Context, requestID string, params Q
 type QuestionRequest struct {
 	ID        string           `json:"id,required"`
 	SessionID string           `json:"sessionID,required"`
-	Info      QuestionInfo     `json:"info"`
-	Options   []QuestionOption `json:"options"`
+	Questions []QuestionInfo   `json:"questions,required"`
 	Tool      QuestionTool     `json:"tool"`
 	JSON      questionRequestJSON `json:"-"`
 }
@@ -80,8 +79,7 @@ type QuestionRequest struct {
 type questionRequestJSON struct {
 	ID          apijson.Field
 	SessionID   apijson.Field
-	Info        apijson.Field
-	Options     apijson.Field
+	Questions   apijson.Field
 	Tool        apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
@@ -96,16 +94,20 @@ func (r questionRequestJSON) RawJSON() string {
 }
 
 type QuestionInfo struct {
-	Label       string           `json:"label"`
-	Title       string           `json:"title"`
-	Description string           `json:"description"`
+	Question string             `json:"question,required"`
+	Header   string             `json:"header,required"`
+	Options  []QuestionOption   `json:"options,required"`
+	Multiple bool               `json:"multiple"`
+	Custom   bool               `json:"custom"`
 	JSON        questionInfoJSON `json:"-"`
 }
 
 type questionInfoJSON struct {
-	Label       apijson.Field
-	Title       apijson.Field
-	Description apijson.Field
+	Question    apijson.Field
+	Header      apijson.Field
+	Options     apijson.Field
+	Multiple    apijson.Field
+	Custom      apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -119,15 +121,13 @@ func (r questionInfoJSON) RawJSON() string {
 }
 
 type QuestionOption struct {
-	Label       string             `json:"label"`
-	Value       string             `json:"value"`
-	Description string             `json:"description"`
+	Label       string             `json:"label,required"`
+	Description string             `json:"description,required"`
 	JSON        questionOptionJSON `json:"-"`
 }
 
 type questionOptionJSON struct {
 	Label       apijson.Field
-	Value       apijson.Field
 	Description apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
@@ -142,16 +142,14 @@ func (r questionOptionJSON) RawJSON() string {
 }
 
 type QuestionTool struct {
-	Name   string           `json:"name"`
-	CallID string           `json:"callID"`
-	State  string           `json:"state"`
-	JSON   questionToolJSON `json:"-"`
+	MessageID string           `json:"messageID,required"`
+	CallID    string           `json:"callID,required"`
+	JSON      questionToolJSON `json:"-"`
 }
 
 type questionToolJSON struct {
-	Name        apijson.Field
+	MessageID   apijson.Field
 	CallID      apijson.Field
-	State       apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }

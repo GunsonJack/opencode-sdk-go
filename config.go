@@ -54,11 +54,34 @@ func (r *ConfigService) Update(ctx context.Context, params ConfigUpdateParams, o
 }
 
 // List all providers
-func (r *ConfigService) Providers(ctx context.Context, query ConfigProvidersParams, opts ...option.RequestOption) (res *AppProvidersResponse, err error) {
+func (r *ConfigService) Providers(ctx context.Context, query ConfigProvidersParams, opts ...option.RequestOption) (res *ConfigProvidersResponse, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "config/providers"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
 	return
+}
+
+type ConfigProvidersResponse struct {
+	Providers []Provider                   `json:"providers,required"`
+	Default   map[string]string            `json:"default,required"`
+	JSON      configProvidersResponseJSON  `json:"-"`
+}
+
+// configProvidersResponseJSON contains the JSON metadata for the struct
+// [ConfigProvidersResponse]
+type configProvidersResponseJSON struct {
+	Providers   apijson.Field
+	Default     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ConfigProvidersResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r configProvidersResponseJSON) RawJSON() string {
+	return r.raw
 }
 
 type Config struct {
@@ -85,14 +108,18 @@ type Config struct {
 	Formatter        map[string]ConfigFormatter `json:"formatter"`
 	// Additional instruction files or patterns to include
 	Instructions []string             `json:"instructions"`
-	LogLevel     ConfigLogLevel       `json:"log_level"`
+	// @deprecated Use automatic layout behavior instead.
+	Layout       LayoutConfig         `json:"layout"`
+	LogLevel     ConfigLogLevel       `json:"logLevel"`
 	Lsp          map[string]ConfigLsp `json:"lsp"`
 	// MCP (Model Context Protocol) server configurations
 	Mcp map[string]ConfigMcp `json:"mcp"`
 	// Model to use in the format of provider/model, eg anthropic/claude-2
-	Model      string           `json:"model"`
-	Permission PermissionConfig `json:"permission"`
-	Plugin     []ConfigPluginItem `json:"plugin"`
+	Model string `json:"model"`
+	// @deprecated Use 'agent' field instead.
+	Mode       map[string]ConfigAgentEntry `json:"mode"`
+	Permission PermissionConfig            `json:"permission"`
+	Plugin     []ConfigPluginItem          `json:"plugin"`
 	// Custom provider configurations and model overrides
 	Provider map[string]ConfigProvider `json:"provider"`
 	Server   ServerConfig              `json:"server"`
@@ -126,10 +153,12 @@ type configJSON struct {
 	Experimental      apijson.Field
 	Formatter         apijson.Field
 	Instructions      apijson.Field
+	Layout            apijson.Field
 	LogLevel          apijson.Field
 	Lsp               apijson.Field
 	Mcp               apijson.Field
 	Model             apijson.Field
+	Mode              apijson.Field
 	Permission        apijson.Field
 	Plugin            apijson.Field
 	Provider          apijson.Field
@@ -249,6 +278,22 @@ func (r *ConfigEnterprise) UnmarshalJSON(data []byte) (err error) {
 
 func (r configEnterpriseJSON) RawJSON() string {
 	return r.raw
+}
+
+// LayoutConfig represents the layout mode.
+type LayoutConfig string
+
+const (
+	LayoutConfigAuto    LayoutConfig = "auto"
+	LayoutConfigStretch LayoutConfig = "stretch"
+)
+
+func (r LayoutConfig) IsKnown() bool {
+	switch r {
+	case LayoutConfigAuto, LayoutConfigStretch:
+		return true
+	}
+	return false
 }
 
 // ConfigLogLevel represents the log level.
@@ -1314,6 +1359,7 @@ func (r McpRemoteConfigType) IsKnown() bool {
 }
 
 type ConfigGetParams struct {
+	Directory param.Field[string] `query:"directory"`
 	Workspace param.Field[string] `query:"workspace"`
 }
 
@@ -1339,10 +1385,12 @@ type ConfigUpdateParams struct {
 	Experimental      param.Field[interface{}]                  `json:"experimental"`
 	Formatter         param.Field[interface{}]                  `json:"formatter"`
 	Instructions      param.Field[[]string]                     `json:"instructions"`
-	LogLevel          param.Field[ConfigLogLevel]               `json:"log_level"`
+	Layout            param.Field[LayoutConfig]                 `json:"layout"`
+	LogLevel          param.Field[ConfigLogLevel]               `json:"logLevel"`
 	Lsp               param.Field[interface{}]                  `json:"lsp"`
 	Mcp               param.Field[interface{}]                  `json:"mcp"`
 	Model             param.Field[string]                       `json:"model"`
+	Mode              param.Field[map[string]interface{}]       `json:"mode"`
 	Permission        param.Field[interface{}]                  `json:"permission"`
 	Plugin            param.Field[[]interface{}]                `json:"plugin"`
 	Provider          param.Field[map[string]interface{}]       `json:"provider"`
@@ -1354,6 +1402,7 @@ type ConfigUpdateParams struct {
 	Tools             param.Field[map[string]bool]              `json:"tools"`
 	Username          param.Field[string]                       `json:"username"`
 	Watcher           param.Field[ConfigUpdateParamsWatcher]    `json:"watcher"`
+	Directory         param.Field[string]                       `query:"directory"`
 	Workspace         param.Field[string]                       `query:"workspace"`
 }
 
@@ -1419,6 +1468,7 @@ func (r ConfigUpdateParamsWatcher) MarshalJSON() (data []byte, err error) {
 }
 
 type ConfigProvidersParams struct {
+	Directory param.Field[string] `query:"directory"`
 	Workspace param.Field[string] `query:"workspace"`
 }
 

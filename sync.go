@@ -103,6 +103,8 @@ func (r SyncStartParams) URLQuery() (v url.Values) {
 }
 
 type SyncReplayParams struct {
+	// The optional query-level directory is not modeled separately because it
+	// conflicts with the required body field name in the SDK framework.
 	Directory param.Field[string]              `json:"directory,required"`
 	Events    param.Field[[]SyncReplayEvent]   `json:"events,required"`
 	Workspace param.Field[string]              `query:"workspace"`

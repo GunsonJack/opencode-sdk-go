@@ -26,9 +26,8 @@ func TestAuthSet(t *testing.T) {
 		option.WithBaseURL(baseURL),
 	)
 	_, err := client.Auth.Set(context.TODO(), "openai", opencode.AuthSetParams{
-		Type:      opencode.F("api"),
-		Key:       opencode.F("sk-test-key"),
-		Workspace: opencode.F("workspace"),
+		Type: opencode.F("api"),
+		Key:  opencode.F("sk-test-key"),
 	})
 	if err != nil {
 		var apierr *opencode.Error
@@ -51,9 +50,7 @@ func TestAuthRemoveWithOptionalParams(t *testing.T) {
 	client := opencode.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Auth.Remove(context.TODO(), "openai", opencode.AuthRemoveParams{
-		Workspace: opencode.F("workspace"),
-	})
+	_, err := client.Auth.Remove(context.TODO(), "openai", opencode.AuthRemoveParams{})
 	if err != nil {
 		var apierr *opencode.Error
 		if errors.As(err, &apierr) {

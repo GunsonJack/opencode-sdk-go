@@ -227,8 +227,7 @@ type AuthSetParams struct {
 	Key      param.Field[string]            `json:"key"`
 	Metadata param.Field[map[string]string] `json:"metadata"`
 	// WellKnown fields
-	Token     param.Field[string] `json:"token"`
-	Workspace param.Field[string] `query:"workspace"`
+	Token param.Field[string] `json:"token"`
 }
 
 func (r AuthSetParams) MarshalJSON() (data []byte, err error) {
@@ -243,9 +242,7 @@ func (r AuthSetParams) URLQuery() (v url.Values) {
 	})
 }
 
-type AuthRemoveParams struct {
-	Workspace param.Field[string] `query:"workspace"`
-}
+type AuthRemoveParams struct{}
 
 // URLQuery serializes [AuthRemoveParams]'s query parameters as `url.Values`.
 func (r AuthRemoveParams) URLQuery() (v url.Values) {

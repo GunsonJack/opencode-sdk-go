@@ -155,7 +155,7 @@ func (r *WorkspaceAdaptor) UnmarshalJSON(data []byte) (err error) {
 func (r workspaceAdaptorJSON) RawJSON() string { return r.raw }
 
 type WorkspaceSessionRestoreResponse struct {
-	Total float64                             `json:"total,required"`
+	Total int64                               `json:"total,required"`
 	JSON  workspaceSessionRestoreResponseJSON `json:"-"`
 }
 
