@@ -5,7 +5,10 @@ package opencode_test
 import (
 	"context"
 	"errors"
+	"io"
+	"net/http"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/GunsonJack/opencode-sdk-go"
@@ -62,5 +65,87 @@ func TestWorktreeCreateWithOptionalParams(t *testing.T) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
 		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestWorktreeRemoveSendsDirectoryInQueryAndBody(t *testing.T) {
+	var rawQuery string
+	var body []byte
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					var err error
+					rawQuery = req.URL.RawQuery
+					body, err = io.ReadAll(req.Body)
+					if err != nil {
+						return nil, err
+					}
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Worktree.Remove(context.Background(), opencode.WorktreeRemoveParams{
+		Directory: opencode.F("/tmp/worktree"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(rawQuery, "directory=%2Ftmp%2Fworktree") {
+		t.Fatalf("missing directory query: %s", rawQuery)
+	}
+	if !strings.Contains(rawQuery, "workspace=workspace") {
+		t.Fatalf("missing workspace query: %s", rawQuery)
+	}
+	if got := string(body); got != `{"directory":"/tmp/worktree"}` {
+		t.Fatalf("unexpected body: %s", got)
+	}
+}
+
+func TestWorktreeResetSendsDirectoryInQueryAndBody(t *testing.T) {
+	var rawQuery string
+	var body []byte
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					var err error
+					rawQuery = req.URL.RawQuery
+					body, err = io.ReadAll(req.Body)
+					if err != nil {
+						return nil, err
+					}
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Worktree.Reset(context.Background(), opencode.WorktreeResetParams{
+		Directory: opencode.F("/tmp/worktree"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(rawQuery, "directory=%2Ftmp%2Fworktree") {
+		t.Fatalf("missing directory query: %s", rawQuery)
+	}
+	if !strings.Contains(rawQuery, "workspace=workspace") {
+		t.Fatalf("missing workspace query: %s", rawQuery)
+	}
+	if got := string(body); got != `{"directory":"/tmp/worktree"}` {
+		t.Fatalf("unexpected body: %s", got)
 	}
 }

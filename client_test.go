@@ -3,10 +3,12 @@
 package opencode_test
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"reflect"
 	"strings"
@@ -534,7 +536,109 @@ func TestSessionCommandSerializesFileParts(t *testing.T) {
 	}
 }
 
+func TestDebugLogDoesNotBlockStreamingResponse(t *testing.T) {
+	var logs bytes.Buffer
+	release := make(chan struct{})
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       &blockingReadCloser{release: release},
+						Header:     http.Header{"Content-Type": []string{"text/event-stream"}},
+					}, nil
+				},
+			},
+		}),
+		option.WithDebugLog(log.New(&logs, "", 0)),
+	)
+
+	done := make(chan struct{})
+	go func() {
+		_ = client.Event.ListStreaming(context.Background(), opencode.EventListParams{})
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(100 * time.Millisecond):
+		close(release)
+		<-done
+		t.Fatalf("ListStreaming blocked while debug logging stream response; logs=%s", logs.String())
+	}
+	close(release)
+}
+
+func TestAuthSetEscapesProviderIDPathSegment(t *testing.T) {
+	var path string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					path = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Auth.Set(context.Background(), "provider/with space", opencode.AuthSetParams{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if path != "/auth/provider%2Fwith%20space" {
+		t.Fatalf("unexpected path: %s", path)
+	}
+}
+
+func TestAuthSetRejectsEmptyProviderID(t *testing.T) {
+	called := false
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					called = true
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Auth.Set(context.Background(), "", opencode.AuthSetParams{})
+	if err == nil {
+		t.Fatal("expected missing providerID error")
+	}
+	if called {
+		t.Fatal("request should not be sent when providerID is empty")
+	}
+}
+
 type readerFunc func([]byte) (int, error)
 
 func (f readerFunc) Read(p []byte) (int, error) { return f(p) }
 func (f readerFunc) Close() error               { return nil }
+
+type blockingReadCloser struct {
+	release chan struct{}
+	read    bool
+}
+
+func (r *blockingReadCloser) Read(p []byte) (int, error) {
+	if !r.read {
+		r.read = true
+		return copy(p, []byte("event: message\ndata: {\"type\":\"session.idle\",\"properties\":{\"sessionID\":\"ses_123\"}}\n\n")), nil
+	}
+	<-r.release
+	return 0, io.EOF
+}
+
+func (r *blockingReadCloser) Close() error { return nil }

@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/GunsonJack/opencode-sdk-go"
@@ -64,5 +65,14 @@ func TestAppProvidersWithOptionalParams(t *testing.T) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
 		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+func TestAppLogIncludesWorkspaceQueryCompatibility(t *testing.T) {
+	field, ok := reflect.TypeOf(opencode.AppLogParams{}).FieldByName("Workspace")
+	if !ok {
+		t.Fatal("AppLogParams lacks the spec-required workspace query support for app.log")
+	}
+	if got := field.Tag.Get("query"); got != "workspace" {
+		t.Fatalf("AppLogParams.Workspace should use query:\"workspace\", got %q", got)
 	}
 }

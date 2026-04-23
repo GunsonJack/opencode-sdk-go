@@ -5,7 +5,10 @@ package opencode_test
 import (
 	"context"
 	"errors"
+	"io"
+	"net/http"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/GunsonJack/opencode-sdk-go"
@@ -117,6 +120,71 @@ func TestSessionDeleteWithOptionalParams(t *testing.T) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
 		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestSessionDeleteMessageEscapesPathParameters(t *testing.T) {
+	var path string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					path = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Session.DeleteMessage(context.Background(), "ses/123", "msg with space", opencode.SessionDeleteMessageParams{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if path != "/session/ses%2F123/message/msg%20with%20space" {
+		t.Fatalf("unexpected path: %s", path)
+	}
+}
+
+func TestSessionDeleteMessageRejectsEmptyPathIDs(t *testing.T) {
+	tests := []struct {
+		name      string
+		sessionID string
+		messageID string
+	}{
+		{name: "empty session id", sessionID: "", messageID: "msg_123"},
+		{name: "empty message id", sessionID: "ses_123", messageID: ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			called := false
+			client := opencode.NewClient(
+				option.WithHTTPClient(&http.Client{
+					Transport: &closureTransport{
+						fn: func(req *http.Request) (*http.Response, error) {
+							called = true
+							return &http.Response{
+								StatusCode: http.StatusOK,
+								Body:       io.NopCloser(strings.NewReader("true")),
+								Header:     http.Header{"Content-Type": []string{"application/json"}},
+							}, nil
+						},
+					},
+				}),
+			)
+
+			_, err := client.Session.DeleteMessage(context.Background(), tt.sessionID, tt.messageID, opencode.SessionDeleteMessageParams{})
+			if err == nil {
+				t.Fatal("expected missing path id error")
+			}
+			if called {
+				t.Fatal("request should not be sent when a required path id is empty")
+			}
+		})
 	}
 }
 
