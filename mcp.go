@@ -392,7 +392,7 @@ type McpAddConfigParam struct {
 	// Remote config fields
 	URL     param.Field[string]                 `json:"url"`
 	Headers param.Field[map[string]string]      `json:"headers"`
-	OAuth   param.Field[McpAddConfigOAuthParam] `json:"oauth"`
+	OAuth   param.Field[McpAddConfigOAuthUnionParam] `json:"oauth"`
 	// Shared fields
 	Enabled param.Field[bool]    `json:"enabled"`
 	Timeout param.Field[float64] `json:"timeout"`
@@ -402,6 +402,21 @@ func (r McpAddConfigParam) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+// McpAddConfigOAuthUnionParam is a param union for the MCP OAuth config.
+// Satisfied by [McpAddConfigOAuthParam] (object config) or [McpAddConfigOAuthDisabledParam] (false).
+type McpAddConfigOAuthUnionParam interface {
+	implementsMcpAddConfigOAuthUnionParam()
+}
+
+// McpAddConfigOAuthDisabledParam represents oauth: false to disable OAuth auto-detection.
+type McpAddConfigOAuthDisabledParam struct{}
+
+func (r McpAddConfigOAuthDisabledParam) MarshalJSON() (data []byte, err error) {
+	return []byte("false"), nil
+}
+
+func (r McpAddConfigOAuthDisabledParam) implementsMcpAddConfigOAuthUnionParam() {}
+
 // McpAddConfigOAuthParam represents OAuth configuration for a remote MCP server.
 type McpAddConfigOAuthParam struct {
 	ClientID     param.Field[string] `json:"clientId"`
@@ -409,6 +424,8 @@ type McpAddConfigOAuthParam struct {
 	Scope        param.Field[string] `json:"scope"`
 	RedirectURI  param.Field[string] `json:"redirectUri"`
 }
+
+func (r McpAddConfigOAuthParam) implementsMcpAddConfigOAuthUnionParam() {}
 
 type McpConnectParams struct {
 	Directory param.Field[string] `query:"directory"`
