@@ -818,3 +818,153 @@ func TestProjectUpdatedEventDeserialization(t *testing.T) {
 		t.Fatalf("unexpected event type: %T", evt.AsUnion())
 	}
 }
+
+func TestWorkspaceReadyEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"workspace.ready","properties":{"name":"my-workspace"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ready, ok := evt.AsUnion().(opencode.EventListResponseEventWorkspaceReady)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if ready.Properties.Name != "my-workspace" {
+		t.Fatalf("unexpected name: %q", ready.Properties.Name)
+	}
+}
+
+func TestWorkspaceFailedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"workspace.failed","properties":{"message":"connection lost"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	failed, ok := evt.AsUnion().(opencode.EventListResponseEventWorkspaceFailed)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if failed.Properties.Message != "connection lost" {
+		t.Fatalf("unexpected message: %q", failed.Properties.Message)
+	}
+}
+
+func TestWorkspaceRestoreEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"workspace.restore","properties":{"workspaceID":"wrk_123","sessionID":"ses_123","total":10,"step":3}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	restore, ok := evt.AsUnion().(opencode.EventListResponseEventWorkspaceRestore)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if restore.Properties.WorkspaceID != "wrk_123" {
+		t.Fatalf("unexpected workspaceID: %q", restore.Properties.WorkspaceID)
+	}
+	if restore.Properties.Total != 10 || restore.Properties.Step != 3 {
+		t.Fatalf("unexpected total/step: %d/%d", restore.Properties.Total, restore.Properties.Step)
+	}
+}
+
+func TestWorktreeReadyEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"worktree.ready","properties":{"name":"feature-branch","branch":"feature/test"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ready, ok := evt.AsUnion().(opencode.EventListResponseEventWorktreeReady)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if ready.Properties.Name != "feature-branch" {
+		t.Fatalf("unexpected name: %q", ready.Properties.Name)
+	}
+	if ready.Properties.Branch != "feature/test" {
+		t.Fatalf("unexpected branch: %q", ready.Properties.Branch)
+	}
+}
+
+func TestWorktreeFailedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"worktree.failed","properties":{"message":"branch conflict"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	failed, ok := evt.AsUnion().(opencode.EventListResponseEventWorktreeFailed)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if failed.Properties.Message != "branch conflict" {
+		t.Fatalf("unexpected message: %q", failed.Properties.Message)
+	}
+}
+
+func TestTuiPromptAppendEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"tui.prompt.append","properties":{"text":"hello world"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	appended, ok := evt.AsUnion().(opencode.EventListResponseEventTuiPromptAppend)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if appended.Properties.Text != "hello world" {
+		t.Fatalf("unexpected text: %q", appended.Properties.Text)
+	}
+}
+
+func TestTuiCommandExecuteEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"tui.command.execute","properties":{"command":"session.new"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	executed, ok := evt.AsUnion().(opencode.EventListResponseEventTuiCommandExecute)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if executed.Properties.Command != "session.new" {
+		t.Fatalf("unexpected command: %q", executed.Properties.Command)
+	}
+}
+
+func TestTuiToastShowEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"tui.toast.show","properties":{"message":"Done!","variant":"success","title":"Result","duration":3000}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	toast, ok := evt.AsUnion().(opencode.EventListResponseEventTuiToastShow)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if toast.Properties.Message != "Done!" {
+		t.Fatalf("unexpected message: %q", toast.Properties.Message)
+	}
+	if toast.Properties.Variant != "success" {
+		t.Fatalf("unexpected variant: %q", toast.Properties.Variant)
+	}
+	if toast.Properties.Title != "Result" {
+		t.Fatalf("unexpected title: %q", toast.Properties.Title)
+	}
+	if toast.Properties.Duration != 3000 {
+		t.Fatalf("unexpected duration: %v", toast.Properties.Duration)
+	}
+}
+
+func TestTuiSessionSelectEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"tui.session.select","properties":{"sessionID":"ses_123"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	selected, ok := evt.AsUnion().(opencode.EventListResponseEventTuiSessionSelect)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if selected.Properties.SessionID != "ses_123" {
+		t.Fatalf("unexpected sessionID: %q", selected.Properties.SessionID)
+	}
+}
