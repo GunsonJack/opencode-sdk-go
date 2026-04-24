@@ -143,14 +143,14 @@ func (r ProviderAuthMethodType) IsKnown() bool {
 //
 // Union satisfied by [ProviderAuthMethodPromptText] or [ProviderAuthMethodPromptSelect].
 type ProviderAuthMethodPrompt struct {
-	Type    string                        `json:"type,required"`
-	Key     string                        `json:"key,required"`
-	Message string                        `json:"message,required"`
+	Type    string `json:"type,required"`
+	Key     string `json:"key,required"`
+	Message string `json:"message,required"`
 	// This field can have the runtime type of [[]ProviderAuthMethodPromptSelectOption].
-	Options     interface{}                  `json:"options"`
-	Placeholder string                       `json:"placeholder"`
+	Options     interface{}                   `json:"options"`
+	Placeholder string                        `json:"placeholder"`
 	When        *ProviderAuthMethodPromptWhen `json:"when"`
-	JSON        providerAuthMethodPromptJSON `json:"-"`
+	JSON        providerAuthMethodPromptJSON  `json:"-"`
 	union       ProviderAuthMethodPromptUnion
 }
 
@@ -249,9 +249,9 @@ func (r ProviderAuthMethodPromptTextType) IsKnown() bool {
 }
 
 type ProviderAuthMethodPromptSelect struct {
-	Type    ProviderAuthMethodPromptSelectType    `json:"type,required"`
-	Key     string                                `json:"key,required"`
-	Message string                                `json:"message,required"`
+	Type    ProviderAuthMethodPromptSelectType     `json:"type,required"`
+	Key     string                                 `json:"key,required"`
+	Message string                                 `json:"message,required"`
 	Options []ProviderAuthMethodPromptSelectOption `json:"options,required"`
 	When    *ProviderAuthMethodPromptWhen          `json:"when"`
 	JSON    providerAuthMethodPromptSelectJSON     `json:"-"`
@@ -447,9 +447,9 @@ func (r ProviderOAuthAuthorizeParams) URLQuery() (v url.Values) {
 type ProviderOAuthCallbackParams struct {
 	// Index of the chosen auth method from the ProviderService.Auth response.
 	Method    param.Field[float64] `json:"method,required"`
-	Code      param.Field[string] `json:"code"`
-	Workspace param.Field[string] `query:"workspace"`
-	Directory param.Field[string] `query:"directory"`
+	Code      param.Field[string]  `json:"code"`
+	Workspace param.Field[string]  `query:"workspace"`
+	Directory param.Field[string]  `query:"directory"`
 }
 
 func (r ProviderOAuthCallbackParams) MarshalJSON() (data []byte, err error) {

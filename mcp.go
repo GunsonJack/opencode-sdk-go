@@ -363,10 +363,10 @@ func (r McpStatusParams) URLQuery() (v url.Values) {
 }
 
 type McpAddParams struct {
-	Name      param.Field[string]      `json:"name,required"`
+	Name      param.Field[string]            `json:"name,required"`
 	Config    param.Field[McpAddConfigParam] `json:"config,required"`
-	Directory param.Field[string]      `query:"directory"`
-	Workspace param.Field[string]      `query:"workspace"`
+	Directory param.Field[string]            `query:"directory"`
+	Workspace param.Field[string]            `query:"workspace"`
 }
 
 func (r McpAddParams) MarshalJSON() (data []byte, err error) {
@@ -390,10 +390,10 @@ type McpAddConfigParam struct {
 	// The config type: "local" or "remote".
 	Type param.Field[string] `json:"type,required"`
 	// Command to run. Required when Type is "local".
-	Command     param.Field[[]string]         `json:"command"`
+	Command     param.Field[[]string]          `json:"command"`
 	Environment param.Field[map[string]string] `json:"environment"`
 	// URL of the remote server. Required when Type is "remote".
-	URL     param.Field[string]                     `json:"url"`
+	URL     param.Field[string]                      `json:"url"`
 	Headers param.Field[map[string]string]           `json:"headers"`
 	OAuth   param.Field[McpAddConfigOAuthUnionParam] `json:"oauth"`
 	// Shared fields

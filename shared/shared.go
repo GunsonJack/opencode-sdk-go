@@ -194,10 +194,10 @@ func (r UnknownErrorName) IsKnown() bool {
 }
 
 type BadRequestError struct {
-	Data    interface{}          `json:"data,required"`
+	Data    interface{}              `json:"data,required"`
 	Errors  []map[string]interface{} `json:"errors,required"`
-	Success bool                 `json:"success,required"`
-	JSON    badRequestErrorJSON  `json:"-"`
+	Success bool                     `json:"success,required"`
+	JSON    badRequestErrorJSON      `json:"-"`
 }
 
 // badRequestErrorJSON contains the JSON metadata for the struct

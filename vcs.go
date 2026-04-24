@@ -59,12 +59,12 @@ func (r *VcsInfo) UnmarshalJSON(data []byte) (err error) {
 func (r vcsInfoJSON) RawJSON() string { return r.raw }
 
 type VcsFileDiff struct {
-	File      string              `json:"file,required"`
-	Patch     string              `json:"patch,required"`
-	Additions float64             `json:"additions,required"`
-	Deletions float64             `json:"deletions,required"`
-	Status    VcsFileDiffStatus   `json:"status"`
-	JSON      vcsFileDiffJSON     `json:"-"`
+	File      string            `json:"file,required"`
+	Patch     string            `json:"patch,required"`
+	Additions float64           `json:"additions,required"`
+	Deletions float64           `json:"deletions,required"`
+	Status    VcsFileDiffStatus `json:"status"`
+	JSON      vcsFileDiffJSON   `json:"-"`
 }
 
 type vcsFileDiffJSON struct {

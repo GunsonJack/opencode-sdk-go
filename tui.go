@@ -230,8 +230,8 @@ func (r TuiOpenThemesParams) URLQuery() (v url.Values) {
 
 type TuiPublishParams struct {
 	Body      param.Field[TuiPublishBody] `json:"body"`
-	Directory param.Field[string]          `query:"directory"`
-	Workspace param.Field[string]          `query:"workspace"`
+	Directory param.Field[string]         `query:"directory"`
+	Workspace param.Field[string]         `query:"workspace"`
 }
 
 func (r TuiPublishParams) MarshalJSON() (data []byte, err error) {
@@ -466,8 +466,8 @@ func (r *TuiControlService) Response(ctx context.Context, params TuiControlRespo
 
 // TuiControlNextResponse is the response from GET /tui/control/next.
 type TuiControlNextResponse struct {
-	Path string      `json:"path,required"`
-	Body interface{} `json:"body,required"`
+	Path string                     `json:"path,required"`
+	Body interface{}                `json:"body,required"`
 	JSON tuiControlNextResponseJSON `json:"-"`
 }
 

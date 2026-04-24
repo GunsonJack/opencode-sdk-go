@@ -164,10 +164,10 @@ func (r questionToolJSON) RawJSON() string {
 type QuestionAnswer = []string
 
 type QuestionReplied struct {
-	SessionID string               `json:"sessionID,required"`
-	RequestID string               `json:"requestID,required"`
-	Answers   []QuestionAnswer     `json:"answers,required"`
-	JSON      questionRepliedJSON  `json:"-"`
+	SessionID string              `json:"sessionID,required"`
+	RequestID string              `json:"requestID,required"`
+	Answers   []QuestionAnswer    `json:"answers,required"`
+	JSON      questionRepliedJSON `json:"-"`
 }
 
 type questionRepliedJSON struct {
@@ -187,9 +187,9 @@ func (r questionRepliedJSON) RawJSON() string {
 }
 
 type QuestionRejected struct {
-	SessionID string                `json:"sessionID,required"`
-	RequestID string                `json:"requestID,required"`
-	JSON      questionRejectedJSON  `json:"-"`
+	SessionID string               `json:"sessionID,required"`
+	RequestID string               `json:"requestID,required"`
+	JSON      questionRejectedJSON `json:"-"`
 }
 
 type questionRejectedJSON struct {

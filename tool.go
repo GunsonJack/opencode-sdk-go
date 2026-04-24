@@ -40,9 +40,9 @@ func (r *ToolService) IDs(ctx context.Context, query ToolIDsParams, opts ...opti
 }
 
 type ToolListItem struct {
-	ID          string       `json:"id,required"`
-	Description string       `json:"description,required"`
-	Parameters  interface{}  `json:"parameters,required"`
+	ID          string           `json:"id,required"`
+	Description string           `json:"description,required"`
+	Parameters  interface{}      `json:"parameters,required"`
 	JSON        toolListItemJSON `json:"-"`
 }
 

@@ -9,9 +9,9 @@ import (
 // 1. question.replied
 
 type EventListResponseEventQuestionReplied struct {
-	Properties QuestionReplied `json:"properties,required"`
-	Type       EventListResponseEventQuestionRepliedType       `json:"type,required"`
-	JSON       eventListResponseEventQuestionRepliedJSON       `json:"-"`
+	Properties QuestionReplied                           `json:"properties,required"`
+	Type       EventListResponseEventQuestionRepliedType `json:"type,required"`
+	JSON       eventListResponseEventQuestionRepliedJSON `json:"-"`
 }
 
 // eventListResponseEventQuestionRepliedJSON contains the JSON metadata for the
@@ -50,9 +50,9 @@ func (r EventListResponseEventQuestionRepliedType) IsKnown() bool {
 // 2. question.rejected
 
 type EventListResponseEventQuestionRejected struct {
-	Properties QuestionRejected `json:"properties,required"`
-	Type       EventListResponseEventQuestionRejectedType       `json:"type,required"`
-	JSON       eventListResponseEventQuestionRejectedJSON       `json:"-"`
+	Properties QuestionRejected                           `json:"properties,required"`
+	Type       EventListResponseEventQuestionRejectedType `json:"type,required"`
+	JSON       eventListResponseEventQuestionRejectedJSON `json:"-"`
 }
 
 // eventListResponseEventQuestionRejectedJSON contains the JSON metadata for the
@@ -240,11 +240,11 @@ func (r eventListResponseEventTuiToastShowJSON) RawJSON() string {
 func (r EventListResponseEventTuiToastShow) implementsEventListResponse() {}
 
 type EventListResponseEventTuiToastShowProperties struct {
-	Message  string                                                    `json:"message,required"`
-	Variant  EventListResponseEventTuiToastShowPropertiesVariant       `json:"variant,required"`
-	Title    string                                           `json:"title"`
-	Duration float64                                          `json:"duration"`
-	JSON     eventListResponseEventTuiToastShowPropertiesJSON `json:"-"`
+	Message  string                                              `json:"message,required"`
+	Variant  EventListResponseEventTuiToastShowPropertiesVariant `json:"variant,required"`
+	Title    string                                              `json:"title"`
+	Duration float64                                             `json:"duration"`
+	JSON     eventListResponseEventTuiToastShowPropertiesJSON    `json:"-"`
 }
 
 // eventListResponseEventTuiToastShowPropertiesJSON contains the JSON metadata for

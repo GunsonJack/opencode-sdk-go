@@ -9,9 +9,9 @@ import (
 // 1. project.updated — Properties uses existing Project type directly
 
 type EventListResponseEventProjectUpdated struct {
-	Properties Project                                    `json:"properties,required"`
-	Type       EventListResponseEventProjectUpdatedType   `json:"type,required"`
-	JSON       eventListResponseEventProjectUpdatedJSON   `json:"-"`
+	Properties Project                                  `json:"properties,required"`
+	Type       EventListResponseEventProjectUpdatedType `json:"type,required"`
+	JSON       eventListResponseEventProjectUpdatedJSON `json:"-"`
 }
 
 // eventListResponseEventProjectUpdatedJSON contains the JSON metadata for the
@@ -112,9 +112,9 @@ func (r EventListResponseEventServerInstanceDisposedType) IsKnown() bool {
 // 3. global.disposed — Properties is interface{} (empty)
 
 type EventListResponseEventGlobalDisposed struct {
-	Properties interface{}                                `json:"properties,required"`
-	Type       EventListResponseEventGlobalDisposedType   `json:"type,required"`
-	JSON       eventListResponseEventGlobalDisposedJSON   `json:"-"`
+	Properties interface{}                              `json:"properties,required"`
+	Type       EventListResponseEventGlobalDisposedType `json:"type,required"`
+	JSON       eventListResponseEventGlobalDisposedJSON `json:"-"`
 }
 
 // eventListResponseEventGlobalDisposedJSON contains the JSON metadata for the
@@ -153,9 +153,9 @@ func (r EventListResponseEventGlobalDisposedType) IsKnown() bool {
 // 4. lsp.updated — Properties is interface{} (empty)
 
 type EventListResponseEventLspUpdated struct {
-	Properties interface{}                            `json:"properties,required"`
-	Type       EventListResponseEventLspUpdatedType   `json:"type,required"`
-	JSON       eventListResponseEventLspUpdatedJSON   `json:"-"`
+	Properties interface{}                          `json:"properties,required"`
+	Type       EventListResponseEventLspUpdatedType `json:"type,required"`
+	JSON       eventListResponseEventLspUpdatedJSON `json:"-"`
 }
 
 // eventListResponseEventLspUpdatedJSON contains the JSON metadata for the struct
@@ -327,9 +327,9 @@ func (r EventListResponseEventMessagePartDeltaType) IsKnown() bool {
 // 7. permission.asked — Properties uses existing PermissionRequest type directly
 
 type EventListResponseEventPermissionAsked struct {
-	Properties PermissionRequest                              `json:"properties,required"`
-	Type       EventListResponseEventPermissionAskedType      `json:"type,required"`
-	JSON       eventListResponseEventPermissionAskedJSON      `json:"-"`
+	Properties PermissionRequest                         `json:"properties,required"`
+	Type       EventListResponseEventPermissionAskedType `json:"type,required"`
+	JSON       eventListResponseEventPermissionAskedJSON `json:"-"`
 }
 
 // eventListResponseEventPermissionAskedJSON contains the JSON metadata for the
@@ -496,9 +496,9 @@ func (r EventListResponseEventSessionStatusType) IsKnown() bool {
 // 10. question.asked — Properties uses existing QuestionRequest type directly
 
 type EventListResponseEventQuestionAsked struct {
-	Properties QuestionRequest                              `json:"properties,required"`
-	Type       EventListResponseEventQuestionAskedType      `json:"type,required"`
-	JSON       eventListResponseEventQuestionAskedJSON      `json:"-"`
+	Properties QuestionRequest                         `json:"properties,required"`
+	Type       EventListResponseEventQuestionAskedType `json:"type,required"`
+	JSON       eventListResponseEventQuestionAskedJSON `json:"-"`
 }
 
 // eventListResponseEventQuestionAskedJSON contains the JSON metadata for the

@@ -446,7 +446,7 @@ func (r AgentPartInputParam) MarshalJSON() (data []byte, err error) {
 }
 
 func (r AgentPartInputParam) implementsSessionPromptParamsPartUnion() {}
-func (r AgentPartInputParam) implementsSessionUpdatePartBody()       {}
+func (r AgentPartInputParam) implementsSessionUpdatePartBody()        {}
 
 type AgentPartInputType string
 
@@ -919,7 +919,7 @@ func (r FilePartInputParam) MarshalJSON() (data []byte, err error) {
 }
 
 func (r FilePartInputParam) implementsSessionPromptParamsPartUnion() {}
-func (r FilePartInputParam) implementsSessionUpdatePartBody()       {}
+func (r FilePartInputParam) implementsSessionUpdatePartBody()        {}
 
 // SessionCommandParamsPart is the only part shape accepted by the command
 // endpoint.
@@ -1209,7 +1209,7 @@ type Message struct {
 	// This field can have the runtime type of [OutputFormatText],
 	// [OutputFormatJsonSchema].
 	Format OutputFormat `json:"format"`
-	Mode   string      `json:"mode"`
+	Mode   string       `json:"mode"`
 	// This field can have the runtime type of [UserMessageModel].
 	Model    interface{} `json:"model"`
 	ModelID  string      `json:"modelID"`
@@ -1695,11 +1695,11 @@ func (r PartRetryPartType) IsKnown() bool {
 }
 
 type RetryPartInputParam struct {
-	Attempt param.Field[float64]                 `json:"attempt,required"`
+	Attempt param.Field[float64]                  `json:"attempt,required"`
 	Error   param.Field[RetryPartInputErrorParam] `json:"error,required"`
-	Type    param.Field[RetryPartInputType]      `json:"type,required"`
-	ID      param.Field[string]                  `json:"id"`
-	Time    param.Field[RetryPartInputTimeParam] `json:"time"`
+	Type    param.Field[RetryPartInputType]       `json:"type,required"`
+	ID      param.Field[string]                   `json:"id"`
+	Time    param.Field[RetryPartInputTimeParam]  `json:"time"`
 }
 
 func (r RetryPartInputParam) MarshalJSON() (data []byte, err error) {
@@ -2594,7 +2594,7 @@ func (r TextPartInputParam) MarshalJSON() (data []byte, err error) {
 }
 
 func (r TextPartInputParam) implementsSessionPromptParamsPartUnion() {}
-func (r TextPartInputParam) implementsSessionUpdatePartBody()       {}
+func (r TextPartInputParam) implementsSessionUpdatePartBody()        {}
 
 type TextPartInputType string
 
@@ -3873,7 +3873,7 @@ func (r SubtaskPartInputParam) MarshalJSON() (data []byte, err error) {
 }
 
 func (r SubtaskPartInputParam) implementsSessionPromptParamsPartUnion() {}
-func (r SubtaskPartInputParam) implementsSessionUpdatePartBody()       {}
+func (r SubtaskPartInputParam) implementsSessionUpdatePartBody()        {}
 
 type SubtaskPartInputType string
 
@@ -4057,10 +4057,10 @@ func (r PermissionRuleParam) MarshalJSON() (data []byte, err error) {
 }
 
 type SnapshotFileDiff struct {
-	Additions float64              `json:"additions,required"`
-	Deletions float64              `json:"deletions,required"`
-	File      string               `json:"file,required"`
-	Patch     string               `json:"patch,required"`
+	Additions float64                `json:"additions,required"`
+	Deletions float64                `json:"deletions,required"`
+	File      string                 `json:"file,required"`
+	Patch     string                 `json:"patch,required"`
 	Status    SnapshotFileDiffStatus `json:"status"`
 	JSON      snapshotFileDiffJSON   `json:"-"`
 }
@@ -4136,13 +4136,13 @@ func (r AssistantMessageErrorContextOverflowError) ImplementsEventListResponseEv
 //   - "retry": Attempt, Message, and Next are populated (required per spec)
 //   - "busy": no additional fields
 type SessionStatus struct {
-	Type    SessionStatusType `json:"type,required"`
+	Type SessionStatusType `json:"type,required"`
 	// Attempt is the retry attempt number. Only present when Type is "retry".
 	Attempt float64 `json:"attempt"`
 	// Message is the retry reason. Only present when Type is "retry".
 	Message string `json:"message"`
 	// Next is the timestamp of the next retry. Only present when Type is "retry".
-	Next float64 `json:"next"`
+	Next float64           `json:"next"`
 	JSON sessionStatusJSON `json:"-"`
 }
 

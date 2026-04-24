@@ -34,9 +34,9 @@ func (r eventListResponseEventWorktreeReadyJSON) RawJSON() string {
 func (r EventListResponseEventWorktreeReady) implementsEventListResponse() {}
 
 type EventListResponseEventWorktreeReadyProperties struct {
-	Name   string                                             `json:"name,required"`
-	Branch string                                             `json:"branch,required"`
-	JSON   eventListResponseEventWorktreeReadyPropertiesJSON  `json:"-"`
+	Name   string                                            `json:"name,required"`
+	Branch string                                            `json:"branch,required"`
+	JSON   eventListResponseEventWorktreeReadyPropertiesJSON `json:"-"`
 }
 
 // eventListResponseEventWorktreeReadyPropertiesJSON contains the JSON metadata
@@ -98,8 +98,8 @@ func (r eventListResponseEventWorktreeFailedJSON) RawJSON() string {
 func (r EventListResponseEventWorktreeFailed) implementsEventListResponse() {}
 
 type EventListResponseEventWorktreeFailedProperties struct {
-	Message string                                              `json:"message,required"`
-	JSON    eventListResponseEventWorktreeFailedPropertiesJSON  `json:"-"`
+	Message string                                             `json:"message,required"`
+	JSON    eventListResponseEventWorktreeFailedPropertiesJSON `json:"-"`
 }
 
 // eventListResponseEventWorktreeFailedPropertiesJSON contains the JSON metadata
@@ -160,8 +160,8 @@ func (r eventListResponseEventPtyCreatedJSON) RawJSON() string {
 func (r EventListResponseEventPtyCreated) implementsEventListResponse() {}
 
 type EventListResponseEventPtyCreatedProperties struct {
-	Info Pty                                             `json:"info,required"`
-	JSON eventListResponseEventPtyCreatedPropertiesJSON  `json:"-"`
+	Info Pty                                            `json:"info,required"`
+	JSON eventListResponseEventPtyCreatedPropertiesJSON `json:"-"`
 }
 
 // eventListResponseEventPtyCreatedPropertiesJSON contains the JSON metadata
@@ -222,8 +222,8 @@ func (r eventListResponseEventPtyUpdatedJSON) RawJSON() string {
 func (r EventListResponseEventPtyUpdated) implementsEventListResponse() {}
 
 type EventListResponseEventPtyUpdatedProperties struct {
-	Info Pty                                             `json:"info,required"`
-	JSON eventListResponseEventPtyUpdatedPropertiesJSON  `json:"-"`
+	Info Pty                                            `json:"info,required"`
+	JSON eventListResponseEventPtyUpdatedPropertiesJSON `json:"-"`
 }
 
 // eventListResponseEventPtyUpdatedPropertiesJSON contains the JSON metadata
@@ -284,9 +284,9 @@ func (r eventListResponseEventPtyExitedJSON) RawJSON() string {
 func (r EventListResponseEventPtyExited) implementsEventListResponse() {}
 
 type EventListResponseEventPtyExitedProperties struct {
-	ID       string                                             `json:"id,required"`
-	ExitCode float64                                            `json:"exitCode,required"`
-	JSON     eventListResponseEventPtyExitedPropertiesJSON      `json:"-"`
+	ID       string                                        `json:"id,required"`
+	ExitCode float64                                       `json:"exitCode,required"`
+	JSON     eventListResponseEventPtyExitedPropertiesJSON `json:"-"`
 }
 
 // eventListResponseEventPtyExitedPropertiesJSON contains the JSON metadata
@@ -348,8 +348,8 @@ func (r eventListResponseEventPtyDeletedJSON) RawJSON() string {
 func (r EventListResponseEventPtyDeleted) implementsEventListResponse() {}
 
 type EventListResponseEventPtyDeletedProperties struct {
-	ID   string                                          `json:"id,required"`
-	JSON eventListResponseEventPtyDeletedPropertiesJSON  `json:"-"`
+	ID   string                                         `json:"id,required"`
+	JSON eventListResponseEventPtyDeletedPropertiesJSON `json:"-"`
 }
 
 // eventListResponseEventPtyDeletedPropertiesJSON contains the JSON metadata
@@ -410,8 +410,8 @@ func (r eventListResponseEventWorkspaceReadyJSON) RawJSON() string {
 func (r EventListResponseEventWorkspaceReady) implementsEventListResponse() {}
 
 type EventListResponseEventWorkspaceReadyProperties struct {
-	Name string                                              `json:"name,required"`
-	JSON eventListResponseEventWorkspaceReadyPropertiesJSON  `json:"-"`
+	Name string                                             `json:"name,required"`
+	JSON eventListResponseEventWorkspaceReadyPropertiesJSON `json:"-"`
 }
 
 // eventListResponseEventWorkspaceReadyPropertiesJSON contains the JSON metadata
@@ -472,8 +472,8 @@ func (r eventListResponseEventWorkspaceFailedJSON) RawJSON() string {
 func (r EventListResponseEventWorkspaceFailed) implementsEventListResponse() {}
 
 type EventListResponseEventWorkspaceFailedProperties struct {
-	Message string                                               `json:"message,required"`
-	JSON    eventListResponseEventWorkspaceFailedPropertiesJSON  `json:"-"`
+	Message string                                              `json:"message,required"`
+	JSON    eventListResponseEventWorkspaceFailedPropertiesJSON `json:"-"`
 }
 
 // eventListResponseEventWorkspaceFailedPropertiesJSON contains the JSON metadata
@@ -534,11 +534,11 @@ func (r eventListResponseEventWorkspaceRestoreJSON) RawJSON() string {
 func (r EventListResponseEventWorkspaceRestore) implementsEventListResponse() {}
 
 type EventListResponseEventWorkspaceRestoreProperties struct {
-	WorkspaceID string                                                `json:"workspaceID,required"`
-	SessionID   string                                                `json:"sessionID,required"`
-	Total       int64                                                 `json:"total,required"`
-	Step        int64                                                 `json:"step,required"`
-	JSON        eventListResponseEventWorkspaceRestorePropertiesJSON  `json:"-"`
+	WorkspaceID string                                               `json:"workspaceID,required"`
+	SessionID   string                                               `json:"sessionID,required"`
+	Total       int64                                                `json:"total,required"`
+	Step        int64                                                `json:"step,required"`
+	JSON        eventListResponseEventWorkspaceRestorePropertiesJSON `json:"-"`
 }
 
 // eventListResponseEventWorkspaceRestorePropertiesJSON contains the JSON metadata
@@ -602,9 +602,9 @@ func (r eventListResponseEventWorkspaceStatusJSON) RawJSON() string {
 func (r EventListResponseEventWorkspaceStatus) implementsEventListResponse() {}
 
 type EventListResponseEventWorkspaceStatusProperties struct {
-	WorkspaceID string                                                        `json:"workspaceID,required"`
-	Status      EventListResponseEventWorkspaceStatusPropertiesStatus         `json:"status,required"`
-	JSON        eventListResponseEventWorkspaceStatusPropertiesJSON  `json:"-"`
+	WorkspaceID string                                                `json:"workspaceID,required"`
+	Status      EventListResponseEventWorkspaceStatusPropertiesStatus `json:"status,required"`
+	JSON        eventListResponseEventWorkspaceStatusPropertiesJSON   `json:"-"`
 }
 
 // eventListResponseEventWorkspaceStatusPropertiesJSON contains the JSON metadata

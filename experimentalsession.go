@@ -43,7 +43,7 @@ type ExperimentalSessionListParams struct {
 	Start     param.Field[float64] `query:"start"`
 	Cursor    param.Field[float64] `query:"cursor"`
 	Search    param.Field[string]  `query:"search"`
-	Limit     param.Field[float64]  `query:"limit"`
+	Limit     param.Field[float64] `query:"limit"`
 	Archived  param.Field[bool]    `query:"archived"`
 }
 
