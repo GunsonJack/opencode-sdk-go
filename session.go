@@ -3673,7 +3673,7 @@ type SessionListParams struct {
 	Roots     param.Field[bool]    `query:"roots"`
 	Start     param.Field[float64] `query:"start"`
 	Search    param.Field[string]  `query:"search"`
-	Limit     param.Field[int64]   `query:"limit"`
+	Limit     param.Field[float64] `query:"limit"`
 }
 
 // URLQuery serializes [SessionListParams]'s query parameters as `url.Values`.

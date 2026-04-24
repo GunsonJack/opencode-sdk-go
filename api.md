@@ -428,6 +428,8 @@ Methods:
 - <code title="put /pty/{ptyID}">client.Pty.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#PtyService.Update">Update</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, ptyID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#PtyUpdateParams">PtyUpdateParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Pty">Pty</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="delete /pty/{ptyID}">client.Pty.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#PtyService.Remove">Remove</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, ptyID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#PtyRemoveParams">PtyRemoveParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
+Note: `GET /pty/{ptyID}/connect` (pty.connect) is defined in the OpenAPI spec but not yet implemented in this SDK. It requires WebSocket upgrade handling that falls outside the standard HTTP request/response pattern.
+
 # Vcs
 
 Response Types:

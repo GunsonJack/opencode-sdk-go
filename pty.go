@@ -17,6 +17,11 @@ import (
 )
 
 // PtyService contains methods for interacting with the PTY resource.
+//
+// Note: The OpenAPI spec defines GET /pty/{ptyID}/connect (pty.connect) for
+// establishing a WebSocket connection to a PTY session. This endpoint is not
+// yet implemented in the SDK because it requires WebSocket upgrade handling
+// that falls outside the standard HTTP request/response pattern.
 type PtyService struct {
 	Options []option.RequestOption
 }

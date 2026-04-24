@@ -1495,15 +1495,15 @@ func init() {
 		},
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(EventListResponseEventSessionErrorPropertiesErrorAPIError{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
 			Type:       reflect.TypeOf(AssistantMessageErrorStructuredOutputError{}),
 		},
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
 			Type:       reflect.TypeOf(AssistantMessageErrorContextOverflowError{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(EventListResponseEventSessionErrorPropertiesErrorAPIError{}),
 		},
 	)
 }
@@ -1579,6 +1579,7 @@ func (r EventListResponseEventSessionErrorPropertiesErrorAPIError) ImplementsEve
 type EventListResponseEventSessionErrorPropertiesErrorAPIErrorData struct {
 	IsRetryable     bool                                                              `json:"isRetryable,required"`
 	Message         string                                                            `json:"message,required"`
+	Metadata        map[string]string                                                 `json:"metadata"`
 	ResponseBody    string                                                            `json:"responseBody"`
 	ResponseHeaders map[string]string                                                 `json:"responseHeaders"`
 	StatusCode      float64                                                           `json:"statusCode"`
@@ -1591,6 +1592,7 @@ type EventListResponseEventSessionErrorPropertiesErrorAPIErrorData struct {
 type eventListResponseEventSessionErrorPropertiesErrorAPIErrorDataJSON struct {
 	IsRetryable     apijson.Field
 	Message         apijson.Field
+	Metadata        apijson.Field
 	ResponseBody    apijson.Field
 	ResponseHeaders apijson.Field
 	StatusCode      apijson.Field

@@ -6,12 +6,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"net/url"
 	"reflect"
 	"slices"
 
 	"github.com/GunsonJack/opencode-sdk-go/internal/apijson"
-	"github.com/GunsonJack/opencode-sdk-go/internal/apiquery"
 	"github.com/GunsonJack/opencode-sdk-go/internal/param"
 	"github.com/GunsonJack/opencode-sdk-go/internal/requestconfig"
 	"github.com/GunsonJack/opencode-sdk-go/option"
@@ -242,20 +240,4 @@ func (r AuthSetParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
-// URLQuery serializes [AuthSetParams]'s query parameters as `url.Values`.
-func (r AuthSetParams) URLQuery() (v url.Values) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
-}
-
 type AuthRemoveParams struct{}
-
-// URLQuery serializes [AuthRemoveParams]'s query parameters as `url.Values`.
-func (r AuthRemoveParams) URLQuery() (v url.Values) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
-}

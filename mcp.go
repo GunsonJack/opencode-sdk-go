@@ -428,6 +428,10 @@ type McpAddConfigOAuthParam struct {
 	RedirectURI  param.Field[string] `json:"redirectUri"`
 }
 
+func (r McpAddConfigOAuthParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
 func (r McpAddConfigOAuthParam) implementsMcpAddConfigOAuthUnionParam() {}
 
 type McpConnectParams struct {

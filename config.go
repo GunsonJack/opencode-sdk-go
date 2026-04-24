@@ -88,7 +88,7 @@ func (r configProvidersResponseJSON) RawJSON() string {
 type Config struct {
 	// JSON schema reference for configuration validation
 	Schema string `json:"$schema"`
-	// Agent configuration, see https://opencode.ai/docs/agent
+	// Agent configuration, see https://opencode.ai/docs/agents
 	Agent ConfigAgent `json:"agent"`
 	// @deprecated Use 'share' field instead. Share newly created sessions
 	// automatically

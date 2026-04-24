@@ -152,7 +152,7 @@ func TestSessionListWithOptionalParams(t *testing.T) {
 		Roots:     opencode.F(true),
 		Start:     opencode.F(float64(1700000000)),
 		Search:    opencode.F("test query"),
-		Limit:     opencode.F(int64(10)),
+		Limit:     opencode.F(float64(10)),
 	})
 	if err != nil {
 		var apierr *opencode.Error
@@ -1151,7 +1151,7 @@ func TestSessionListUsesFullQuerySurface(t *testing.T) {
 		Roots:     opencode.F(true),
 		Start:     opencode.F(100.0),
 		Search:    opencode.F("agent"),
-		Limit:     opencode.F(int64(25)),
+		Limit:     opencode.F(float64(25)),
 	})
 	if err != nil {
 		t.Fatal(err)
