@@ -482,3 +482,51 @@ func TestSessionErrorEventDeserialization(t *testing.T) {
 		t.Fatalf("unexpected sessionID: %q", errEvt.Properties.SessionID)
 	}
 }
+
+func TestSessionIdleEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"session.idle","properties":{"sessionID":"ses_123"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	idle, ok := evt.AsUnion().(opencode.EventListResponseEventSessionIdle)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if idle.Properties.SessionID != "ses_123" {
+		t.Fatalf("unexpected sessionID: %q", idle.Properties.SessionID)
+	}
+}
+
+func TestSessionStatusEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"session.status","properties":{"sessionID":"ses_123","status":{"type":"busy"}}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	status, ok := evt.AsUnion().(opencode.EventListResponseEventSessionStatus)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if status.Properties.SessionID != "ses_123" {
+		t.Fatalf("unexpected sessionID: %q", status.Properties.SessionID)
+	}
+}
+
+func TestSessionDiffEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"session.diff","properties":{"sessionID":"ses_123","diff":[{"file":"main.go","patch":"@@ -1 +1 @@","additions":1,"deletions":1}]}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	diff, ok := evt.AsUnion().(opencode.EventListResponseEventSessionDiff)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if diff.Properties.SessionID != "ses_123" {
+		t.Fatalf("unexpected sessionID: %q", diff.Properties.SessionID)
+	}
+	if len(diff.Properties.Diff) != 1 || diff.Properties.Diff[0].File != "main.go" {
+		t.Fatalf("unexpected diff: %+v", diff.Properties.Diff)
+	}
+}
