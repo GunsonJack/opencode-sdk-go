@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"reflect"
 	"slices"
 
 	"github.com/GunsonJack/opencode-sdk-go/internal/apijson"
@@ -15,8 +14,6 @@ import (
 	"github.com/GunsonJack/opencode-sdk-go/internal/param"
 	"github.com/GunsonJack/opencode-sdk-go/internal/requestconfig"
 	"github.com/GunsonJack/opencode-sdk-go/option"
-	"github.com/GunsonJack/opencode-sdk-go/shared"
-	"github.com/tidwall/gjson"
 )
 
 // SessionPermissionService contains methods and other services that help with
@@ -55,86 +52,6 @@ func (r *SessionPermissionService) Respond(ctx context.Context, id string, permi
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return
 }
-
-type Permission struct {
-	ID        string                 `json:"id,required"`
-	MessageID string                 `json:"messageID,required"`
-	Metadata  map[string]interface{} `json:"metadata,required"`
-	SessionID string                 `json:"sessionID,required"`
-	Time      PermissionTime         `json:"time,required"`
-	Title     string                 `json:"title,required"`
-	Type      string                 `json:"type,required"`
-	CallID    string                 `json:"callID"`
-	Pattern   PermissionPatternUnion `json:"pattern"`
-	JSON      permissionJSON         `json:"-"`
-}
-
-// permissionJSON contains the JSON metadata for the struct [Permission]
-type permissionJSON struct {
-	ID          apijson.Field
-	MessageID   apijson.Field
-	Metadata    apijson.Field
-	SessionID   apijson.Field
-	Time        apijson.Field
-	Title       apijson.Field
-	Type        apijson.Field
-	CallID      apijson.Field
-	Pattern     apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *Permission) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r permissionJSON) RawJSON() string {
-	return r.raw
-}
-
-type PermissionTime struct {
-	Created float64            `json:"created,required"`
-	JSON    permissionTimeJSON `json:"-"`
-}
-
-// permissionTimeJSON contains the JSON metadata for the struct [PermissionTime]
-type permissionTimeJSON struct {
-	Created     apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *PermissionTime) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r permissionTimeJSON) RawJSON() string {
-	return r.raw
-}
-
-// Union satisfied by [shared.UnionString] or [PermissionPatternArray].
-type PermissionPatternUnion interface {
-	ImplementsPermissionPatternUnion()
-}
-
-func init() {
-	apijson.RegisterUnion(
-		reflect.TypeOf((*PermissionPatternUnion)(nil)).Elem(),
-		"",
-		apijson.UnionVariant{
-			TypeFilter: gjson.String,
-			Type:       reflect.TypeOf(shared.UnionString("")),
-		},
-		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(PermissionPatternArray{}),
-		},
-	)
-}
-
-type PermissionPatternArray []string
-
-func (r PermissionPatternArray) ImplementsPermissionPatternUnion() {}
 
 type SessionPermissionRespondParams struct {
 	Response  param.Field[SessionPermissionRespondParamsResponse] `json:"response,required"`
