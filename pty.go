@@ -206,8 +206,8 @@ func (r PtyUpdateParams) URLQuery() (v url.Values) {
 }
 
 type PtyUpdateSize struct {
-	Rows param.Field[int64] `json:"rows,required"`
-	Cols param.Field[int64] `json:"cols,required"`
+	Rows param.Field[float64] `json:"rows,required"`
+	Cols param.Field[float64] `json:"cols,required"`
 }
 
 type PtyRemoveParams struct {

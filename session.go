@@ -792,6 +792,7 @@ func (r AssistantMessageErrorAPIError) ImplementsAssistantMessageError() {}
 type AssistantMessageErrorAPIErrorData struct {
 	IsRetryable     bool                                  `json:"isRetryable,required"`
 	Message         string                                `json:"message,required"`
+	Metadata        map[string]string                     `json:"metadata"`
 	ResponseBody    string                                `json:"responseBody"`
 	ResponseHeaders map[string]string                     `json:"responseHeaders"`
 	StatusCode      float64                               `json:"statusCode"`
@@ -803,6 +804,7 @@ type AssistantMessageErrorAPIErrorData struct {
 type assistantMessageErrorAPIErrorDataJSON struct {
 	IsRetryable     apijson.Field
 	Message         apijson.Field
+	Metadata        apijson.Field
 	ResponseBody    apijson.Field
 	ResponseHeaders apijson.Field
 	StatusCode      apijson.Field
@@ -1873,10 +1875,10 @@ func (r sessionShareJSON) RawJSON() string {
 }
 
 type SessionSummary struct {
-	Diffs     []SessionSummaryDiff `json:"diffs,required"`
-	Additions float64              `json:"additions"`
-	Deletions float64              `json:"deletions"`
-	Files     float64              `json:"files"`
+	Additions float64              `json:"additions,required"`
+	Deletions float64              `json:"deletions,required"`
+	Files     float64              `json:"files,required"`
+	Diffs     []SessionSummaryDiff `json:"diffs"`
 	JSON      sessionSummaryJSON   `json:"-"`
 }
 
@@ -2678,6 +2680,8 @@ func (r toolStateErrorTimeJSON) RawJSON() string {
 }
 
 type ToolStatePending struct {
+	Input  map[string]interface{} `json:"input,required"`
+	Raw    string                 `json:"raw,required"`
 	Status ToolStatePendingStatus `json:"status,required"`
 	JSON   toolStatePendingJSON   `json:"-"`
 }
@@ -2685,6 +2689,8 @@ type ToolStatePending struct {
 // toolStatePendingJSON contains the JSON metadata for the struct
 // [ToolStatePending]
 type toolStatePendingJSON struct {
+	Input       apijson.Field
+	Raw         apijson.Field
 	Status      apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
@@ -3485,8 +3491,8 @@ type SnapshotFileDiff struct {
 	Deletions float64              `json:"deletions,required"`
 	File      string               `json:"file,required"`
 	Patch     string               `json:"patch,required"`
-	Status    string               `json:"status"`
-	JSON      snapshotFileDiffJSON `json:"-"`
+	Status    SnapshotFileDiffStatus `json:"status"`
+	JSON      snapshotFileDiffJSON   `json:"-"`
 }
 
 // snapshotFileDiffJSON contains the JSON metadata for the struct [SnapshotFileDiff]
@@ -3506,6 +3512,22 @@ func (r *SnapshotFileDiff) UnmarshalJSON(data []byte) (err error) {
 
 func (r snapshotFileDiffJSON) RawJSON() string {
 	return r.raw
+}
+
+type SnapshotFileDiffStatus string
+
+const (
+	SnapshotFileDiffStatusAdded    SnapshotFileDiffStatus = "added"
+	SnapshotFileDiffStatusDeleted  SnapshotFileDiffStatus = "deleted"
+	SnapshotFileDiffStatusModified SnapshotFileDiffStatus = "modified"
+)
+
+func (r SnapshotFileDiffStatus) IsKnown() bool {
+	switch r {
+	case SnapshotFileDiffStatusAdded, SnapshotFileDiffStatusDeleted, SnapshotFileDiffStatusModified:
+		return true
+	}
+	return false
 }
 
 type Todo struct {
@@ -3727,7 +3749,7 @@ func (r userMessageModelJSON) RawJSON() string {
 }
 
 type AssistantMessageErrorStructuredOutputError struct {
-	Data interface{}                                    `json:"data,required"`
+	Data AssistantMessageErrorStructuredOutputErrorData `json:"data,required"`
 	Name AssistantMessageErrorStructuredOutputErrorName `json:"name,required"`
 	JSON assistantMessageErrorStructuredOutputErrorJSON `json:"-"`
 }
@@ -3751,6 +3773,29 @@ func (r assistantMessageErrorStructuredOutputErrorJSON) RawJSON() string {
 
 func (r AssistantMessageErrorStructuredOutputError) ImplementsAssistantMessageError() {}
 
+type AssistantMessageErrorStructuredOutputErrorData struct {
+	Message string                                             `json:"message,required"`
+	Retries float64                                            `json:"retries,required"`
+	JSON    assistantMessageErrorStructuredOutputErrorDataJSON `json:"-"`
+}
+
+// assistantMessageErrorStructuredOutputErrorDataJSON contains the JSON metadata
+// for the struct [AssistantMessageErrorStructuredOutputErrorData]
+type assistantMessageErrorStructuredOutputErrorDataJSON struct {
+	Message     apijson.Field
+	Retries     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *AssistantMessageErrorStructuredOutputErrorData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r assistantMessageErrorStructuredOutputErrorDataJSON) RawJSON() string {
+	return r.raw
+}
+
 type AssistantMessageErrorStructuredOutputErrorName string
 
 const (
@@ -3766,7 +3811,7 @@ func (r AssistantMessageErrorStructuredOutputErrorName) IsKnown() bool {
 }
 
 type AssistantMessageErrorContextOverflowError struct {
-	Data interface{}                                   `json:"data,required"`
+	Data AssistantMessageErrorContextOverflowErrorData `json:"data,required"`
 	Name AssistantMessageErrorContextOverflowErrorName `json:"name,required"`
 	JSON assistantMessageErrorContextOverflowErrorJSON `json:"-"`
 }
@@ -3789,6 +3834,29 @@ func (r assistantMessageErrorContextOverflowErrorJSON) RawJSON() string {
 }
 
 func (r AssistantMessageErrorContextOverflowError) ImplementsAssistantMessageError() {}
+
+type AssistantMessageErrorContextOverflowErrorData struct {
+	Message      string                                            `json:"message,required"`
+	ResponseBody string                                            `json:"responseBody"`
+	JSON         assistantMessageErrorContextOverflowErrorDataJSON `json:"-"`
+}
+
+// assistantMessageErrorContextOverflowErrorDataJSON contains the JSON metadata
+// for the struct [AssistantMessageErrorContextOverflowErrorData]
+type assistantMessageErrorContextOverflowErrorDataJSON struct {
+	Message      apijson.Field
+	ResponseBody apijson.Field
+	raw          string
+	ExtraFields  map[string]apijson.Field
+}
+
+func (r *AssistantMessageErrorContextOverflowErrorData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r assistantMessageErrorContextOverflowErrorDataJSON) RawJSON() string {
+	return r.raw
+}
 
 type AssistantMessageErrorContextOverflowErrorName string
 

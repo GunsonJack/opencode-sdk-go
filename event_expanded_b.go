@@ -288,8 +288,8 @@ func (r eventListResponseEventTuiToastShowJSON) RawJSON() string {
 func (r EventListResponseEventTuiToastShow) implementsEventListResponse() {}
 
 type EventListResponseEventTuiToastShowProperties struct {
-	Message  string                                           `json:"message,required"`
-	Variant  string                                           `json:"variant,required"`
+	Message  string                                                    `json:"message,required"`
+	Variant  EventListResponseEventTuiToastShowPropertiesVariant       `json:"variant,required"`
 	Title    string                                           `json:"title"`
 	Duration float64                                          `json:"duration"`
 	JSON     eventListResponseEventTuiToastShowPropertiesJSON `json:"-"`
@@ -312,6 +312,23 @@ func (r *EventListResponseEventTuiToastShowProperties) UnmarshalJSON(data []byte
 
 func (r eventListResponseEventTuiToastShowPropertiesJSON) RawJSON() string {
 	return r.raw
+}
+
+type EventListResponseEventTuiToastShowPropertiesVariant string
+
+const (
+	EventListResponseEventTuiToastShowPropertiesVariantInfo    EventListResponseEventTuiToastShowPropertiesVariant = "info"
+	EventListResponseEventTuiToastShowPropertiesVariantSuccess EventListResponseEventTuiToastShowPropertiesVariant = "success"
+	EventListResponseEventTuiToastShowPropertiesVariantWarning EventListResponseEventTuiToastShowPropertiesVariant = "warning"
+	EventListResponseEventTuiToastShowPropertiesVariantError   EventListResponseEventTuiToastShowPropertiesVariant = "error"
+)
+
+func (r EventListResponseEventTuiToastShowPropertiesVariant) IsKnown() bool {
+	switch r {
+	case EventListResponseEventTuiToastShowPropertiesVariantInfo, EventListResponseEventTuiToastShowPropertiesVariantSuccess, EventListResponseEventTuiToastShowPropertiesVariantWarning, EventListResponseEventTuiToastShowPropertiesVariantError:
+		return true
+	}
+	return false
 }
 
 type EventListResponseEventTuiToastShowType string

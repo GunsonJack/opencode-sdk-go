@@ -44,3 +44,18 @@ type UnknownErrorName = shared.UnknownErrorName
 
 // This is an alias to an internal value.
 const UnknownErrorNameUnknownError = shared.UnknownErrorNameUnknownError
+
+// This is an alias to an internal type.
+type BadRequestError = shared.BadRequestError
+
+// This is an alias to an internal type.
+type NotFoundError = shared.NotFoundError
+
+// This is an alias to an internal type.
+type NotFoundErrorData = shared.NotFoundErrorData
+
+// This is an alias to an internal type.
+type NotFoundErrorName = shared.NotFoundErrorName
+
+// This is an alias to an internal value.
+const NotFoundErrorNameNotFoundError = shared.NotFoundErrorNameNotFoundError

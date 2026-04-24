@@ -333,7 +333,7 @@ type GlobalSession struct {
 	ParentID    string            `json:"parentID"`
 	Summary     *SessionSummary   `json:"summary"`
 	Share       *SessionShare     `json:"share"`
-	Permission  interface{}       `json:"permission"`
+	Permission  []PermissionRule  `json:"permission"`
 	Revert      *SessionRevert    `json:"revert"`
 	JSON        globalSessionJSON `json:"-"`
 }

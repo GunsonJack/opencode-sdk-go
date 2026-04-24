@@ -602,8 +602,8 @@ func (r eventListResponseEventWorkspaceStatusJSON) RawJSON() string {
 func (r EventListResponseEventWorkspaceStatus) implementsEventListResponse() {}
 
 type EventListResponseEventWorkspaceStatusProperties struct {
-	WorkspaceID string                                               `json:"workspaceID,required"`
-	Status      string                                               `json:"status,required"`
+	WorkspaceID string                                                        `json:"workspaceID,required"`
+	Status      EventListResponseEventWorkspaceStatusPropertiesStatus         `json:"status,required"`
 	JSON        eventListResponseEventWorkspaceStatusPropertiesJSON  `json:"-"`
 }
 
@@ -622,6 +622,23 @@ func (r *EventListResponseEventWorkspaceStatusProperties) UnmarshalJSON(data []b
 
 func (r eventListResponseEventWorkspaceStatusPropertiesJSON) RawJSON() string {
 	return r.raw
+}
+
+type EventListResponseEventWorkspaceStatusPropertiesStatus string
+
+const (
+	EventListResponseEventWorkspaceStatusPropertiesStatusConnected    EventListResponseEventWorkspaceStatusPropertiesStatus = "connected"
+	EventListResponseEventWorkspaceStatusPropertiesStatusConnecting   EventListResponseEventWorkspaceStatusPropertiesStatus = "connecting"
+	EventListResponseEventWorkspaceStatusPropertiesStatusDisconnected EventListResponseEventWorkspaceStatusPropertiesStatus = "disconnected"
+	EventListResponseEventWorkspaceStatusPropertiesStatusError        EventListResponseEventWorkspaceStatusPropertiesStatus = "error"
+)
+
+func (r EventListResponseEventWorkspaceStatusPropertiesStatus) IsKnown() bool {
+	switch r {
+	case EventListResponseEventWorkspaceStatusPropertiesStatusConnected, EventListResponseEventWorkspaceStatusPropertiesStatusConnecting, EventListResponseEventWorkspaceStatusPropertiesStatusDisconnected, EventListResponseEventWorkspaceStatusPropertiesStatusError:
+		return true
+	}
+	return false
 }
 
 type EventListResponseEventWorkspaceStatusType string
