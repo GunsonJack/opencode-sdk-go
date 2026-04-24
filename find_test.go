@@ -5,13 +5,121 @@ package opencode_test
 import (
 	"context"
 	"errors"
+	"io"
+	"net/http"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/GunsonJack/opencode-sdk-go"
 	"github.com/GunsonJack/opencode-sdk-go/internal/testutil"
 	"github.com/GunsonJack/opencode-sdk-go/option"
 )
+
+func TestFindTextUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath, rawQuery string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					rawQuery = req.URL.RawQuery
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`[]`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Find.Text(context.Background(), opencode.FindTextParams{
+		Pattern: opencode.F("TODO"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodGet {
+		t.Fatalf("expected GET, got: %s", method)
+	}
+	if gotPath != "/find" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+	if !strings.Contains(rawQuery, "pattern=TODO") {
+		t.Fatalf("missing pattern query: %s", rawQuery)
+	}
+}
+
+func TestFindFilesUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath, rawQuery string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					rawQuery = req.URL.RawQuery
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`[]`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Find.Files(context.Background(), opencode.FindFilesParams{
+		Query: opencode.F("main.go"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodGet {
+		t.Fatalf("expected GET, got: %s", method)
+	}
+	if gotPath != "/find/file" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+	if !strings.Contains(rawQuery, "query=main.go") {
+		t.Fatalf("missing query param: %s", rawQuery)
+	}
+}
+
+func TestFindSymbolsUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath, rawQuery string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					rawQuery = req.URL.RawQuery
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`[]`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Find.Symbols(context.Background(), opencode.FindSymbolsParams{
+		Query: opencode.F("MyFunc"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodGet {
+		t.Fatalf("expected GET, got: %s", method)
+	}
+	if gotPath != "/find/symbol" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+	if !strings.Contains(rawQuery, "query=MyFunc") {
+		t.Fatalf("missing query param: %s", rawQuery)
+	}
+}
 
 func TestFindFilesWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
