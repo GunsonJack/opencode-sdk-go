@@ -356,7 +356,7 @@ func TestTuiPublishSendsRawBody(t *testing.T) {
 	)
 
 	_, err := client.Tui.Publish(context.Background(), opencode.TuiPublishParams{
-		Body:      opencode.F[interface{}](map[string]interface{}{"type": "toast.show"}),
+		Body:      opencode.F[opencode.TuiPublishBody](opencode.TuiPublishBodyToastShow{Type: opencode.F("toast.show")}),
 		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
