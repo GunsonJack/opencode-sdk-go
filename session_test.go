@@ -134,6 +134,11 @@ func TestSessionListWithOptionalParams(t *testing.T) {
 	)
 	_, err := client.Session.List(context.TODO(), opencode.SessionListParams{
 		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
+		Roots:     opencode.F(true),
+		Start:     opencode.F(float64(1700000000)),
+		Search:    opencode.F("test query"),
+		Limit:     opencode.F(int64(10)),
 	})
 	if err != nil {
 		var apierr *opencode.Error
@@ -431,6 +436,9 @@ func TestSessionMessagesWithOptionalParams(t *testing.T) {
 		"id",
 		opencode.SessionMessagesParams{
 			Directory: opencode.F("directory"),
+			Workspace: opencode.F("workspace"),
+			Limit:     opencode.F(int64(50)),
+			Before:    opencode.F("msg_cursor123"),
 		},
 	)
 	if err != nil {
@@ -927,5 +935,129 @@ func TestSessionPromptAsyncUsesQueryAndJSONBody(t *testing.T) {
 	}
 	if contentType != "application/json" {
 		t.Fatalf("expected JSON content-type, got: %s", contentType)
+	}
+}
+
+func TestSessionStatusWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := opencode.NewClient(option.WithBaseURL(baseURL))
+	_, err := client.Session.Status(context.TODO(), opencode.SessionStatusParams{
+		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		var apierr *opencode.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestSessionTodoWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := opencode.NewClient(option.WithBaseURL(baseURL))
+	_, err := client.Session.Todo(context.TODO(), "ses_test123", opencode.SessionTodoParams{
+		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		var apierr *opencode.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestSessionForkWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := opencode.NewClient(option.WithBaseURL(baseURL))
+	_, err := client.Session.Fork(context.TODO(), "ses_test123", opencode.SessionForkParams{
+		MessageID: opencode.F("msg_abc"),
+		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		var apierr *opencode.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestSessionDiffWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := opencode.NewClient(option.WithBaseURL(baseURL))
+	_, err := client.Session.Diff(context.TODO(), "ses_test123", opencode.SessionDiffParams{
+		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
+		MessageID: opencode.F("msg_abc"),
+	})
+	if err != nil {
+		var apierr *opencode.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestSessionUpdatePartWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := opencode.NewClient(option.WithBaseURL(baseURL))
+	_, err := client.Session.UpdatePart(
+		context.TODO(),
+		"ses_test123",
+		"msg_abc",
+		"prt_xyz",
+		opencode.SessionUpdatePartParams{
+			Directory: opencode.F("directory"),
+			Workspace: opencode.F("workspace"),
+			Part:      opencode.F[interface{}](map[string]interface{}{"type": "text", "text": "updated"}),
+		},
+	)
+	if err != nil {
+		var apierr *opencode.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
 	}
 }

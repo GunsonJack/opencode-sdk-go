@@ -26,6 +26,7 @@ func TestLspStatusWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 	)
 	_, err := client.Lsp.Status(context.TODO(), opencode.LspStatusParams{
+		Directory: opencode.F("directory"),
 		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {

@@ -83,3 +83,119 @@ func TestMcpConnect(t *testing.T) {
 		t.Fatalf("err should be nil: %s", err.Error())
 	}
 }
+
+func TestMcpDisconnectWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := opencode.NewClient(option.WithBaseURL(baseURL))
+	_, err := client.Mcp.Disconnect(context.TODO(), "my-server", opencode.McpDisconnectParams{
+		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		var apierr *opencode.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestMcpAuthStartWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := opencode.NewClient(option.WithBaseURL(baseURL))
+	_, err := client.Mcp.AuthStart(context.TODO(), "my-server", opencode.McpAuthStartParams{
+		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		var apierr *opencode.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestMcpAuthRemoveWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := opencode.NewClient(option.WithBaseURL(baseURL))
+	_, err := client.Mcp.AuthRemove(context.TODO(), "my-server", opencode.McpAuthRemoveParams{
+		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		var apierr *opencode.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestMcpAuthAuthenticateWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := opencode.NewClient(option.WithBaseURL(baseURL))
+	_, err := client.Mcp.AuthAuthenticate(context.TODO(), "my-server", opencode.McpAuthAuthenticateParams{
+		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		var apierr *opencode.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestMcpAuthCallbackWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := opencode.NewClient(option.WithBaseURL(baseURL))
+	_, err := client.Mcp.AuthCallback(context.TODO(), "my-server", opencode.McpAuthCallbackParams{
+		Code:      opencode.F("auth_code_123"),
+		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		var apierr *opencode.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}

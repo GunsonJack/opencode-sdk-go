@@ -66,3 +66,96 @@ func TestWorkspaceCreate(t *testing.T) {
 		t.Fatalf("err should be nil: %s", err.Error())
 	}
 }
+
+func TestWorkspaceStatusWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := opencode.NewClient(option.WithBaseURL(baseURL))
+	_, err := client.Workspace.Status(context.TODO(), opencode.WorkspaceStatusParams{
+		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		var apierr *opencode.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestWorkspaceAdaptorsWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := opencode.NewClient(option.WithBaseURL(baseURL))
+	_, err := client.Workspace.Adaptors(context.TODO(), opencode.WorkspaceAdaptorsParams{
+		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		var apierr *opencode.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestWorkspaceRemoveWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := opencode.NewClient(option.WithBaseURL(baseURL))
+	_, err := client.Workspace.Remove(context.TODO(), "wrk_test123", opencode.WorkspaceRemoveParams{
+		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		var apierr *opencode.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestWorkspaceSessionRestoreWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := opencode.NewClient(option.WithBaseURL(baseURL))
+	_, err := client.Workspace.SessionRestore(context.TODO(), "wrk_test123", opencode.WorkspaceSessionRestoreParams{
+		SessionID: opencode.F("ses_abc123"),
+		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		var apierr *opencode.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}

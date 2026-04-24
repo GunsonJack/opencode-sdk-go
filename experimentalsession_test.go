@@ -42,7 +42,7 @@ func TestExperimentalSessionListUsesTypedClientPathAndFullQuerySurface(t *testin
 		Start:     opencode.F(123.5),
 		Cursor:    opencode.F(456.5),
 		Search:    opencode.F("agent"),
-		Limit:     opencode.F(int64(25)),
+		Limit:     opencode.F(float64(25)),
 		Archived:  opencode.F(true),
 	})
 	if err != nil {

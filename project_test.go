@@ -76,7 +76,16 @@ func TestProjectUpdate(t *testing.T) {
 		option.WithBaseURL(baseURL),
 	)
 	_, err := client.Project.Update(context.TODO(), "proj_123", opencode.ProjectUpdateParams{
-		Name:      opencode.F("my-project"),
+		Name: opencode.F("my-project"),
+		Icon: opencode.F(opencode.ProjectUpdateParamsIcon{
+			URL:      opencode.F("https://example.com/icon.png"),
+			Override: opencode.F("custom-icon"),
+			Color:    opencode.F("#FF0000"),
+		}),
+		Commands: opencode.F(opencode.ProjectUpdateParamsCommands{
+			Start: opencode.F("npm run dev"),
+		}),
+		Directory: opencode.F("directory"),
 		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
@@ -101,6 +110,7 @@ func TestProjectInitGit(t *testing.T) {
 		option.WithBaseURL(baseURL),
 	)
 	_, err := client.Project.InitGit(context.TODO(), opencode.ProjectInitGitParams{
+		Directory: opencode.F("directory"),
 		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {

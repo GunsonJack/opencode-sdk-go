@@ -74,7 +74,7 @@ func TestProviderOAuthAuthorize(t *testing.T) {
 		option.WithBaseURL(baseURL),
 	)
 	_, err := client.Provider.OAuthAuthorize(context.TODO(), "openai", opencode.ProviderOAuthAuthorizeParams{
-		Method:    opencode.F(int64(0)),
+		Method:    opencode.F(float64(0)),
 		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
@@ -99,7 +99,7 @@ func TestProviderOAuthCallbackWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 	)
 	_, err := client.Provider.OAuthCallback(context.TODO(), "openai", opencode.ProviderOAuthCallbackParams{
-		Method:    opencode.F(int64(0)),
+		Method:    opencode.F(float64(0)),
 		Code:      opencode.F("auth_code_123"),
 		Workspace: opencode.F("workspace"),
 	})

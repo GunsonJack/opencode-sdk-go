@@ -26,6 +26,7 @@ func TestFormatterStatusWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 	)
 	_, err := client.Formatter.Status(context.TODO(), opencode.FormatterStatusParams{
+		Directory: opencode.F("directory"),
 		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
