@@ -5,7 +5,10 @@ package opencode_test
 import (
 	"context"
 	"errors"
+	"io"
+	"net/http"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/GunsonJack/opencode-sdk-go"
@@ -35,5 +38,37 @@ func TestResourceList(t *testing.T) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
 		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestResourceListUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Resource.List(context.Background(), opencode.ResourceListParams{
+		Directory: opencode.F("/tmp/test"),
+		Workspace: opencode.F("ws_123"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodGet {
+		t.Fatalf("expected GET, got: %s", method)
+	}
+	if gotPath != "/experimental/resource" {
+		t.Fatalf("unexpected path: %s", gotPath)
 	}
 }

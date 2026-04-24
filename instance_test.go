@@ -5,7 +5,10 @@ package opencode_test
 import (
 	"context"
 	"errors"
+	"io"
+	"net/http"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/GunsonJack/opencode-sdk-go"
@@ -32,5 +35,37 @@ func TestInstanceDispose(t *testing.T) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
 		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestInstanceDisposeUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`true`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Instance.Dispose(context.Background(), opencode.InstanceDisposeParams{
+		Directory: opencode.F("/tmp/project"),
+		Workspace: opencode.F("ws_123"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodPost {
+		t.Fatalf("expected POST, got: %s", method)
+	}
+	if gotPath != "/instance/dispose" {
+		t.Fatalf("unexpected path: %s", gotPath)
 	}
 }
