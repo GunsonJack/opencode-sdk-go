@@ -1204,8 +1204,9 @@ type Message struct {
 	// This field can have the runtime type of [AssistantMessageError].
 	Error  interface{} `json:"error"`
 	Finish string      `json:"finish"`
-	// This field can have the runtime type of [interface{}].
-	Format interface{} `json:"format"`
+	// This field can have the runtime type of [OutputFormatText],
+	// [OutputFormatJsonSchema].
+	Format OutputFormat `json:"format"`
 	Mode   string      `json:"mode"`
 	// This field can have the runtime type of [UserMessageModel].
 	Model    interface{} `json:"model"`
@@ -2793,7 +2794,7 @@ type UserMessage struct {
 	Role      UserMessageRole    `json:"role,required"`
 	SessionID string             `json:"sessionID,required"`
 	Time      UserMessageTime    `json:"time,required"`
-	Format    interface{}        `json:"format"`
+	Format    OutputFormat       `json:"format"`
 	Summary   UserMessageSummary `json:"summary"`
 	System    string             `json:"system"`
 	Tools     map[string]bool    `json:"tools"`
@@ -2913,6 +2914,171 @@ func (r *UserMessageSummaryDiff) UnmarshalJSON(data []byte) (err error) {
 func (r userMessageSummaryDiffJSON) RawJSON() string {
 	return r.raw
 }
+
+// OutputFormat represents the output format configuration.
+// Use [OutputFormat.AsUnion] to access the underlying variant.
+//
+// Union satisfied by [OutputFormatText] or [OutputFormatJsonSchema].
+type OutputFormat struct {
+	// The format type: "text" or "json_schema".
+	Type string `json:"type,required"`
+	// This field can have the runtime type of [map[string]interface{}].
+	Schema     interface{}      `json:"schema"`
+	RetryCount int64            `json:"retryCount"`
+	JSON       outputFormatJSON `json:"-"`
+	union      OutputFormatUnion
+}
+
+// outputFormatJSON contains the JSON metadata for the struct [OutputFormat]
+type outputFormatJSON struct {
+	Type        apijson.Field
+	Schema      apijson.Field
+	RetryCount  apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *OutputFormat) UnmarshalJSON(data []byte) (err error) {
+	*r = OutputFormat{}
+	err = apijson.UnmarshalRoot(data, &r.union)
+	if err != nil {
+		return err
+	}
+	return apijson.Port(r.union, &r)
+}
+
+func (r outputFormatJSON) RawJSON() string {
+	return r.raw
+}
+
+// AsUnion returns the underlying union variant of this OutputFormat.
+func (r OutputFormat) AsUnion() OutputFormatUnion {
+	return r.union
+}
+
+// Union satisfied by [OutputFormatText] or [OutputFormatJsonSchema].
+type OutputFormatUnion interface {
+	implementsOutputFormat()
+}
+
+func init() {
+	apijson.RegisterUnion(
+		reflect.TypeOf((*OutputFormatUnion)(nil)).Elem(),
+		"type",
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "text",
+			Type:               reflect.TypeOf(OutputFormatText{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "json_schema",
+			Type:               reflect.TypeOf(OutputFormatJsonSchema{}),
+		},
+	)
+}
+
+type OutputFormatText struct {
+	Type OutputFormatTextType `json:"type,required"`
+	JSON outputFormatTextJSON `json:"-"`
+}
+
+type outputFormatTextJSON struct {
+	Type        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *OutputFormatText) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r outputFormatTextJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r OutputFormatText) implementsOutputFormat() {}
+
+type OutputFormatTextType string
+
+const (
+	OutputFormatTextTypeText OutputFormatTextType = "text"
+)
+
+func (r OutputFormatTextType) IsKnown() bool {
+	switch r {
+	case OutputFormatTextTypeText:
+		return true
+	}
+	return false
+}
+
+type OutputFormatJsonSchema struct {
+	Type       OutputFormatJsonSchemaType `json:"type,required"`
+	Schema     map[string]interface{}     `json:"schema,required"`
+	RetryCount int64                      `json:"retryCount"`
+	JSON       outputFormatJsonSchemaJSON `json:"-"`
+}
+
+type outputFormatJsonSchemaJSON struct {
+	Type        apijson.Field
+	Schema      apijson.Field
+	RetryCount  apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *OutputFormatJsonSchema) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r outputFormatJsonSchemaJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r OutputFormatJsonSchema) implementsOutputFormat() {}
+
+type OutputFormatJsonSchemaType string
+
+const (
+	OutputFormatJsonSchemaTypeJsonSchema OutputFormatJsonSchemaType = "json_schema"
+)
+
+func (r OutputFormatJsonSchemaType) IsKnown() bool {
+	switch r {
+	case OutputFormatJsonSchemaTypeJsonSchema:
+		return true
+	}
+	return false
+}
+
+// OutputFormatParam is a param union for OutputFormat.
+// Satisfied by [OutputFormatTextParam] or [OutputFormatJsonSchemaParam].
+type OutputFormatParam interface {
+	implementsOutputFormatParam()
+}
+
+type OutputFormatTextParam struct {
+	Type param.Field[OutputFormatTextType] `json:"type,required"`
+}
+
+func (r OutputFormatTextParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r OutputFormatTextParam) implementsOutputFormatParam() {}
+
+type OutputFormatJsonSchemaParam struct {
+	Type       param.Field[OutputFormatJsonSchemaType] `json:"type,required"`
+	Schema     param.Field[map[string]interface{}]     `json:"schema,required"`
+	RetryCount param.Field[int64]                      `json:"retryCount"`
+}
+
+func (r OutputFormatJsonSchemaParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r OutputFormatJsonSchemaParam) implementsOutputFormatParam() {}
 
 type SessionCommandResponse struct {
 	Info  AssistantMessage           `json:"info,required"`
@@ -3216,7 +3382,7 @@ type SessionPromptParams struct {
 	Directory param.Field[string]                         `query:"directory"`
 	Workspace param.Field[string]                         `query:"workspace"`
 	Agent     param.Field[string]                         `json:"agent"`
-	Format    param.Field[interface{}]                    `json:"format"`
+	Format    param.Field[OutputFormatParam]              `json:"format"`
 	MessageID param.Field[string]                         `json:"messageID"`
 	Model     param.Field[SessionPromptParamsModel]       `json:"model"`
 	NoReply   param.Field[bool]                           `json:"noReply"`
@@ -3988,7 +4154,7 @@ type SessionPromptAsyncParams struct {
 	Directory param.Field[string]                         `query:"directory"`
 	Workspace param.Field[string]                         `query:"workspace"`
 	Agent     param.Field[string]                         `json:"agent"`
-	Format    param.Field[interface{}]                    `json:"format"`
+	Format    param.Field[OutputFormatParam]              `json:"format"`
 	MessageID param.Field[string]                         `json:"messageID"`
 	Model     param.Field[SessionPromptParamsModel]       `json:"model"`
 	NoReply   param.Field[bool]                           `json:"noReply"`
