@@ -6,6 +6,7 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"reflect"
 	"slices"
 
 	"github.com/GunsonJack/opencode-sdk-go/internal/apijson"
@@ -13,6 +14,7 @@ import (
 	"github.com/GunsonJack/opencode-sdk-go/internal/param"
 	"github.com/GunsonJack/opencode-sdk-go/internal/requestconfig"
 	"github.com/GunsonJack/opencode-sdk-go/option"
+	"github.com/tidwall/gjson"
 )
 
 type SyncService struct {
@@ -65,9 +67,9 @@ func (r syncReplayResponseJSON) RawJSON() string { return r.raw }
 
 type SyncHistoryEvent struct {
 	ID          string                 `json:"id,required"`
-	AggregateID string                `json:"aggregate_id,required"`
-	Seq         float64               `json:"seq,required"`
-	Type        string                `json:"type,required"`
+	AggregateID string                 `json:"aggregate_id,required"`
+	Seq         float64                `json:"seq,required"`
+	Type        string                 `json:"type,required"`
 	Data        map[string]interface{} `json:"data,required"`
 	JSON        syncHistoryEventJSON   `json:"-"`
 }
@@ -88,6 +90,306 @@ func (r *SyncHistoryEvent) UnmarshalJSON(data []byte) (err error) {
 
 func (r syncHistoryEventJSON) RawJSON() string { return r.raw }
 
+type SyncEvent struct {
+	Type        SyncEventType `json:"type,required"`
+	Name        string        `json:"name,required"`
+	ID          string        `json:"id,required"`
+	Seq         float64       `json:"seq,required"`
+	AggregateID string        `json:"aggregateID,required"`
+	Data        interface{}   `json:"data,required"`
+	JSON        syncEventJSON `json:"-"`
+	union       SyncEventUnion
+}
+
+type syncEventJSON struct {
+	Type        apijson.Field
+	Name        apijson.Field
+	ID          apijson.Field
+	Seq         apijson.Field
+	AggregateID apijson.Field
+	Data        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r syncEventJSON) RawJSON() string { return r.raw }
+
+func (r *SyncEvent) UnmarshalJSON(data []byte) (err error) {
+	*r = SyncEvent{}
+	err = apijson.UnmarshalRoot(data, &r.union)
+	if err != nil {
+		return err
+	}
+	return apijson.Port(r.union, &r)
+}
+
+func (r SyncEvent) AsUnion() SyncEventUnion {
+	return r.union
+}
+
+type SyncEventUnion interface {
+	implementsSyncEvent()
+}
+
+func init() {
+	apijson.RegisterUnion(
+		reflect.TypeOf((*SyncEventUnion)(nil)).Elem(),
+		"name",
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "message.updated.1",
+			Type:               reflect.TypeOf(SyncEventMessageUpdated{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "message.removed.1",
+			Type:               reflect.TypeOf(SyncEventMessageRemoved{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "message.part.updated.1",
+			Type:               reflect.TypeOf(SyncEventMessagePartUpdated{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "message.part.removed.1",
+			Type:               reflect.TypeOf(SyncEventMessagePartRemoved{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "session.created.1",
+			Type:               reflect.TypeOf(SyncEventSessionCreated{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "session.updated.1",
+			Type:               reflect.TypeOf(SyncEventSessionUpdated{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "session.deleted.1",
+			Type:               reflect.TypeOf(SyncEventSessionDeleted{}),
+		},
+	)
+}
+
+type SyncEventType string
+
+const (
+	SyncEventTypeSync SyncEventType = "sync"
+)
+
+func (r SyncEventType) IsKnown() bool {
+	switch r {
+	case SyncEventTypeSync:
+		return true
+	}
+	return false
+}
+
+type SyncEventMessageUpdated struct {
+	Type        SyncEventType                                  `json:"type,required"`
+	Name        string                                         `json:"name,required"`
+	ID          string                                         `json:"id,required"`
+	Seq         float64                                        `json:"seq,required"`
+	AggregateID string                                         `json:"aggregateID,required"`
+	Data        EventListResponseEventMessageUpdatedProperties `json:"data,required"`
+	JSON        syncEventMessageUpdatedJSON                    `json:"-"`
+}
+
+type syncEventMessageUpdatedJSON struct {
+	Type        apijson.Field
+	Name        apijson.Field
+	ID          apijson.Field
+	Seq         apijson.Field
+	AggregateID apijson.Field
+	Data        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SyncEventMessageUpdated) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r syncEventMessageUpdatedJSON) RawJSON() string { return r.raw }
+
+func (r SyncEventMessageUpdated) implementsSyncEvent() {}
+
+type SyncEventMessageRemoved struct {
+	Type        SyncEventType                                  `json:"type,required"`
+	Name        string                                         `json:"name,required"`
+	ID          string                                         `json:"id,required"`
+	Seq         float64                                        `json:"seq,required"`
+	AggregateID string                                         `json:"aggregateID,required"`
+	Data        EventListResponseEventMessageRemovedProperties `json:"data,required"`
+	JSON        syncEventMessageRemovedJSON                    `json:"-"`
+}
+
+type syncEventMessageRemovedJSON struct {
+	Type        apijson.Field
+	Name        apijson.Field
+	ID          apijson.Field
+	Seq         apijson.Field
+	AggregateID apijson.Field
+	Data        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SyncEventMessageRemoved) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r syncEventMessageRemovedJSON) RawJSON() string { return r.raw }
+
+func (r SyncEventMessageRemoved) implementsSyncEvent() {}
+
+type SyncEventMessagePartUpdated struct {
+	Type        SyncEventType                                      `json:"type,required"`
+	Name        string                                             `json:"name,required"`
+	ID          string                                             `json:"id,required"`
+	Seq         float64                                            `json:"seq,required"`
+	AggregateID string                                             `json:"aggregateID,required"`
+	Data        EventListResponseEventMessagePartUpdatedProperties `json:"data,required"`
+	JSON        syncEventMessagePartUpdatedJSON                    `json:"-"`
+}
+
+type syncEventMessagePartUpdatedJSON struct {
+	Type        apijson.Field
+	Name        apijson.Field
+	ID          apijson.Field
+	Seq         apijson.Field
+	AggregateID apijson.Field
+	Data        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SyncEventMessagePartUpdated) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r syncEventMessagePartUpdatedJSON) RawJSON() string { return r.raw }
+
+func (r SyncEventMessagePartUpdated) implementsSyncEvent() {}
+
+type SyncEventMessagePartRemoved struct {
+	Type        SyncEventType                                      `json:"type,required"`
+	Name        string                                             `json:"name,required"`
+	ID          string                                             `json:"id,required"`
+	Seq         float64                                            `json:"seq,required"`
+	AggregateID string                                             `json:"aggregateID,required"`
+	Data        EventListResponseEventMessagePartRemovedProperties `json:"data,required"`
+	JSON        syncEventMessagePartRemovedJSON                    `json:"-"`
+}
+
+type syncEventMessagePartRemovedJSON struct {
+	Type        apijson.Field
+	Name        apijson.Field
+	ID          apijson.Field
+	Seq         apijson.Field
+	AggregateID apijson.Field
+	Data        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SyncEventMessagePartRemoved) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r syncEventMessagePartRemovedJSON) RawJSON() string { return r.raw }
+
+func (r SyncEventMessagePartRemoved) implementsSyncEvent() {}
+
+type SyncEventSessionCreated struct {
+	Type        SyncEventType                                  `json:"type,required"`
+	Name        string                                         `json:"name,required"`
+	ID          string                                         `json:"id,required"`
+	Seq         float64                                        `json:"seq,required"`
+	AggregateID string                                         `json:"aggregateID,required"`
+	Data        EventListResponseEventSessionCreatedProperties `json:"data,required"`
+	JSON        syncEventSessionCreatedJSON                    `json:"-"`
+}
+
+type syncEventSessionCreatedJSON struct {
+	Type        apijson.Field
+	Name        apijson.Field
+	ID          apijson.Field
+	Seq         apijson.Field
+	AggregateID apijson.Field
+	Data        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SyncEventSessionCreated) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r syncEventSessionCreatedJSON) RawJSON() string { return r.raw }
+
+func (r SyncEventSessionCreated) implementsSyncEvent() {}
+
+type SyncEventSessionUpdated struct {
+	Type        SyncEventType                                  `json:"type,required"`
+	Name        string                                         `json:"name,required"`
+	ID          string                                         `json:"id,required"`
+	Seq         float64                                        `json:"seq,required"`
+	AggregateID string                                         `json:"aggregateID,required"`
+	Data        EventListResponseEventSessionUpdatedProperties `json:"data,required"`
+	JSON        syncEventSessionUpdatedJSON                    `json:"-"`
+}
+
+type syncEventSessionUpdatedJSON struct {
+	Type        apijson.Field
+	Name        apijson.Field
+	ID          apijson.Field
+	Seq         apijson.Field
+	AggregateID apijson.Field
+	Data        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SyncEventSessionUpdated) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r syncEventSessionUpdatedJSON) RawJSON() string { return r.raw }
+
+func (r SyncEventSessionUpdated) implementsSyncEvent() {}
+
+type SyncEventSessionDeleted struct {
+	Type        SyncEventType                                  `json:"type,required"`
+	Name        string                                         `json:"name,required"`
+	ID          string                                         `json:"id,required"`
+	Seq         float64                                        `json:"seq,required"`
+	AggregateID string                                         `json:"aggregateID,required"`
+	Data        EventListResponseEventSessionDeletedProperties `json:"data,required"`
+	JSON        syncEventSessionDeletedJSON                    `json:"-"`
+}
+
+type syncEventSessionDeletedJSON struct {
+	Type        apijson.Field
+	Name        apijson.Field
+	ID          apijson.Field
+	Seq         apijson.Field
+	AggregateID apijson.Field
+	Data        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SyncEventSessionDeleted) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r syncEventSessionDeletedJSON) RawJSON() string { return r.raw }
+
+func (r SyncEventSessionDeleted) implementsSyncEvent() {}
+
 // Params
 
 type SyncStartParams struct {
@@ -105,9 +407,9 @@ func (r SyncStartParams) URLQuery() (v url.Values) {
 type SyncReplayParams struct {
 	// The optional query-level directory is not modeled separately because it
 	// conflicts with the required body field name in the SDK framework.
-	Directory param.Field[string]              `json:"directory,required"`
-	Events    param.Field[[]SyncReplayEvent]   `json:"events,required"`
-	Workspace param.Field[string]              `query:"workspace"`
+	Directory param.Field[string]            `json:"directory,required"`
+	Events    param.Field[[]SyncReplayEvent] `json:"events,required"`
+	Workspace param.Field[string]            `query:"workspace"`
 }
 
 func (r SyncReplayParams) MarshalJSON() (data []byte, err error) {
@@ -123,9 +425,9 @@ func (r SyncReplayParams) URLQuery() (v url.Values) {
 
 type SyncReplayEvent struct {
 	ID          param.Field[string]                 `json:"id,required"`
-	AggregateID param.Field[string]                `json:"aggregateID,required"`
-	Seq         param.Field[int64]                 `json:"seq,required"`
-	Type        param.Field[string]                `json:"type,required"`
+	AggregateID param.Field[string]                 `json:"aggregateID,required"`
+	Seq         param.Field[int64]                  `json:"seq,required"`
+	Type        param.Field[string]                 `json:"type,required"`
 	Data        param.Field[map[string]interface{}] `json:"data,required"`
 }
 

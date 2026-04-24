@@ -3,6 +3,11 @@ package opencode_test
 import (
 	"encoding/json"
 	"fmt"
+	"go/ast"
+	"go/parser"
+	"go/token"
+	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
@@ -16,9 +21,28 @@ func TestTodoIncludesPriority(t *testing.T) {
 	}
 }
 
+func TestTodoDoesNotIncludeLegacyFields(t *testing.T) {
+	todoType := reflect.TypeOf(opencode.Todo{})
+	if _, ok := todoType.FieldByName("ID"); ok {
+		t.Fatal("Todo should not include id")
+	}
+	if _, ok := todoType.FieldByName("SessionID"); ok {
+		t.Fatal("Todo should not include sessionID")
+	}
+}
+
 func TestFilePartSourceRecognizesResourceType(t *testing.T) {
 	if !opencode.FilePartSourceType("resource").IsKnown() {
 		t.Fatal("resource is not a known FilePartSource type")
+	}
+}
+
+func TestFilePartSourceUnionIncludesResourceSource(t *testing.T) {
+	types := packageTypeSpecsSessionTest(t)
+	for _, typeName := range []string{"ResourceSource", "ResourceSourceParam"} {
+		if _, ok := types[typeName]; !ok {
+			t.Fatalf("missing type declaration: %s", typeName)
+		}
 	}
 }
 
@@ -31,4 +55,41 @@ func TestFilePartSourceDecodesResourceVariant(t *testing.T) {
 	if got := fmt.Sprintf("%T", source.AsUnion()); !strings.HasSuffix(got, ".ResourceSource") {
 		t.Fatalf("unexpected source type: %s", got)
 	}
+}
+
+func packageTypeSpecsSessionTest(t *testing.T) map[string]*ast.TypeSpec {
+	t.Helper()
+	wd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	root := wd
+	if filepath.Base(root) == "opencode_test" {
+		root = filepath.Dir(root)
+	}
+	fset := token.NewFileSet()
+	pkgs, err := parser.ParseDir(fset, root, func(info os.FileInfo) bool {
+		return strings.HasSuffix(info.Name(), ".go") && !strings.HasSuffix(info.Name(), "_test.go")
+	}, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	pkg, ok := pkgs["opencode"]
+	if !ok {
+		t.Fatal("package opencode not found")
+	}
+	types := map[string]*ast.TypeSpec{}
+	for _, file := range pkg.Files {
+		for _, decl := range file.Decls {
+			gen, ok := decl.(*ast.GenDecl)
+			if !ok || gen.Tok != token.TYPE {
+				continue
+			}
+			for _, spec := range gen.Specs {
+				typeSpec := spec.(*ast.TypeSpec)
+				types[typeSpec.Name.Name] = typeSpec
+			}
+		}
+	}
+	return types
 }
