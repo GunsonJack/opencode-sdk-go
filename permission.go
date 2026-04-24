@@ -69,8 +69,8 @@ type PermissionRequest struct {
 // PermissionRequestTool represents the optional tool reference on a permission
 // request.
 type PermissionRequestTool struct {
-	MessageID string                    `json:"messageID"`
-	CallID    string                    `json:"callID"`
+	MessageID string                    `json:"messageID,required"`
+	CallID    string                    `json:"callID,required"`
 	JSON      permissionRequestToolJSON `json:"-"`
 }
 
