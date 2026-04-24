@@ -1109,7 +1109,10 @@ func TestSessionUpdatePartWithOptionalParams(t *testing.T) {
 		opencode.SessionUpdatePartParams{
 			Directory: opencode.F("directory"),
 			Workspace: opencode.F("workspace"),
-			Part:      opencode.F[interface{}](map[string]interface{}{"type": "text", "text": "updated"}),
+			Part: opencode.F[opencode.SessionUpdatePartBody](opencode.TextPartInputParam{
+				Type: opencode.F(opencode.TextPartInputTypeText),
+				Text: opencode.F("updated"),
+			}),
 		},
 	)
 	if err != nil {

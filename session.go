@@ -446,6 +446,7 @@ func (r AgentPartInputParam) MarshalJSON() (data []byte, err error) {
 }
 
 func (r AgentPartInputParam) implementsSessionPromptParamsPartUnion() {}
+func (r AgentPartInputParam) implementsSessionUpdatePartBody()       {}
 
 type AgentPartInputType string
 
@@ -918,6 +919,7 @@ func (r FilePartInputParam) MarshalJSON() (data []byte, err error) {
 }
 
 func (r FilePartInputParam) implementsSessionPromptParamsPartUnion() {}
+func (r FilePartInputParam) implementsSessionUpdatePartBody()       {}
 
 // SessionCommandParamsPart is the only part shape accepted by the command
 // endpoint.
@@ -2368,6 +2370,7 @@ func (r TextPartInputParam) MarshalJSON() (data []byte, err error) {
 }
 
 func (r TextPartInputParam) implementsSessionPromptParamsPartUnion() {}
+func (r TextPartInputParam) implementsSessionUpdatePartBody()       {}
 
 type TextPartInputType string
 
@@ -3473,6 +3476,7 @@ func (r SubtaskPartInputParam) MarshalJSON() (data []byte, err error) {
 }
 
 func (r SubtaskPartInputParam) implementsSessionPromptParamsPartUnion() {}
+func (r SubtaskPartInputParam) implementsSessionUpdatePartBody()       {}
 
 type SubtaskPartInputType string
 
@@ -4114,11 +4118,22 @@ func (r SessionDeleteMessageParams) URLQuery() (v url.Values) {
 	})
 }
 
+// SessionUpdatePartBody is a param union for Part payloads sent to PATCH
+// /session/{sessionID}/message/{messageID}/part/{partID}.
+//
+// Satisfied by [TextPartInputParam], [FilePartInputParam],
+// [AgentPartInputParam], [SubtaskPartInputParam].
+type SessionUpdatePartBody interface {
+	implementsSessionUpdatePartBody()
+}
+
 type SessionUpdatePartParams struct {
 	Directory param.Field[string] `query:"directory"`
 	Workspace param.Field[string] `query:"workspace"`
-	// Provide a Part-compatible payload shape; this is sent as the full PATCH body.
-	Part param.Field[interface{}] `json:"-"`
+	// Part is a typed union for the PATCH body. Use one of [TextPartInputParam],
+	// [FilePartInputParam], [AgentPartInputParam], or [SubtaskPartInputParam].
+	// For other Part types, use [opencode.Raw] with a JSON payload.
+	Part param.Field[SessionUpdatePartBody] `json:"-"`
 }
 
 func (r SessionUpdatePartParams) MarshalJSON() (data []byte, err error) {
