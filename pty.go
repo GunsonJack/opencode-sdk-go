@@ -81,18 +81,6 @@ func (r *PtyService) Remove(ctx context.Context, ptyID string, params PtyRemoveP
 	return
 }
 
-// Connect initiates a WebSocket connection to a PTY session.
-func (r *PtyService) Connect(ctx context.Context, ptyID string, query PtyConnectParams, opts ...option.RequestOption) (res *bool, err error) {
-	opts = slices.Concat(r.Options, opts)
-	ptyID, err = requestconfig.EncodePathSegment(ptyID, "ptyID")
-	if err != nil {
-		return
-	}
-	path := fmt.Sprintf("pty/%s/connect", ptyID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
-	return
-}
-
 // Pty represents a pseudo-terminal session.
 type Pty struct {
 	ID      string    `json:"id,required"`
@@ -216,18 +204,6 @@ type PtyRemoveParams struct {
 }
 
 func (r PtyRemoveParams) URLQuery() (v url.Values) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
-}
-
-type PtyConnectParams struct {
-	Directory param.Field[string] `query:"directory"`
-	Workspace param.Field[string] `query:"workspace"`
-}
-
-func (r PtyConnectParams) URLQuery() (v url.Values) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

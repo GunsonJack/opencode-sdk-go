@@ -694,34 +694,41 @@ type AssistantMessageErrorUnion interface {
 func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*AssistantMessageErrorUnion)(nil)).Elem(),
-		"",
+		"name",
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(shared.ProviderAuthError{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "ProviderAuthError",
+			Type:               reflect.TypeOf(shared.ProviderAuthError{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(shared.UnknownError{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "UnknownError",
+			Type:               reflect.TypeOf(shared.UnknownError{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(AssistantMessageErrorMessageOutputLengthError{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "MessageOutputLengthError",
+			Type:               reflect.TypeOf(AssistantMessageErrorMessageOutputLengthError{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(shared.MessageAbortedError{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "MessageAbortedError",
+			Type:               reflect.TypeOf(shared.MessageAbortedError{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(AssistantMessageErrorAPIError{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "APIError",
+			Type:               reflect.TypeOf(AssistantMessageErrorAPIError{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(AssistantMessageErrorStructuredOutputError{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "StructuredOutputError",
+			Type:               reflect.TypeOf(AssistantMessageErrorStructuredOutputError{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(AssistantMessageErrorContextOverflowError{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "ContextOverflowError",
+			Type:               reflect.TypeOf(AssistantMessageErrorContextOverflowError{}),
 		},
 	)
 }
@@ -997,18 +1004,21 @@ type FilePartSourceUnion interface {
 func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*FilePartSourceUnion)(nil)).Elem(),
-		"",
+		"type",
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(FileSource{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "file",
+			Type:               reflect.TypeOf(FileSource{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(SymbolSource{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "symbol",
+			Type:               reflect.TypeOf(SymbolSource{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ResourceSource{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "resource",
+			Type:               reflect.TypeOf(ResourceSource{}),
 		},
 	)
 }
@@ -1287,14 +1297,16 @@ type MessageUnion interface {
 func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*MessageUnion)(nil)).Elem(),
-		"",
+		"role",
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(UserMessage{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "user",
+			Type:               reflect.TypeOf(UserMessage{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(AssistantMessage{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "assistant",
+			Type:               reflect.TypeOf(AssistantMessage{}),
 		},
 	)
 }
@@ -1432,54 +1444,66 @@ type PartUnion interface {
 func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*PartUnion)(nil)).Elem(),
-		"",
+		"type",
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(TextPart{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "text",
+			Type:               reflect.TypeOf(TextPart{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ReasoningPart{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "reasoning",
+			Type:               reflect.TypeOf(ReasoningPart{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(FilePart{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "file",
+			Type:               reflect.TypeOf(FilePart{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ToolPart{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "tool",
+			Type:               reflect.TypeOf(ToolPart{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(StepStartPart{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "step-start",
+			Type:               reflect.TypeOf(StepStartPart{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(StepFinishPart{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "step-finish",
+			Type:               reflect.TypeOf(StepFinishPart{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(SnapshotPart{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "snapshot",
+			Type:               reflect.TypeOf(SnapshotPart{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(PartPatchPart{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "patch",
+			Type:               reflect.TypeOf(PartPatchPart{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(AgentPart{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "agent",
+			Type:               reflect.TypeOf(AgentPart{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(PartRetryPart{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "retry",
+			Type:               reflect.TypeOf(PartRetryPart{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(SubtaskPart{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "subtask",
+			Type:               reflect.TypeOf(SubtaskPart{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(CompactionPart{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "compaction",
+			Type:               reflect.TypeOf(CompactionPart{}),
 		},
 	)
 }
@@ -2718,22 +2742,26 @@ type ToolPartStateUnion interface {
 func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*ToolPartStateUnion)(nil)).Elem(),
-		"",
+		"status",
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ToolStatePending{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "pending",
+			Type:               reflect.TypeOf(ToolStatePending{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ToolStateRunning{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "running",
+			Type:               reflect.TypeOf(ToolStateRunning{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ToolStateCompleted{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "completed",
+			Type:               reflect.TypeOf(ToolStateCompleted{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(ToolStateError{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "error",
+			Type:               reflect.TypeOf(ToolStateError{}),
 		},
 	)
 }
@@ -3602,7 +3630,7 @@ type SessionNewParams struct {
 	Directory   param.Field[string]           `query:"directory"`
 	Workspace   param.Field[string]           `query:"workspace"`
 	ParentID    param.Field[string]           `json:"parentID"`
-	Permission  param.Field[[]PermissionRule] `json:"permission"`
+	Permission  param.Field[[]PermissionRuleParam] `json:"permission"`
 	Title       param.Field[string]           `json:"title"`
 	WorkspaceID param.Field[string]           `json:"workspaceID"`
 }

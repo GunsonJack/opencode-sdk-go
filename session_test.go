@@ -33,10 +33,10 @@ func TestSessionNewWithOptionalParams(t *testing.T) {
 		Directory: opencode.F("directory"),
 		ParentID:  opencode.F("sesJ!"),
 		Title:     opencode.F("title"),
-		Permission: opencode.F([]opencode.PermissionRule{{
-			Permission: "file.write",
-			Pattern:    "*",
-			Action:     opencode.PermissionActionAllow,
+		Permission: opencode.F([]opencode.PermissionRuleParam{{
+			Permission: opencode.F("file.write"),
+			Pattern:    opencode.F("*"),
+			Action:     opencode.F(opencode.PermissionActionAllow),
 		}}),
 		WorkspaceID: opencode.F("ws_123"),
 	})
