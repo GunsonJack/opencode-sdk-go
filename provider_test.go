@@ -5,13 +5,136 @@ package opencode_test
 import (
 	"context"
 	"errors"
+	"io"
+	"net/http"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/GunsonJack/opencode-sdk-go"
 	"github.com/GunsonJack/opencode-sdk-go/internal/testutil"
 	"github.com/GunsonJack/opencode-sdk-go/option"
 )
+
+func TestProviderListUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Provider.List(context.Background(), opencode.ProviderListParams{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodGet {
+		t.Fatalf("expected GET, got: %s", method)
+	}
+	if gotPath != "/provider" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+}
+
+func TestProviderListAuthUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Provider.Auth(context.Background(), opencode.ProviderAuthParams{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodGet {
+		t.Fatalf("expected GET, got: %s", method)
+	}
+	if gotPath != "/provider/auth" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+}
+
+func TestProviderOAuthAuthorizeUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Provider.OAuthAuthorize(context.Background(), "openai", opencode.ProviderOAuthAuthorizeParams{
+		Method: opencode.F(float64(0)),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodPost {
+		t.Fatalf("expected POST, got: %s", method)
+	}
+	if gotPath != "/provider/openai/oauth/authorize" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+}
+
+func TestProviderOAuthCallbackUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`true`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Provider.OAuthCallback(context.Background(), "openai", opencode.ProviderOAuthCallbackParams{
+		Method: opencode.F(float64(0)),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodPost {
+		t.Fatalf("expected POST, got: %s", method)
+	}
+	if gotPath != "/provider/openai/oauth/callback" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+}
 
 func TestProviderListWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
