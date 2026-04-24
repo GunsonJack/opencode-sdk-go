@@ -364,7 +364,7 @@ func (r McpStatusParams) URLQuery() (v url.Values) {
 
 type McpAddParams struct {
 	Name      param.Field[string]      `json:"name,required"`
-	Config    param.Field[interface{}] `json:"config,required"`
+	Config    param.Field[McpAddConfigParam] `json:"config,required"`
 	Directory param.Field[string]      `query:"directory"`
 	Workspace param.Field[string]      `query:"workspace"`
 }
@@ -378,6 +378,36 @@ func (r McpAddParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+// McpAddConfigParam represents the configuration for an MCP server.
+// Set Type to "local" and provide Command for local servers,
+// or set Type to "remote" and provide URL for remote servers.
+type McpAddConfigParam struct {
+	// The config type: "local" or "remote".
+	Type param.Field[string] `json:"type,required"`
+	// Local config fields
+	Command     param.Field[[]string]         `json:"command"`
+	Environment param.Field[map[string]string] `json:"environment"`
+	// Remote config fields
+	URL     param.Field[string]                 `json:"url"`
+	Headers param.Field[map[string]string]      `json:"headers"`
+	OAuth   param.Field[McpAddConfigOAuthParam] `json:"oauth"`
+	// Shared fields
+	Enabled param.Field[bool]    `json:"enabled"`
+	Timeout param.Field[float64] `json:"timeout"`
+}
+
+func (r McpAddConfigParam) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+// McpAddConfigOAuthParam represents OAuth configuration for a remote MCP server.
+type McpAddConfigOAuthParam struct {
+	ClientID     param.Field[string] `json:"clientId"`
+	ClientSecret param.Field[string] `json:"clientSecret"`
+	Scope        param.Field[string] `json:"scope"`
+	RedirectURI  param.Field[string] `json:"redirectUri"`
 }
 
 type McpConnectParams struct {

@@ -47,7 +47,10 @@ func TestMcpAdd(t *testing.T) {
 	client := opencode.NewClient(option.WithBaseURL(baseURL))
 	_, err := client.Mcp.Add(context.TODO(), opencode.McpAddParams{
 		Name:      opencode.F("my-server"),
-		Config:    opencode.F[interface{}](map[string]interface{}{"type": "local", "command": []string{"npx", "server"}}),
+		Config: opencode.F(opencode.McpAddConfigParam{
+			Type:    opencode.F("local"),
+			Command: opencode.F([]string{"npx", "server"}),
+		}),
 		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
