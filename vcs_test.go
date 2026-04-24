@@ -5,13 +5,80 @@ package opencode_test
 import (
 	"context"
 	"errors"
+	"io"
+	"net/http"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/GunsonJack/opencode-sdk-go"
 	"github.com/GunsonJack/opencode-sdk-go/internal/testutil"
 	"github.com/GunsonJack/opencode-sdk-go/option"
 )
+
+func TestVcsGetUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Vcs.Get(context.Background(), opencode.VcsGetParams{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodGet {
+		t.Fatalf("expected GET, got: %s", method)
+	}
+	if gotPath != "/vcs" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+}
+
+func TestVcsDiffUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath, rawQuery string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					rawQuery = req.URL.RawQuery
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`[]`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Vcs.Diff(context.Background(), opencode.VcsDiffParams{
+		Mode: opencode.F(opencode.VcsDiffParamsModeGit),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodGet {
+		t.Fatalf("expected GET, got: %s", method)
+	}
+	if gotPath != "/vcs/diff" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+	if !strings.Contains(rawQuery, "mode=git") {
+		t.Fatalf("missing mode query param: %s", rawQuery)
+	}
+}
 
 func TestVcsGetWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")

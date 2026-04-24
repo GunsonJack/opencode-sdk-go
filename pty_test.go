@@ -5,7 +5,10 @@ package opencode_test
 import (
 	"context"
 	"errors"
+	"io"
+	"net/http"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/GunsonJack/opencode-sdk-go"
@@ -127,6 +130,97 @@ func TestPtyUpdateWithOptionalParams(t *testing.T) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
 		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestPtyCreateUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Pty.Create(context.Background(), opencode.PtyCreateParams{
+		Command: opencode.F("/bin/bash"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodPost {
+		t.Fatalf("expected POST, got: %s", method)
+	}
+	if gotPath != "/pty" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+}
+
+func TestPtyGetUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Pty.Get(context.Background(), "pty/special id", opencode.PtyGetParams{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodGet {
+		t.Fatalf("expected GET, got: %s", method)
+	}
+	if gotPath != "/pty/pty%2Fspecial%20id" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+}
+
+func TestPtyUpdateUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Pty.Update(context.Background(), "pty/special id", opencode.PtyUpdateParams{
+		Title: opencode.F("new-title"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodPut {
+		t.Fatalf("expected PUT, got: %s", method)
+	}
+	if gotPath != "/pty/pty%2Fspecial%20id" {
+		t.Fatalf("unexpected path: %s", gotPath)
 	}
 }
 
