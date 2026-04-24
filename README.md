@@ -58,6 +58,8 @@ func main() {
 
 ```
 
+`opencode.NewClient()` reads `OPENCODE_BASE_URL` automatically. You can also set the base URL explicitly with `option.WithBaseURL("https://your-opencode.example")`.
+
 ### Request fields
 
 All request parameters are wrapped in a generic `Field` type,
@@ -268,8 +270,8 @@ endpoints, params, or response properties, the library can still be used.
 
 #### Undocumented endpoints
 
-To make requests to undocumented endpoints, you can use `client.Get`, `client.Post`, and other HTTP verbs.
-`RequestOptions` on the client, such as retries, will be respected when making these requests.
+To make requests to undocumented endpoints, you can use `client.Execute(...)` as the generic helper, or `client.Get`, `client.Post`, and other HTTP verbs.
+`RequestOptions` on the client, such as retries, base URL overrides, and headers, will be respected when making these requests.
 
 ```go
 var (
