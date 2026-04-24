@@ -530,3 +530,39 @@ func TestSessionDiffEventDeserialization(t *testing.T) {
 		t.Fatalf("unexpected diff: %+v", diff.Properties.Diff)
 	}
 }
+
+func TestMessageRemovedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"message.removed","properties":{"sessionID":"ses_123","messageID":"msg_456"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	removed, ok := evt.AsUnion().(opencode.EventListResponseEventMessageRemoved)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if removed.Properties.SessionID != "ses_123" {
+		t.Fatalf("unexpected sessionID: %q", removed.Properties.SessionID)
+	}
+	if removed.Properties.MessageID != "msg_456" {
+		t.Fatalf("unexpected messageID: %q", removed.Properties.MessageID)
+	}
+}
+
+func TestMessagePartRemovedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"message.part.removed","properties":{"sessionID":"ses_123","messageID":"msg_456","partID":"prt_789"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	removed, ok := evt.AsUnion().(opencode.EventListResponseEventMessagePartRemoved)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if removed.Properties.SessionID != "ses_123" {
+		t.Fatalf("unexpected sessionID: %q", removed.Properties.SessionID)
+	}
+	if removed.Properties.PartID != "prt_789" {
+		t.Fatalf("unexpected partID: %q", removed.Properties.PartID)
+	}
+}
