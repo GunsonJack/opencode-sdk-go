@@ -21,6 +21,7 @@ import (
 // GlobalService contains methods for interacting with the global resource.
 type GlobalService struct {
 	Options []option.RequestOption
+	Config  *GlobalConfigService
 }
 
 // NewGlobalService generates a new service that applies the given options to each
@@ -28,6 +29,7 @@ type GlobalService struct {
 func NewGlobalService(opts ...option.RequestOption) (r *GlobalService) {
 	r = &GlobalService{}
 	r.Options = opts
+	r.Config = NewGlobalConfigService(opts...)
 	return
 }
 
@@ -52,22 +54,6 @@ func (r *GlobalService) Event(ctx context.Context, opts ...option.RequestOption)
 	return ssestream.NewStream[GlobalEvent](ssestream.NewDecoder(raw), err)
 }
 
-// ConfigGet retrieves the global configuration.
-func (r *GlobalService) ConfigGet(ctx context.Context, opts ...option.RequestOption) (res *Config, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "global/config"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
-	return
-}
-
-// ConfigUpdate updates the global configuration.
-func (r *GlobalService) ConfigUpdate(ctx context.Context, params GlobalConfigUpdateParams, opts ...option.RequestOption) (res *Config, err error) {
-	opts = slices.Concat(r.Options, opts)
-	path := "global/config"
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
-	return
-}
-
 // Dispose shuts down the server.
 func (r *GlobalService) Dispose(ctx context.Context, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
@@ -81,6 +67,34 @@ func (r *GlobalService) Upgrade(ctx context.Context, params GlobalUpgradeParams,
 	opts = slices.Concat(r.Options, opts)
 	path := "global/upgrade"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return
+}
+
+// GlobalConfigService contains methods for interacting with the global config resource.
+type GlobalConfigService struct {
+	Options []option.RequestOption
+}
+
+// NewGlobalConfigService generates a new service.
+func NewGlobalConfigService(opts ...option.RequestOption) (r *GlobalConfigService) {
+	r = &GlobalConfigService{}
+	r.Options = opts
+	return
+}
+
+// Get retrieves the global configuration.
+func (r *GlobalConfigService) Get(ctx context.Context, opts ...option.RequestOption) (res *Config, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "global/config"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
+	return
+}
+
+// Update updates the global configuration.
+func (r *GlobalConfigService) Update(ctx context.Context, params GlobalConfigUpdateParams, opts ...option.RequestOption) (res *Config, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "global/config"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPatch, path, params, &res, opts...)
 	return
 }
 

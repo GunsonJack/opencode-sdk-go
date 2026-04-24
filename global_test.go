@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -17,6 +18,11 @@ import (
 	"github.com/GunsonJack/opencode-sdk-go/internal/testutil"
 	"github.com/GunsonJack/opencode-sdk-go/option"
 )
+
+type legacyGlobalConfigAccess interface {
+	ConfigGet(context.Context, ...option.RequestOption) (*opencode.Config, error)
+	ConfigUpdate(context.Context, opencode.GlobalConfigUpdateParams, ...option.RequestOption) (*opencode.Config, error)
+}
 
 func TestGlobalHealth(t *testing.T) {
 	t.Skip("Prism tests are disabled")
@@ -170,5 +176,91 @@ func TestGlobalEventDecodesSyncEventPayload(t *testing.T) {
 	}
 	if updated.Data.SessionID != "ses_123" {
 		t.Fatalf("unexpected sessionID: %q", updated.Data.SessionID)
+	}
+}
+
+func TestGlobalConfigGet(t *testing.T) {
+	var gotMethod string
+	var gotPath string
+
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					gotMethod = req.Method
+					gotPath = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{"$schema":"https://example.com/config.schema.json"}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Global.Config.Get(context.Background())
+	if err != nil {
+		t.Fatalf("expected nil err, got %v", err)
+	}
+	if gotMethod != http.MethodGet {
+		t.Fatalf("unexpected method: %s", gotMethod)
+	}
+	if gotPath != "/global/config" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+}
+
+func TestGlobalConfigUpdate(t *testing.T) {
+	var gotMethod string
+	var gotPath string
+
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					gotMethod = req.Method
+					gotPath = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{"model":"gpt-4o"}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Global.Config.Update(context.Background(), opencode.GlobalConfigUpdateParams{
+		Model: opencode.F("gpt-4o"),
+	})
+	if err != nil {
+		t.Fatalf("expected nil err, got %v", err)
+	}
+	if gotMethod != http.MethodPatch {
+		t.Fatalf("unexpected method: %s", gotMethod)
+	}
+	if gotPath != "/global/config" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+}
+
+func TestNewGlobalServiceInitializesConfig(t *testing.T) {
+	service := opencode.NewGlobalService()
+	if service.Config == nil {
+		t.Fatal("expected Config service to be initialized")
+	}
+}
+
+func TestGlobalConfigNestedAccessPath(t *testing.T) {
+	service := opencode.NewGlobalService()
+	configType := reflect.TypeOf(service.Config)
+	if configType == nil || configType.String() == "" {
+		t.Fatalf("unexpected config service type: %v", configType)
+	}
+
+	legacyType := reflect.TypeOf((*legacyGlobalConfigAccess)(nil)).Elem()
+	if reflect.TypeOf(service).Implements(legacyType) {
+		t.Fatal("GlobalService should no longer expose flat config methods")
 	}
 }
