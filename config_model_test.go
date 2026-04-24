@@ -408,3 +408,65 @@ func TestConfigProviderModelInterleavedRejectsUnknownField(t *testing.T) {
 		t.Fatal("expected invalid interleaved.field to be rejected")
 	}
 }
+
+func TestConfigPermissionStringVariant(t *testing.T) {
+	var cfg opencode.Config
+	err := json.Unmarshal([]byte(`{"permission":"allow"}`), &cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	action, ok := cfg.Permission.(opencode.PermissionActionConfig)
+	if !ok {
+		t.Fatalf("expected string permission variant, got %T", cfg.Permission)
+	}
+	if action != "allow" {
+		t.Fatalf("expected allow, got %q", action)
+	}
+}
+
+func TestConfigPermissionObjectVariant(t *testing.T) {
+	var cfg opencode.Config
+	err := json.Unmarshal([]byte(`{"permission":{"bash":"deny","edit":"ask"}}`), &cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	obj, ok := cfg.Permission.(opencode.PermissionConfigObject)
+	if !ok {
+		t.Fatalf("expected object permission variant, got %T", cfg.Permission)
+	}
+	// Bash and Edit are PermissionRuleConfig interfaces -- when set to a string
+	// value they decode as PermissionActionConfig
+	bashAction, ok := obj.Bash.(opencode.PermissionActionConfig)
+	if !ok {
+		t.Fatalf("expected bash to be PermissionActionConfig, got %T", obj.Bash)
+	}
+	if bashAction != "deny" {
+		t.Fatalf("expected bash=deny, got %q", bashAction)
+	}
+	editAction, ok := obj.Edit.(opencode.PermissionActionConfig)
+	if !ok {
+		t.Fatalf("expected edit to be PermissionActionConfig, got %T", obj.Edit)
+	}
+	if editAction != "ask" {
+		t.Fatalf("expected edit=ask, got %q", editAction)
+	}
+}
+
+func TestConfigPermissionRuleObjectMap(t *testing.T) {
+	var cfg opencode.Config
+	err := json.Unmarshal([]byte(`{"permission":{"bash":{"rm -rf":"deny","ls":"allow"}}}`), &cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	obj, ok := cfg.Permission.(opencode.PermissionConfigObject)
+	if !ok {
+		t.Fatalf("expected object permission variant, got %T", cfg.Permission)
+	}
+	bashRule, ok := obj.Bash.(opencode.PermissionObjectConfig)
+	if !ok {
+		t.Fatalf("expected bash to be object map, got %T", obj.Bash)
+	}
+	if bashRule["rm -rf"] != "deny" {
+		t.Fatalf("unexpected bash rule: %#v", bashRule)
+	}
+}
