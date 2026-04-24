@@ -566,3 +566,87 @@ func TestMessagePartRemovedEventDeserialization(t *testing.T) {
 		t.Fatalf("unexpected partID: %q", removed.Properties.PartID)
 	}
 }
+
+func TestPermissionAskedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"permission.asked","properties":{"id":"per_123","sessionID":"ses_123","permission":"file.write","patterns":["*.go"],"metadata":{},"always":[]}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	asked, ok := evt.AsUnion().(opencode.EventListResponseEventPermissionAsked)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if asked.Properties.ID != "per_123" {
+		t.Fatalf("unexpected id: %q", asked.Properties.ID)
+	}
+	if asked.Properties.SessionID != "ses_123" {
+		t.Fatalf("unexpected sessionID: %q", asked.Properties.SessionID)
+	}
+}
+
+func TestPermissionRepliedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"permission.replied","properties":{"sessionID":"ses_123","requestID":"per_123","reply":"once"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	replied, ok := evt.AsUnion().(opencode.EventListResponseEventPermissionReplied)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if replied.Properties.SessionID != "ses_123" {
+		t.Fatalf("unexpected sessionID: %q", replied.Properties.SessionID)
+	}
+	if replied.Properties.RequestID != "per_123" {
+		t.Fatalf("unexpected requestID: %q", replied.Properties.RequestID)
+	}
+}
+
+func TestQuestionAskedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"question.asked","properties":{"id":"que_123","sessionID":"ses_123","questions":[{"question":"Pick one","header":"Choice","options":[{"label":"A","description":"Option A"}]}]}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	asked, ok := evt.AsUnion().(opencode.EventListResponseEventQuestionAsked)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if asked.Properties.ID != "que_123" {
+		t.Fatalf("unexpected id: %q", asked.Properties.ID)
+	}
+	if len(asked.Properties.Questions) != 1 {
+		t.Fatalf("unexpected questions count: %d", len(asked.Properties.Questions))
+	}
+}
+
+func TestQuestionRepliedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"question.replied","properties":{"sessionID":"ses_123","requestID":"que_123","answers":[["A"]]}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	replied, ok := evt.AsUnion().(opencode.EventListResponseEventQuestionReplied)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if replied.Properties.SessionID != "ses_123" {
+		t.Fatalf("unexpected sessionID: %q", replied.Properties.SessionID)
+	}
+}
+
+func TestQuestionRejectedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"question.rejected","properties":{"sessionID":"ses_123","requestID":"que_123"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rejected, ok := evt.AsUnion().(opencode.EventListResponseEventQuestionRejected)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if rejected.Properties.SessionID != "ses_123" {
+		t.Fatalf("unexpected sessionID: %q", rejected.Properties.SessionID)
+	}
+}
