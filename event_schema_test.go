@@ -290,3 +290,195 @@ func hasJSONExtraField(v interface{}, field string) bool {
 	}
 	return extra.MapIndex(reflect.ValueOf(field)).IsValid()
 }
+
+func TestFileEditedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"file.edited","properties":{"file":"/tmp/test.go"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	edited, ok := evt.AsUnion().(opencode.EventListResponseEventFileEdited)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if edited.Properties.File != "/tmp/test.go" {
+		t.Fatalf("unexpected file: %q", edited.Properties.File)
+	}
+}
+
+func TestMcpToolsChangedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"mcp.tools.changed","properties":{"server":"my-server"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	changed, ok := evt.AsUnion().(opencode.EventListResponseEventMcpToolsChanged)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if changed.Properties.Server != "my-server" {
+		t.Fatalf("unexpected server: %q", changed.Properties.Server)
+	}
+}
+
+func TestSessionCompactedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"session.compacted","properties":{"sessionID":"ses_123"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	compacted, ok := evt.AsUnion().(opencode.EventListResponseEventSessionCompacted)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if compacted.Properties.SessionID != "ses_123" {
+		t.Fatalf("unexpected sessionID: %q", compacted.Properties.SessionID)
+	}
+}
+
+func TestTodoUpdatedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"todo.updated","properties":{"sessionID":"ses_123","todos":[{"content":"fix bug","priority":"high","status":"pending"}]}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	updated, ok := evt.AsUnion().(opencode.EventListResponseEventTodoUpdated)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if updated.Properties.SessionID != "ses_123" {
+		t.Fatalf("unexpected sessionID: %q", updated.Properties.SessionID)
+	}
+	if len(updated.Properties.Todos) != 1 || updated.Properties.Todos[0].Content != "fix bug" {
+		t.Fatalf("unexpected todos: %+v", updated.Properties.Todos)
+	}
+}
+
+func TestPtyCreatedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"pty.created","properties":{"info":{"id":"pty_123","title":"bash","status":"running","command":"bash","size":{"rows":24,"cols":80},"time":{"created":1700000000}}}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	created, ok := evt.AsUnion().(opencode.EventListResponseEventPtyCreated)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if created.Properties.Info.ID != "pty_123" {
+		t.Fatalf("unexpected pty id: %q", created.Properties.Info.ID)
+	}
+}
+
+func TestPtyExitedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"pty.exited","properties":{"id":"pty_123","exitCode":0}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	exited, ok := evt.AsUnion().(opencode.EventListResponseEventPtyExited)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if exited.Properties.ID != "pty_123" {
+		t.Fatalf("unexpected id: %q", exited.Properties.ID)
+	}
+	if exited.Properties.ExitCode != 0 {
+		t.Fatalf("unexpected exitCode: %v", exited.Properties.ExitCode)
+	}
+}
+
+func TestFileWatcherUpdatedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"file.watcher.updated","properties":{"file":"/tmp/test.go","event":"change"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	updated, ok := evt.AsUnion().(opencode.EventListResponseEventFileWatcherUpdated)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if updated.Properties.File != "/tmp/test.go" {
+		t.Fatalf("unexpected file: %q", updated.Properties.File)
+	}
+	if !updated.Properties.Event.IsKnown() {
+		t.Fatalf("event should be a known value: %q", updated.Properties.Event)
+	}
+}
+
+func TestWorkspaceStatusEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"workspace.status","properties":{"workspaceID":"ws_123","status":"connected"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	status, ok := evt.AsUnion().(opencode.EventListResponseEventWorkspaceStatus)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if status.Properties.WorkspaceID != "ws_123" {
+		t.Fatalf("unexpected workspaceID: %q", status.Properties.WorkspaceID)
+	}
+	if !status.Properties.Status.IsKnown() {
+		t.Fatalf("status should be a known value: %q", status.Properties.Status)
+	}
+}
+
+func TestServerConnectedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"server.connected","properties":{}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, ok := evt.AsUnion().(opencode.EventListResponseEventServerConnected)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+}
+
+func TestGlobalDisposedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"global.disposed","properties":{}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, ok := evt.AsUnion().(opencode.EventListResponseEventGlobalDisposed)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+}
+
+func TestMessagePartDeltaEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"message.part.delta","properties":{"sessionID":"ses_123","messageID":"msg_123","partID":"prt_123","field":"text","delta":"hello world"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	delta, ok := evt.AsUnion().(opencode.EventListResponseEventMessagePartDelta)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if delta.Properties.SessionID != "ses_123" {
+		t.Fatalf("unexpected sessionID: %q", delta.Properties.SessionID)
+	}
+	if delta.Properties.Delta != "hello world" {
+		t.Fatalf("unexpected delta: %q", delta.Properties.Delta)
+	}
+	if delta.Properties.Field != "text" {
+		t.Fatalf("unexpected field: %q", delta.Properties.Field)
+	}
+}
+
+func TestSessionErrorEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"session.error","properties":{"sessionID":"ses_123","error":{"name":"ProviderAuthError","data":{"providerID":"openai"}}}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	errEvt, ok := evt.AsUnion().(opencode.EventListResponseEventSessionError)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if errEvt.Properties.SessionID != "ses_123" {
+		t.Fatalf("unexpected sessionID: %q", errEvt.Properties.SessionID)
+	}
+}

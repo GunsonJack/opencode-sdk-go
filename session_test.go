@@ -33,6 +33,12 @@ func TestSessionNewWithOptionalParams(t *testing.T) {
 		Directory: opencode.F("directory"),
 		ParentID:  opencode.F("sesJ!"),
 		Title:     opencode.F("title"),
+		Permission: opencode.F([]opencode.PermissionRule{{
+			Permission: "file.write",
+			Pattern:    "*",
+			Action:     opencode.PermissionActionAllow,
+		}}),
+		WorkspaceID: opencode.F("ws_123"),
 	})
 	if err != nil {
 		var apierr *opencode.Error
@@ -109,6 +115,14 @@ func TestSessionUpdateWithOptionalParams(t *testing.T) {
 		opencode.SessionUpdateParams{
 			Directory: opencode.F("directory"),
 			Title:     opencode.F("title"),
+			Permission: opencode.F([]opencode.PermissionRuleParam{{
+				Permission: opencode.F("file.write"),
+				Pattern:    opencode.F("*"),
+				Action:     opencode.F(opencode.PermissionActionAllow),
+			}}),
+			Time: opencode.F(opencode.SessionUpdateParamsTime{
+				Archived: opencode.F(1700000000.0),
+			}),
 		},
 	)
 	if err != nil {
@@ -320,6 +334,12 @@ func TestSessionCommandWithOptionalParams(t *testing.T) {
 			Agent:     opencode.F("agent"),
 			MessageID: opencode.F("msgJ!"),
 			Model:     opencode.F("model"),
+			Variant:   opencode.F("variant"),
+			Parts: opencode.F([]opencode.SessionCommandParamsPart{{
+				Mime: opencode.F("text/plain"),
+				Type: opencode.F(opencode.FilePartInputTypeFile),
+				URL:  opencode.F("file:///tmp/test.txt"),
+			}}),
 		},
 	)
 	if err != nil {
@@ -491,6 +511,10 @@ func TestSessionPromptWithOptionalParams(t *testing.T) {
 			Tools: opencode.F(map[string]bool{
 				"foo": true,
 			}),
+			Format: opencode.F[opencode.OutputFormatParam](opencode.OutputFormatTextParam{
+				Type: opencode.F(opencode.OutputFormatTextTypeText),
+			}),
+			Variant: opencode.F("variant"),
 		},
 	)
 	if err != nil {
@@ -627,6 +651,11 @@ func TestSessionShellWithOptionalParams(t *testing.T) {
 			Agent:     opencode.F("agent"),
 			Command:   opencode.F("command"),
 			Directory: opencode.F("directory"),
+			MessageID: opencode.F("msgJ!"),
+			Model: opencode.F(opencode.SessionShellParamsModel{
+				ProviderID: opencode.F("providerID"),
+				ModelID:    opencode.F("modelID"),
+			}),
 		},
 	)
 	if err != nil {
@@ -657,6 +686,7 @@ func TestSessionSummarizeWithOptionalParams(t *testing.T) {
 			ModelID:    opencode.F("modelID"),
 			ProviderID: opencode.F("providerID"),
 			Directory:  opencode.F("directory"),
+			Auto:       opencode.F(true),
 		},
 	)
 	if err != nil {
@@ -902,6 +932,19 @@ func TestSessionPromptAsyncUsesQueryAndJSONBody(t *testing.T) {
 		Workspace: opencode.F("workspace"),
 		Agent:     opencode.F("agent"),
 		MessageID: opencode.F("msg_123"),
+		Model: opencode.F(opencode.SessionPromptParamsModel{
+			ModelID:    opencode.F("modelID"),
+			ProviderID: opencode.F("providerID"),
+		}),
+		NoReply: opencode.F(true),
+		System:  opencode.F("system"),
+		Tools: opencode.F(map[string]bool{
+			"tool_a": true,
+		}),
+		Format: opencode.F[opencode.OutputFormatParam](opencode.OutputFormatTextParam{
+			Type: opencode.F(opencode.OutputFormatTextTypeText),
+		}),
+		Variant: opencode.F("variant"),
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -932,6 +975,22 @@ func TestSessionPromptAsyncUsesQueryAndJSONBody(t *testing.T) {
 	}
 	if part["text"] != "hello" || part["type"] != "text" {
 		t.Fatalf("unexpected part payload: %#v", part)
+	}
+	model, ok := got["model"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected model object, got: %#v", got["model"])
+	}
+	if model["modelID"] != "modelID" || model["providerID"] != "providerID" {
+		t.Fatalf("unexpected model payload: %#v", model)
+	}
+	if got["noReply"] != true {
+		t.Fatalf("unexpected noReply: %#v", got["noReply"])
+	}
+	if got["system"] != "system" {
+		t.Fatalf("unexpected system: %#v", got["system"])
+	}
+	if got["variant"] != "variant" {
+		t.Fatalf("unexpected variant: %#v", got["variant"])
 	}
 	if contentType != "application/json" {
 		t.Fatalf("expected JSON content-type, got: %s", contentType)
