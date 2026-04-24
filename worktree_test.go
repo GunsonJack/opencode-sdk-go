@@ -92,8 +92,9 @@ func TestWorktreeRemoveSendsDirectoryInQueryAndBody(t *testing.T) {
 	)
 
 	_, err := client.Worktree.Remove(context.Background(), opencode.WorktreeRemoveParams{
-		Directory: opencode.F("/tmp/worktree"),
-		Workspace: opencode.F("workspace"),
+		Directory:      opencode.F("/tmp/worktree"),
+		QueryDirectory: opencode.F("/tmp/worktree"),
+		Workspace:      opencode.F("workspace"),
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -133,8 +134,9 @@ func TestWorktreeResetSendsDirectoryInQueryAndBody(t *testing.T) {
 	)
 
 	_, err := client.Worktree.Reset(context.Background(), opencode.WorktreeResetParams{
-		Directory: opencode.F("/tmp/worktree"),
-		Workspace: opencode.F("workspace"),
+		Directory:      opencode.F("/tmp/worktree"),
+		QueryDirectory: opencode.F("/tmp/worktree"),
+		Workspace:      opencode.F("workspace"),
 	})
 	if err != nil {
 		t.Fatal(err)
