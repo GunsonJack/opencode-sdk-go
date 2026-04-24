@@ -4,6 +4,7 @@ package opencode
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -62,9 +63,9 @@ func (r *ConfigService) Providers(ctx context.Context, query ConfigProvidersPara
 }
 
 type ConfigProvidersResponse struct {
-	Providers []Provider                   `json:"providers,required"`
-	Default   map[string]string            `json:"default,required"`
-	JSON      configProvidersResponseJSON  `json:"-"`
+	Providers []Provider                  `json:"providers,required"`
+	Default   map[string]string           `json:"default,required"`
+	JSON      configProvidersResponseJSON `json:"-"`
 }
 
 // configProvidersResponseJSON contains the JSON metadata for the struct
@@ -102,24 +103,24 @@ type Config struct {
 	// Disable providers that are loaded automatically
 	DisabledProviders []string `json:"disabled_providers"`
 	// Enable specific providers
-	EnabledProviders []string                   `json:"enabled_providers"`
-	Enterprise       ConfigEnterprise           `json:"enterprise"`
-	Experimental     ConfigExperimental         `json:"experimental"`
-	Formatter        map[string]ConfigFormatter `json:"formatter"`
+	EnabledProviders []string             `json:"enabled_providers"`
+	Enterprise       ConfigEnterprise     `json:"enterprise"`
+	Experimental     ConfigExperimental   `json:"experimental"`
+	Formatter        ConfigFormatterUnion `json:"formatter"`
 	// Additional instruction files or patterns to include
-	Instructions []string             `json:"instructions"`
+	Instructions []string `json:"instructions"`
 	// @deprecated Use automatic layout behavior instead.
-	Layout       LayoutConfig         `json:"layout"`
-	LogLevel     ConfigLogLevel       `json:"logLevel"`
-	Lsp          map[string]ConfigLsp `json:"lsp"`
+	Layout   LayoutConfig         `json:"layout"`
+	LogLevel ConfigLogLevel       `json:"logLevel"`
+	Lsp      ConfigLspConfigUnion `json:"lsp"`
 	// MCP (Model Context Protocol) server configurations
 	Mcp map[string]ConfigMcp `json:"mcp"`
 	// Model to use in the format of provider/model, eg anthropic/claude-2
 	Model string `json:"model"`
 	// @deprecated Use 'agent' field instead.
-	Mode       ConfigMode                  `json:"mode"`
-	Permission PermissionConfig            `json:"permission"`
-	Plugin     []ConfigPluginItem          `json:"plugin"`
+	Mode       ConfigMode         `json:"mode"`
+	Permission PermissionConfig   `json:"permission"`
+	Plugin     []ConfigPluginItem `json:"plugin"`
 	// Custom provider configurations and model overrides
 	Provider map[string]ConfigProvider `json:"provider"`
 	Server   ServerConfig              `json:"server"`
@@ -129,8 +130,8 @@ type Config struct {
 	Skills ConfigSkills `json:"skills"`
 	// Small model to use for tasks like title generation in the format of
 	// provider/model
-	SmallModel string `json:"small_model"`
-	Snapshot   bool   `json:"snapshot"`
+	SmallModel string          `json:"small_model"`
+	Snapshot   bool            `json:"snapshot"`
 	Tools      map[string]bool `json:"tools"`
 	// Custom username to display in conversations instead of system username
 	Username string        `json:"username"`
@@ -175,7 +176,45 @@ type configJSON struct {
 }
 
 func (r *Config) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
+	if err = apijson.UnmarshalRoot(data, r); err != nil {
+		return err
+	}
+	parsed := gjson.ParseBytes(data)
+	providerTimeouts := parsed.Get("provider")
+	if providerTimeouts.Exists() {
+		for _, provider := range providerTimeouts.Map() {
+			timeout := provider.Get("options.timeout")
+			if timeout.Type == gjson.True {
+				return fmt.Errorf("invalid provider timeout: expected integer or false")
+			}
+			if timeout.Exists() && timeout.Type == gjson.Number && (timeout.Num != float64(int64(timeout.Num)) || timeout.Num <= 0) {
+				return fmt.Errorf("invalid provider timeout: expected integer or false")
+			}
+			models := provider.Get("models")
+			if models.Exists() {
+				for _, model := range models.Map() {
+					field := model.Get("interleaved.field")
+					if field.Exists() && field.String() != "reasoning_content" && field.String() != "reasoning_details" {
+						return fmt.Errorf("invalid interleaved field: %s", field.String())
+					}
+				}
+			}
+		}
+	}
+	mcpConfigs := parsed.Get("mcp")
+	if mcpConfigs.Exists() {
+		for _, mcp := range mcpConfigs.Map() {
+			if !mcp.Get("type").Exists() {
+				if !mcp.Get("enabled").Exists() {
+					return fmt.Errorf("missing required field: enabled")
+				}
+				if (mcp.Get("enabled").Type != gjson.False && mcp.Get("enabled").Type != gjson.True) || len(mcp.Map()) > 1 {
+					return fmt.Errorf("invalid disabled MCP config: unexpected extra fields")
+				}
+			}
+		}
+	}
+	return nil
 }
 
 func (r configJSON) RawJSON() string {
@@ -598,6 +637,37 @@ type ConfigFormatter struct {
 	JSON        configFormatterJSON `json:"-"`
 }
 
+type ConfigFormatterObject map[string]ConfigFormatter
+
+func (ConfigFormatterObject) implementsConfigFormatterUnion() {}
+
+type ConfigFormatterBool bool
+
+func (ConfigFormatterBool) implementsConfigFormatterUnion() {}
+
+type ConfigFormatterUnion interface {
+	implementsConfigFormatterUnion()
+}
+
+func init() {
+	apijson.RegisterUnion(
+		reflect.TypeOf((*ConfigFormatterUnion)(nil)).Elem(),
+		"",
+		apijson.UnionVariant{
+			TypeFilter: gjson.True,
+			Type:       reflect.TypeOf(ConfigFormatterBool(false)),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.False,
+			Type:       reflect.TypeOf(ConfigFormatterBool(false)),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ConfigFormatterObject{}),
+		},
+	)
+}
+
 // configFormatterJSON contains the JSON metadata for the struct [ConfigFormatter]
 type configFormatterJSON struct {
 	Command     apijson.Field
@@ -614,6 +684,37 @@ func (r *ConfigFormatter) UnmarshalJSON(data []byte) (err error) {
 
 func (r configFormatterJSON) RawJSON() string {
 	return r.raw
+}
+
+type ConfigLspConfigObject map[string]ConfigLsp
+
+func (ConfigLspConfigObject) implementsConfigLspConfigUnion() {}
+
+type ConfigLspConfigBool bool
+
+func (ConfigLspConfigBool) implementsConfigLspConfigUnion() {}
+
+type ConfigLspConfigUnion interface {
+	implementsConfigLspConfigUnion()
+}
+
+func init() {
+	apijson.RegisterUnion(
+		reflect.TypeOf((*ConfigLspConfigUnion)(nil)).Elem(),
+		"",
+		apijson.UnionVariant{
+			TypeFilter: gjson.True,
+			Type:       reflect.TypeOf(ConfigLspConfigBool(false)),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.False,
+			Type:       reflect.TypeOf(ConfigLspConfigBool(false)),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ConfigLspConfigObject{}),
+		},
+	)
 }
 
 type ConfigLsp struct {
@@ -761,9 +862,11 @@ type ConfigMcp struct {
 	// This field can have the runtime type of [map[string]string].
 	Headers interface{} `json:"headers"`
 	// URL of the remote MCP server
-	URL   string        `json:"url"`
-	JSON  configMcpJSON `json:"-"`
-	union ConfigMcpUnion
+	URL     string               `json:"url"`
+	OAuth   McpRemoteConfigOAuth `json:"oauth"`
+	Timeout float64              `json:"timeout"`
+	JSON    configMcpJSON        `json:"-"`
+	union   ConfigMcpUnion
 }
 
 // configMcpJSON contains the JSON metadata for the struct [ConfigMcp]
@@ -774,6 +877,8 @@ type configMcpJSON struct {
 	Environment apijson.Field
 	Headers     apijson.Field
 	URL         apijson.Field
+	OAuth       apijson.Field
+	Timeout     apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -784,22 +889,50 @@ func (r configMcpJSON) RawJSON() string {
 
 func (r *ConfigMcp) UnmarshalJSON(data []byte) (err error) {
 	*r = ConfigMcp{}
+	parsed := gjson.ParseBytes(data)
+	if !parsed.Get("type").Exists() {
+		if !parsed.Get("enabled").Exists() {
+			return fmt.Errorf("missing required field: enabled")
+		}
+		if parsed.Get("enabled").Type != gjson.True && parsed.Get("enabled").Type != gjson.False {
+			return fmt.Errorf("invalid disabled MCP config: enabled must be boolean")
+		}
+		if len(parsed.Map()) > 1 {
+			return fmt.Errorf("invalid disabled MCP config: unexpected extra fields")
+		}
+	} else if parsed.Get("type").String() != string(ConfigMcpTypeLocal) && parsed.Get("type").String() != string(ConfigMcpTypeRemote) {
+		return fmt.Errorf("invalid MCP type: %s", parsed.Get("type").String())
+	}
 	err = apijson.UnmarshalRoot(data, &r.union)
 	if err != nil {
 		return err
 	}
-	return apijson.Port(r.union, &r)
+	if err = apijson.Port(r.union, &r); err != nil {
+		return err
+	}
+	switch r.Type {
+	case ConfigMcpTypeLocal:
+		if !parsed.Get("command").Exists() {
+			return fmt.Errorf("missing required field: command")
+		}
+	case ConfigMcpTypeRemote:
+		if !parsed.Get("url").Exists() {
+			return fmt.Errorf("missing required field: url")
+		}
+	}
+	return nil
 }
 
 // AsUnion returns a [ConfigMcpUnion] interface which you can cast to the specific
 // types for more type safety.
 //
-// Possible runtime types of the union are [McpLocalConfig], [McpRemoteConfig].
+// Possible runtime types of the union are [McpLocalConfig], [McpRemoteConfig],
+// [ConfigMcpDisabled].
 func (r ConfigMcp) AsUnion() ConfigMcpUnion {
 	return r.union
 }
 
-// Union satisfied by [McpLocalConfig] or [McpRemoteConfig].
+// Union satisfied by [McpLocalConfig], [McpRemoteConfig], or [ConfigMcpDisabled].
 type ConfigMcpUnion interface {
 	implementsConfigMcp()
 }
@@ -807,14 +940,20 @@ type ConfigMcpUnion interface {
 func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*ConfigMcpUnion)(nil)).Elem(),
-		"",
+		"type",
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(McpLocalConfig{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "local",
+			Type:               reflect.TypeOf(McpLocalConfig{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "remote",
+			Type:               reflect.TypeOf(McpRemoteConfig{}),
 		},
 		apijson.UnionVariant{
 			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(McpRemoteConfig{}),
+			Type:       reflect.TypeOf(ConfigMcpDisabled{}),
 		},
 	)
 }
@@ -886,24 +1025,24 @@ func init() {
 // PermissionConfigObject is the per-tool permission configuration.
 // Spec: PermissionConfig anyOf variant 2 (openapi.json:10981)
 type PermissionConfigObject struct {
-	Read              PermissionRuleConfig   `json:"read"`
-	Edit              PermissionRuleConfig   `json:"edit"`
-	Glob              PermissionRuleConfig   `json:"glob"`
-	Grep              PermissionRuleConfig   `json:"grep"`
-	List              PermissionRuleConfig   `json:"list"`
-	Bash              PermissionRuleConfig   `json:"bash"`
-	Task              PermissionRuleConfig   `json:"task"`
-	ExternalDirectory PermissionRuleConfig   `json:"external_directory"`
-	Lsp               PermissionRuleConfig   `json:"lsp"`
-	Skill             PermissionRuleConfig   `json:"skill"`
-	Todowrite         PermissionActionConfig `json:"todowrite"`
-	Question          PermissionActionConfig `json:"question"`
-	Webfetch          PermissionActionConfig `json:"webfetch"`
-	Websearch         PermissionActionConfig `json:"websearch"`
-	Codesearch        PermissionActionConfig `json:"codesearch"`
-	DoomLoop          PermissionActionConfig `json:"doom_loop"`
+	Read              PermissionRuleConfig            `json:"read"`
+	Edit              PermissionRuleConfig            `json:"edit"`
+	Glob              PermissionRuleConfig            `json:"glob"`
+	Grep              PermissionRuleConfig            `json:"grep"`
+	List              PermissionRuleConfig            `json:"list"`
+	Bash              PermissionRuleConfig            `json:"bash"`
+	Task              PermissionRuleConfig            `json:"task"`
+	ExternalDirectory PermissionRuleConfig            `json:"external_directory"`
+	Lsp               PermissionRuleConfig            `json:"lsp"`
+	Skill             PermissionRuleConfig            `json:"skill"`
+	Todowrite         PermissionActionConfig          `json:"todowrite"`
+	Question          PermissionActionConfig          `json:"question"`
+	Webfetch          PermissionActionConfig          `json:"webfetch"`
+	Websearch         PermissionActionConfig          `json:"websearch"`
+	Codesearch        PermissionActionConfig          `json:"codesearch"`
+	DoomLoop          PermissionActionConfig          `json:"doom_loop"`
 	ExtraFields       map[string]PermissionRuleConfig `json:"-,extras"`
-	JSON              permissionConfigObjectJSON `json:"-"`
+	JSON              permissionConfigObjectJSON      `json:"-"`
 }
 
 type permissionConfigObjectJSON struct {
@@ -995,21 +1134,25 @@ func (r configProviderJSON) RawJSON() string {
 }
 
 type ConfigProviderModel struct {
-	ID           string                         `json:"id"`
-	Attachment   bool                           `json:"attachment"`
-	Cost         ConfigProviderModelsCost       `json:"cost"`
-	Experimental bool                           `json:"experimental"`
-	Limit        ConfigProviderModelsLimit      `json:"limit"`
-	Modalities   ConfigProviderModelsModalities `json:"modalities"`
-	Name         string                         `json:"name"`
-	Options      map[string]interface{}         `json:"options"`
-	Provider     ConfigProviderModelsProvider   `json:"provider"`
-	Reasoning    bool                           `json:"reasoning"`
-	ReleaseDate  string                         `json:"release_date"`
-	Status       ConfigProviderModelsStatus     `json:"status"`
-	Temperature  bool                           `json:"temperature"`
-	ToolCall     bool                           `json:"tool_call"`
-	JSON         configProviderModelJSON        `json:"-"`
+	ID           string                            `json:"id"`
+	Attachment   bool                              `json:"attachment"`
+	Cost         ConfigProviderModelsCost          `json:"cost"`
+	Experimental bool                              `json:"experimental"`
+	Family       string                            `json:"family"`
+	Headers      map[string]string                 `json:"headers"`
+	Interleaved  ConfigProviderModelInterleaved    `json:"interleaved"`
+	Limit        ConfigProviderModelsLimit         `json:"limit"`
+	Modalities   ConfigProviderModelsModalities    `json:"modalities"`
+	Name         string                            `json:"name"`
+	Options      map[string]interface{}            `json:"options"`
+	Provider     ConfigProviderModelsProvider      `json:"provider"`
+	Reasoning    bool                              `json:"reasoning"`
+	ReleaseDate  string                            `json:"release_date"`
+	Status       ConfigProviderModelsStatus        `json:"status"`
+	Temperature  bool                              `json:"temperature"`
+	ToolCall     bool                              `json:"tool_call"`
+	Variants     map[string]map[string]interface{} `json:"variants"`
+	JSON         configProviderModelJSON           `json:"-"`
 }
 
 // configProviderModelJSON contains the JSON metadata for the struct
@@ -1019,6 +1162,9 @@ type configProviderModelJSON struct {
 	Attachment   apijson.Field
 	Cost         apijson.Field
 	Experimental apijson.Field
+	Family       apijson.Field
+	Headers      apijson.Field
+	Interleaved  apijson.Field
 	Limit        apijson.Field
 	Modalities   apijson.Field
 	Name         apijson.Field
@@ -1029,6 +1175,7 @@ type configProviderModelJSON struct {
 	Status       apijson.Field
 	Temperature  apijson.Field
 	ToolCall     apijson.Field
+	Variants     apijson.Field
 	raw          string
 	ExtraFields  map[string]apijson.Field
 }
@@ -1041,23 +1188,112 @@ func (r configProviderModelJSON) RawJSON() string {
 	return r.raw
 }
 
+type ConfigProviderModelInterleaved struct {
+	Field string                             `json:"field"`
+	JSON  configProviderModelInterleavedJSON `json:"-"`
+	union ConfigProviderModelInterleavedUnion
+}
+
+type configProviderModelInterleavedJSON struct {
+	Field       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r configProviderModelInterleavedJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r *ConfigProviderModelInterleaved) UnmarshalJSON(data []byte) (err error) {
+	*r = ConfigProviderModelInterleaved{}
+	err = apijson.UnmarshalRoot(data, &r.union)
+	if err != nil {
+		return err
+	}
+	if object, ok := r.union.(ConfigProviderModelInterleavedObject); ok {
+		r.Field = object.Field
+		return apijson.Port(object, &r)
+	}
+	r.JSON.raw = string(data)
+	return nil
+}
+
+func (r ConfigProviderModelInterleaved) AsUnion() ConfigProviderModelInterleavedUnion {
+	return r.union
+}
+
+type ConfigProviderModelInterleavedUnion interface {
+	implementsConfigProviderModelInterleaved()
+}
+
+type ConfigProviderModelInterleavedBool bool
+
+func (ConfigProviderModelInterleavedBool) implementsConfigProviderModelInterleaved() {}
+
+type ConfigProviderModelInterleavedObject struct {
+	Field string                                   `json:"field,required"`
+	JSON  configProviderModelInterleavedObjectJSON `json:"-"`
+}
+
+type configProviderModelInterleavedObjectJSON struct {
+	Field       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ConfigProviderModelInterleavedObject) UnmarshalJSON(data []byte) (err error) {
+	if err = apijson.UnmarshalRoot(data, r); err != nil {
+		return err
+	}
+	if r.JSON.Field.IsMissing() {
+		return fmt.Errorf("missing required field: field")
+	}
+	if r.Field != "reasoning_content" && r.Field != "reasoning_details" {
+		return fmt.Errorf("invalid interleaved field: %s", r.Field)
+	}
+	return nil
+}
+
+func (r configProviderModelInterleavedObjectJSON) RawJSON() string {
+	return r.raw
+}
+
+func (ConfigProviderModelInterleavedObject) implementsConfigProviderModelInterleaved() {}
+
+func init() {
+	apijson.RegisterUnion(
+		reflect.TypeOf((*ConfigProviderModelInterleavedUnion)(nil)).Elem(),
+		"",
+		apijson.UnionVariant{
+			TypeFilter: gjson.True,
+			Type:       reflect.TypeOf(ConfigProviderModelInterleavedBool(false)),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(ConfigProviderModelInterleavedObject{}),
+		},
+	)
+}
+
 type ConfigProviderModelsCost struct {
-	Input      float64                      `json:"input,required"`
-	Output     float64                      `json:"output,required"`
-	CacheRead  float64                      `json:"cache_read"`
-	CacheWrite float64                      `json:"cache_write"`
-	JSON       configProviderModelsCostJSON `json:"-"`
+	Input           float64                                 `json:"input,required"`
+	Output          float64                                 `json:"output,required"`
+	CacheRead       float64                                 `json:"cache_read"`
+	CacheWrite      float64                                 `json:"cache_write"`
+	ContextOver200K ConfigProviderModelsCostContextOver200K `json:"context_over_200k"`
+	JSON            configProviderModelsCostJSON            `json:"-"`
 }
 
 // configProviderModelsCostJSON contains the JSON metadata for the struct
 // [ConfigProviderModelsCost]
 type configProviderModelsCostJSON struct {
-	Input       apijson.Field
-	Output      apijson.Field
-	CacheRead   apijson.Field
-	CacheWrite  apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
+	Input           apijson.Field
+	Output          apijson.Field
+	CacheRead       apijson.Field
+	CacheWrite      apijson.Field
+	ContextOver200K apijson.Field
+	raw             string
+	ExtraFields     map[string]apijson.Field
 }
 
 func (r *ConfigProviderModelsCost) UnmarshalJSON(data []byte) (err error) {
@@ -1068,8 +1304,34 @@ func (r configProviderModelsCostJSON) RawJSON() string {
 	return r.raw
 }
 
+type ConfigProviderModelsCostContextOver200K struct {
+	Input      float64                                     `json:"input,required"`
+	Output     float64                                     `json:"output,required"`
+	CacheRead  float64                                     `json:"cache_read"`
+	CacheWrite float64                                     `json:"cache_write"`
+	JSON       configProviderModelsCostContextOver200KJSON `json:"-"`
+}
+
+type configProviderModelsCostContextOver200KJSON struct {
+	Input       apijson.Field
+	Output      apijson.Field
+	CacheRead   apijson.Field
+	CacheWrite  apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ConfigProviderModelsCostContextOver200K) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r configProviderModelsCostContextOver200KJSON) RawJSON() string {
+	return r.raw
+}
+
 type ConfigProviderModelsLimit struct {
 	Context float64                       `json:"context,required"`
+	Input   float64                       `json:"input"`
 	Output  float64                       `json:"output,required"`
 	JSON    configProviderModelsLimitJSON `json:"-"`
 }
@@ -1078,6 +1340,7 @@ type ConfigProviderModelsLimit struct {
 // [ConfigProviderModelsLimit]
 type configProviderModelsLimitJSON struct {
 	Context     apijson.Field
+	Input       apijson.Field
 	Output      apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
@@ -1151,7 +1414,8 @@ func (r ConfigProviderModelsModalitiesOutput) IsKnown() bool {
 }
 
 type ConfigProviderModelsProvider struct {
-	Npm  string                           `json:"npm,required"`
+	Npm  string                           `json:"npm"`
+	API  string                           `json:"api"`
 	JSON configProviderModelsProviderJSON `json:"-"`
 }
 
@@ -1159,6 +1423,7 @@ type ConfigProviderModelsProvider struct {
 // [ConfigProviderModelsProvider]
 type configProviderModelsProviderJSON struct {
 	Npm         apijson.Field
+	API         apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
@@ -1174,13 +1439,14 @@ func (r configProviderModelsProviderJSON) RawJSON() string {
 type ConfigProviderModelsStatus string
 
 const (
-	ConfigProviderModelsStatusAlpha ConfigProviderModelsStatus = "alpha"
-	ConfigProviderModelsStatusBeta  ConfigProviderModelsStatus = "beta"
+	ConfigProviderModelsStatusAlpha      ConfigProviderModelsStatus = "alpha"
+	ConfigProviderModelsStatusBeta       ConfigProviderModelsStatus = "beta"
+	ConfigProviderModelsStatusDeprecated ConfigProviderModelsStatus = "deprecated"
 )
 
 func (r ConfigProviderModelsStatus) IsKnown() bool {
 	switch r {
-	case ConfigProviderModelsStatusAlpha, ConfigProviderModelsStatusBeta:
+	case ConfigProviderModelsStatusAlpha, ConfigProviderModelsStatusBeta, ConfigProviderModelsStatusDeprecated:
 		return true
 	}
 	return false
@@ -1213,7 +1479,19 @@ type configProviderOptionsJSON struct {
 }
 
 func (r *ConfigProviderOptions) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
+	if err = apijson.UnmarshalRoot(data, r); err != nil {
+		return err
+	}
+	if !r.JSON.Timeout.IsMissing() && r.Timeout == nil {
+		return fmt.Errorf("invalid provider timeout: expected integer or false")
+	}
+	if !r.JSON.Timeout.IsMissing() {
+		timeout := gjson.Parse(r.JSON.Timeout.Raw())
+		if timeout.Type == gjson.Number && (timeout.Num != float64(int64(timeout.Num)) || timeout.Num <= 0) {
+			return fmt.Errorf("invalid provider timeout: expected integer or false")
+		}
+	}
+	return nil
 }
 
 func (r configProviderOptionsJSON) RawJSON() string {
@@ -1223,9 +1501,25 @@ func (r configProviderOptionsJSON) RawJSON() string {
 // Timeout in milliseconds for requests to this provider. Default is 300000 (5
 // minutes). Set to false to disable timeout.
 //
-// Union satisfied by [shared.UnionInt] or [shared.UnionBool].
+// Union satisfied by [shared.UnionInt] or [ConfigProviderOptionsTimeoutFalse].
 type ConfigProviderOptionsTimeoutUnion interface {
 	ImplementsConfigProviderOptionsTimeoutUnion()
+}
+
+type ConfigProviderOptionsTimeoutFalse bool
+
+func (ConfigProviderOptionsTimeoutFalse) ImplementsConfigProviderOptionsTimeoutUnion() {}
+
+func (r *ConfigProviderOptionsTimeoutFalse) UnmarshalJSON(data []byte) error {
+	var value bool
+	if err := apijson.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	if value {
+		return fmt.Errorf("expected false")
+	}
+	*r = ConfigProviderOptionsTimeoutFalse(false)
+	return nil
 }
 
 func init() {
@@ -1237,12 +1531,8 @@ func init() {
 			Type:       reflect.TypeOf(shared.UnionInt(0)),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.True,
-			Type:       reflect.TypeOf(shared.UnionBool(false)),
-		},
-		apijson.UnionVariant{
 			TypeFilter: gjson.False,
-			Type:       reflect.TypeOf(shared.UnionBool(false)),
+			Type:       reflect.TypeOf(ConfigProviderOptionsTimeoutFalse(false)),
 		},
 	)
 }
@@ -1295,6 +1585,7 @@ type McpLocalConfig struct {
 	Enabled bool `json:"enabled"`
 	// Environment variables to set when running the MCP server
 	Environment map[string]string  `json:"environment"`
+	Timeout     float64            `json:"timeout"`
 	JSON        mcpLocalConfigJSON `json:"-"`
 }
 
@@ -1304,12 +1595,19 @@ type mcpLocalConfigJSON struct {
 	Type        apijson.Field
 	Enabled     apijson.Field
 	Environment apijson.Field
+	Timeout     apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
 
 func (r *McpLocalConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
+	if err = apijson.UnmarshalRoot(data, r); err != nil {
+		return err
+	}
+	if r.JSON.Command.IsMissing() {
+		return fmt.Errorf("missing required field: command")
+	}
+	return nil
 }
 
 func (r mcpLocalConfigJSON) RawJSON() string {
@@ -1341,8 +1639,10 @@ type McpRemoteConfig struct {
 	// Enable or disable the MCP server on startup
 	Enabled bool `json:"enabled"`
 	// Headers to send with the request
-	Headers map[string]string   `json:"headers"`
-	JSON    mcpRemoteConfigJSON `json:"-"`
+	Headers map[string]string    `json:"headers"`
+	OAuth   McpRemoteConfigOAuth `json:"oauth"`
+	Timeout float64              `json:"timeout"`
+	JSON    mcpRemoteConfigJSON  `json:"-"`
 }
 
 // mcpRemoteConfigJSON contains the JSON metadata for the struct [McpRemoteConfig]
@@ -1351,12 +1651,20 @@ type mcpRemoteConfigJSON struct {
 	URL         apijson.Field
 	Enabled     apijson.Field
 	Headers     apijson.Field
+	OAuth       apijson.Field
+	Timeout     apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
 
 func (r *McpRemoteConfig) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
+	if err = apijson.UnmarshalRoot(data, r); err != nil {
+		return err
+	}
+	if r.JSON.URL.IsMissing() {
+		return fmt.Errorf("missing required field: url")
+	}
+	return nil
 }
 
 func (r mcpRemoteConfigJSON) RawJSON() string {
@@ -1364,6 +1672,98 @@ func (r mcpRemoteConfigJSON) RawJSON() string {
 }
 
 func (r McpRemoteConfig) implementsConfigMcp() {}
+
+type ConfigMcpDisabled struct {
+	Enabled bool                  `json:"enabled,required"`
+	JSON    configMcpDisabledJSON `json:"-"`
+}
+
+type configMcpDisabledJSON struct {
+	Enabled     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ConfigMcpDisabled) UnmarshalJSON(data []byte) (err error) {
+	if err = apijson.UnmarshalRoot(data, r); err != nil {
+		return err
+	}
+	if r.JSON.Enabled.IsMissing() {
+		return fmt.Errorf("missing required field: enabled")
+	}
+	if len(gjson.ParseBytes(data).Map()) > 1 {
+		return fmt.Errorf("invalid disabled MCP config: unexpected extra fields")
+	}
+	return nil
+}
+
+func (r configMcpDisabledJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ConfigMcpDisabled) implementsConfigMcp() {}
+
+type McpOAuthConfig struct {
+	ClientID     string             `json:"clientId"`
+	ClientSecret string             `json:"clientSecret"`
+	Scope        string             `json:"scope"`
+	RedirectURI  string             `json:"redirectUri"`
+	JSON         mcpOAuthConfigJSON `json:"-"`
+}
+
+type mcpOAuthConfigJSON struct {
+	ClientID     apijson.Field
+	ClientSecret apijson.Field
+	Scope        apijson.Field
+	RedirectURI  apijson.Field
+	raw          string
+	ExtraFields  map[string]apijson.Field
+}
+
+func (r *McpOAuthConfig) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r mcpOAuthConfigJSON) RawJSON() string {
+	return r.raw
+}
+
+func (McpOAuthConfig) implementsMcpRemoteConfigOAuthUnion() {}
+
+type McpRemoteConfigOAuth interface {
+	implementsMcpRemoteConfigOAuthUnion()
+}
+
+type McpRemoteConfigOAuthFalse bool
+
+func (McpRemoteConfigOAuthFalse) implementsMcpRemoteConfigOAuthUnion() {}
+
+func (r *McpRemoteConfigOAuthFalse) UnmarshalJSON(data []byte) error {
+	var value bool
+	if err := apijson.Unmarshal(data, &value); err != nil {
+		return err
+	}
+	if value {
+		return fmt.Errorf("expected false")
+	}
+	*r = McpRemoteConfigOAuthFalse(false)
+	return nil
+}
+
+func init() {
+	apijson.RegisterUnion(
+		reflect.TypeOf((*McpRemoteConfigOAuth)(nil)).Elem(),
+		"",
+		apijson.UnionVariant{
+			TypeFilter: gjson.JSON,
+			Type:       reflect.TypeOf(McpOAuthConfig{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter: gjson.False,
+			Type:       reflect.TypeOf(McpRemoteConfigOAuthFalse(false)),
+		},
+	)
+}
 
 // Type of MCP server connection
 type McpRemoteConfigType string

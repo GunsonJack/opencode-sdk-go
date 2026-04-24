@@ -4,6 +4,7 @@ package opencode
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"reflect"
 	"slices"
@@ -116,11 +117,27 @@ func (r globalUpgradeResponseJSON) RawJSON() string {
 
 func (r *GlobalUpgradeResponse) UnmarshalJSON(data []byte) (err error) {
 	*r = GlobalUpgradeResponse{}
+	parsed := gjson.ParseBytes(data)
+	if !parsed.Get("success").Exists() {
+		return fmt.Errorf("missing required field: success")
+	}
+	if parsed.Get("success").Type != gjson.True && parsed.Get("success").Type != gjson.False {
+		return fmt.Errorf("invalid field type: success must be boolean")
+	}
 	err = apijson.UnmarshalRoot(data, &r.union)
 	if err != nil {
 		return err
 	}
-	return apijson.Port(r.union, &r)
+	if err = apijson.Port(r.union, &r); err != nil {
+		return err
+	}
+	if r.Success && !parsed.Get("version").Exists() {
+		return fmt.Errorf("missing required field: version")
+	}
+	if !r.Success && !parsed.Get("error").Exists() {
+		return fmt.Errorf("missing required field: error")
+	}
+	return nil
 }
 
 func (r GlobalUpgradeResponse) AsUnion() GlobalUpgradeResponseUnion {
@@ -145,7 +162,13 @@ type globalUpgradeResponseSuccessJSON struct {
 }
 
 func (r *GlobalUpgradeResponseSuccess) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
+	if err = apijson.UnmarshalRoot(data, r); err != nil {
+		return err
+	}
+	if r.JSON.Version.IsMissing() {
+		return fmt.Errorf("missing required field: version")
+	}
+	return nil
 }
 
 func (r globalUpgradeResponseSuccessJSON) RawJSON() string {
@@ -168,7 +191,13 @@ type globalUpgradeResponseFailureJSON struct {
 }
 
 func (r *GlobalUpgradeResponseFailure) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
+	if err = apijson.UnmarshalRoot(data, r); err != nil {
+		return err
+	}
+	if r.JSON.Error.IsMissing() {
+		return fmt.Errorf("missing required field: error")
+	}
+	return nil
 }
 
 func (r globalUpgradeResponseFailureJSON) RawJSON() string {
@@ -180,14 +209,16 @@ func (r GlobalUpgradeResponseFailure) implementsGlobalUpgradeResponse() {}
 func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*GlobalUpgradeResponseUnion)(nil)).Elem(),
-		"",
+		"success",
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(GlobalUpgradeResponseSuccess{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: true,
+			Type:               reflect.TypeOf(GlobalUpgradeResponseSuccess{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(GlobalUpgradeResponseFailure{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: false,
+			Type:               reflect.TypeOf(GlobalUpgradeResponseFailure{}),
 		},
 	)
 }
