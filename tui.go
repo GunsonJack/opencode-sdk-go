@@ -156,9 +156,11 @@ func (r TuiClearPromptParams) URLQuery() (v url.Values) {
 }
 
 type TuiExecuteCommandParams struct {
-	Command   param.Field[TuiCommand] `json:"command,required"`
-	Directory param.Field[string]     `query:"directory"`
-	Workspace param.Field[string]     `query:"workspace"`
+	// The command to execute. This is a free-form string, not restricted to the
+	// TuiCommand enum (which only applies to TUI publish events).
+	Command   param.Field[string] `json:"command,required"`
+	Directory param.Field[string] `query:"directory"`
+	Workspace param.Field[string] `query:"workspace"`
 }
 
 func (r TuiExecuteCommandParams) MarshalJSON() (data []byte, err error) {

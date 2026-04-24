@@ -381,17 +381,20 @@ func (r McpAddParams) URLQuery() (v url.Values) {
 }
 
 // McpAddConfigParam represents the configuration for an MCP server.
-// Set Type to "local" and provide Command for local servers,
-// or set Type to "remote" and provide URL for remote servers.
+// This is a flattened union of McpLocalConfig and McpRemoteConfig from the spec
+// (anyOf discriminated by Type).
+//
+// For local servers, set Type to "local" and provide Command (required for local).
+// For remote servers, set Type to "remote" and provide URL (required for remote).
 type McpAddConfigParam struct {
 	// The config type: "local" or "remote".
 	Type param.Field[string] `json:"type,required"`
-	// Local config fields
+	// Command to run. Required when Type is "local".
 	Command     param.Field[[]string]         `json:"command"`
 	Environment param.Field[map[string]string] `json:"environment"`
-	// Remote config fields
-	URL     param.Field[string]                 `json:"url"`
-	Headers param.Field[map[string]string]      `json:"headers"`
+	// URL of the remote server. Required when Type is "remote".
+	URL     param.Field[string]                     `json:"url"`
+	Headers param.Field[map[string]string]           `json:"headers"`
 	OAuth   param.Field[McpAddConfigOAuthUnionParam] `json:"oauth"`
 	// Shared fields
 	Enabled param.Field[bool]    `json:"enabled"`

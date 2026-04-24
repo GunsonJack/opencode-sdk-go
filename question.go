@@ -163,6 +163,50 @@ func (r questionToolJSON) RawJSON() string {
 
 type QuestionAnswer = []string
 
+type QuestionReplied struct {
+	SessionID string               `json:"sessionID,required"`
+	RequestID string               `json:"requestID,required"`
+	Answers   []QuestionAnswer     `json:"answers,required"`
+	JSON      questionRepliedJSON  `json:"-"`
+}
+
+type questionRepliedJSON struct {
+	SessionID   apijson.Field
+	RequestID   apijson.Field
+	Answers     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *QuestionReplied) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r questionRepliedJSON) RawJSON() string {
+	return r.raw
+}
+
+type QuestionRejected struct {
+	SessionID string                `json:"sessionID,required"`
+	RequestID string                `json:"requestID,required"`
+	JSON      questionRejectedJSON  `json:"-"`
+}
+
+type questionRejectedJSON struct {
+	SessionID   apijson.Field
+	RequestID   apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *QuestionRejected) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r questionRejectedJSON) RawJSON() string {
+	return r.raw
+}
+
 type QuestionListParams struct {
 	Workspace param.Field[string] `query:"workspace"`
 	Directory param.Field[string] `query:"directory"`

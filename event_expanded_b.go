@@ -9,7 +9,7 @@ import (
 // 1. question.replied
 
 type EventListResponseEventQuestionReplied struct {
-	Properties EventListResponseEventQuestionRepliedProperties `json:"properties,required"`
+	Properties QuestionReplied `json:"properties,required"`
 	Type       EventListResponseEventQuestionRepliedType       `json:"type,required"`
 	JSON       eventListResponseEventQuestionRepliedJSON       `json:"-"`
 }
@@ -33,31 +33,6 @@ func (r eventListResponseEventQuestionRepliedJSON) RawJSON() string {
 
 func (r EventListResponseEventQuestionReplied) implementsEventListResponse() {}
 
-type EventListResponseEventQuestionRepliedProperties struct {
-	SessionID string                                              `json:"sessionID,required"`
-	RequestID string                                              `json:"requestID,required"`
-	Answers   []QuestionAnswer                                    `json:"answers,required"`
-	JSON      eventListResponseEventQuestionRepliedPropertiesJSON `json:"-"`
-}
-
-// eventListResponseEventQuestionRepliedPropertiesJSON contains the JSON metadata
-// for the struct [EventListResponseEventQuestionRepliedProperties]
-type eventListResponseEventQuestionRepliedPropertiesJSON struct {
-	SessionID   apijson.Field
-	RequestID   apijson.Field
-	Answers     apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *EventListResponseEventQuestionRepliedProperties) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r eventListResponseEventQuestionRepliedPropertiesJSON) RawJSON() string {
-	return r.raw
-}
-
 type EventListResponseEventQuestionRepliedType string
 
 const (
@@ -75,7 +50,7 @@ func (r EventListResponseEventQuestionRepliedType) IsKnown() bool {
 // 2. question.rejected
 
 type EventListResponseEventQuestionRejected struct {
-	Properties EventListResponseEventQuestionRejectedProperties `json:"properties,required"`
+	Properties QuestionRejected `json:"properties,required"`
 	Type       EventListResponseEventQuestionRejectedType       `json:"type,required"`
 	JSON       eventListResponseEventQuestionRejectedJSON       `json:"-"`
 }
@@ -98,29 +73,6 @@ func (r eventListResponseEventQuestionRejectedJSON) RawJSON() string {
 }
 
 func (r EventListResponseEventQuestionRejected) implementsEventListResponse() {}
-
-type EventListResponseEventQuestionRejectedProperties struct {
-	SessionID string                                               `json:"sessionID,required"`
-	RequestID string                                               `json:"requestID,required"`
-	JSON      eventListResponseEventQuestionRejectedPropertiesJSON `json:"-"`
-}
-
-// eventListResponseEventQuestionRejectedPropertiesJSON contains the JSON metadata
-// for the struct [EventListResponseEventQuestionRejectedProperties]
-type eventListResponseEventQuestionRejectedPropertiesJSON struct {
-	SessionID   apijson.Field
-	RequestID   apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *EventListResponseEventQuestionRejectedProperties) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r eventListResponseEventQuestionRejectedPropertiesJSON) RawJSON() string {
-	return r.raw
-}
 
 type EventListResponseEventQuestionRejectedType string
 
