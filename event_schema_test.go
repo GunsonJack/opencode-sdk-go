@@ -190,6 +190,43 @@ func TestSyncEventStructsMatchSpecDefinedShapes(t *testing.T) {
 	}
 }
 
+func TestSyncEventSessionUpdatedUsesSparseInfoPayloadShape(t *testing.T) {
+	var evt opencode.SyncEvent
+	err := json.Unmarshal([]byte(`{"type":"sync","name":"session.updated.1","id":"evt_123","seq":1,"aggregateID":"sessionID","data":{"sessionID":"ses_123","info":{"id":null,"slug":null,"projectID":null,"workspaceID":null,"directory":null,"parentID":null,"summary":null,"share":{"url":null},"title":null,"version":null,"time":{"created":null,"updated":null,"compacting":null,"archived":null},"permission":null,"revert":null}}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	updated, ok := evt.AsUnion().(opencode.SyncEventSessionUpdated)
+	if !ok {
+		t.Fatalf("unexpected sync event type: %#v", evt.AsUnion())
+	}
+	if updated.Data.SessionID != "ses_123" {
+		t.Fatalf("unexpected sessionID: %q", updated.Data.SessionID)
+	}
+	if updated.Data.Info.ID != nil {
+		t.Fatal("expected sparse info.id to accept null")
+	}
+	if updated.Data.Info.Time.Created != nil || updated.Data.Info.Time.Updated != nil || updated.Data.Info.Time.Compacting != nil || updated.Data.Info.Time.Archived != nil {
+		t.Fatal("expected sparse info.time fields to accept null")
+	}
+	if updated.Data.Info.Share.URL != nil {
+		t.Fatal("expected sparse info.share.url to accept null")
+	}
+	if updated.Data.Info.Permission != nil {
+		t.Fatal("expected sparse info.permission to accept null")
+	}
+	if updated.Data.Info.Revert != nil {
+		t.Fatal("expected sparse info.revert to accept null")
+	}
+	if hasJSONExtraField(updated.Data, "sessionID") {
+		t.Fatal("sync session.updated data.sessionID decoded as an unknown extra field")
+	}
+	if hasJSONExtraField(updated.Data.Info, "id") || hasJSONExtraField(updated.Data.Info, "workspaceID") || hasJSONExtraField(updated.Data.Info, "permission") {
+		t.Fatal("sync session.updated info fields decoded as unknown extra fields")
+	}
+}
+
 func packageTypeSpecsEventTest(t *testing.T) map[string]*ast.TypeSpec {
 	t.Helper()
 	wd, err := os.Getwd()

@@ -333,13 +333,13 @@ func (r syncEventSessionCreatedJSON) RawJSON() string { return r.raw }
 func (r SyncEventSessionCreated) implementsSyncEvent() {}
 
 type SyncEventSessionUpdated struct {
-	Type        SyncEventType                                  `json:"type,required"`
-	Name        string                                         `json:"name,required"`
-	ID          string                                         `json:"id,required"`
-	Seq         float64                                        `json:"seq,required"`
-	AggregateID string                                         `json:"aggregateID,required"`
-	Data        EventListResponseEventSessionUpdatedProperties `json:"data,required"`
-	JSON        syncEventSessionUpdatedJSON                    `json:"-"`
+	Type        SyncEventType               `json:"type,required"`
+	Name        string                      `json:"name,required"`
+	ID          string                      `json:"id,required"`
+	Seq         float64                     `json:"seq,required"`
+	AggregateID string                      `json:"aggregateID,required"`
+	Data        SyncEventSessionUpdatedData `json:"data,required"`
+	JSON        syncEventSessionUpdatedJSON `json:"-"`
 }
 
 type syncEventSessionUpdatedJSON struct {
@@ -360,6 +360,152 @@ func (r *SyncEventSessionUpdated) UnmarshalJSON(data []byte) (err error) {
 func (r syncEventSessionUpdatedJSON) RawJSON() string { return r.raw }
 
 func (r SyncEventSessionUpdated) implementsSyncEvent() {}
+
+type SyncEventSessionUpdatedData struct {
+	SessionID string                          `json:"sessionID,required"`
+	Info      SyncEventSessionUpdatedDataInfo `json:"info,required"`
+	JSON      syncEventSessionUpdatedDataJSON `json:"-"`
+}
+
+type syncEventSessionUpdatedDataJSON struct {
+	SessionID   apijson.Field
+	Info        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SyncEventSessionUpdatedData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r syncEventSessionUpdatedDataJSON) RawJSON() string { return r.raw }
+
+type SyncEventSessionUpdatedDataInfo struct {
+	ID          *string                                 `json:"id,required"`
+	Slug        *string                                 `json:"slug,required"`
+	ProjectID   *string                                 `json:"projectID,required"`
+	WorkspaceID *string                                 `json:"workspaceID,required"`
+	Directory   *string                                 `json:"directory,required"`
+	ParentID    *string                                 `json:"parentID,required"`
+	Summary     *SyncEventSessionUpdatedDataInfoSummary `json:"summary,required"`
+	Share       SyncEventSessionUpdatedDataInfoShare    `json:"share"`
+	Title       *string                                 `json:"title,required"`
+	Version     *string                                 `json:"version,required"`
+	Time        SyncEventSessionUpdatedDataInfoTime     `json:"time"`
+	Permission  *[]PermissionRule                       `json:"permission,required"`
+	Revert      *SyncEventSessionUpdatedDataInfoRevert  `json:"revert,required"`
+	JSON        syncEventSessionUpdatedDataInfoJSON     `json:"-"`
+}
+
+type syncEventSessionUpdatedDataInfoJSON struct {
+	ID          apijson.Field
+	Slug        apijson.Field
+	ProjectID   apijson.Field
+	WorkspaceID apijson.Field
+	Directory   apijson.Field
+	ParentID    apijson.Field
+	Summary     apijson.Field
+	Share       apijson.Field
+	Title       apijson.Field
+	Version     apijson.Field
+	Time        apijson.Field
+	Permission  apijson.Field
+	Revert      apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SyncEventSessionUpdatedDataInfo) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r syncEventSessionUpdatedDataInfoJSON) RawJSON() string { return r.raw }
+
+type SyncEventSessionUpdatedDataInfoSummary struct {
+	Additions *float64                                   `json:"additions,required"`
+	Deletions *float64                                   `json:"deletions,required"`
+	Files     *float64                                   `json:"files,required"`
+	Diffs     []SnapshotFileDiff                         `json:"diffs"`
+	JSON      syncEventSessionUpdatedDataInfoSummaryJSON `json:"-"`
+}
+
+type syncEventSessionUpdatedDataInfoSummaryJSON struct {
+	Additions   apijson.Field
+	Deletions   apijson.Field
+	Files       apijson.Field
+	Diffs       apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SyncEventSessionUpdatedDataInfoSummary) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r syncEventSessionUpdatedDataInfoSummaryJSON) RawJSON() string { return r.raw }
+
+type SyncEventSessionUpdatedDataInfoShare struct {
+	URL  *string                                  `json:"url,required"`
+	JSON syncEventSessionUpdatedDataInfoShareJSON `json:"-"`
+}
+
+type syncEventSessionUpdatedDataInfoShareJSON struct {
+	URL         apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SyncEventSessionUpdatedDataInfoShare) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r syncEventSessionUpdatedDataInfoShareJSON) RawJSON() string { return r.raw }
+
+type SyncEventSessionUpdatedDataInfoTime struct {
+	Created    *float64                                `json:"created,required"`
+	Updated    *float64                                `json:"updated,required"`
+	Compacting *float64                                `json:"compacting,required"`
+	Archived   *float64                                `json:"archived,required"`
+	JSON       syncEventSessionUpdatedDataInfoTimeJSON `json:"-"`
+}
+
+type syncEventSessionUpdatedDataInfoTimeJSON struct {
+	Created     apijson.Field
+	Updated     apijson.Field
+	Compacting  apijson.Field
+	Archived    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SyncEventSessionUpdatedDataInfoTime) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r syncEventSessionUpdatedDataInfoTimeJSON) RawJSON() string { return r.raw }
+
+type SyncEventSessionUpdatedDataInfoRevert struct {
+	MessageID *string                                   `json:"messageID,required"`
+	PartID    *string                                   `json:"partID"`
+	Snapshot  *string                                   `json:"snapshot"`
+	Diff      *string                                   `json:"diff"`
+	JSON      syncEventSessionUpdatedDataInfoRevertJSON `json:"-"`
+}
+
+type syncEventSessionUpdatedDataInfoRevertJSON struct {
+	MessageID   apijson.Field
+	PartID      apijson.Field
+	Snapshot    apijson.Field
+	Diff        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *SyncEventSessionUpdatedDataInfoRevert) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r syncEventSessionUpdatedDataInfoRevertJSON) RawJSON() string { return r.raw }
 
 type SyncEventSessionDeleted struct {
 	Type        SyncEventType                                  `json:"type,required"`

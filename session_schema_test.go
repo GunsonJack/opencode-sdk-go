@@ -57,6 +57,37 @@ func TestFilePartSourceDecodesResourceVariant(t *testing.T) {
 	}
 }
 
+func TestAssistantMessageErrorRecognizesStructuredAndContextOverflowErrors(t *testing.T) {
+	if !opencode.AssistantMessageErrorName("StructuredOutputError").IsKnown() {
+		t.Fatal("assistant message error is missing StructuredOutputError")
+	}
+	if !opencode.AssistantMessageErrorName("ContextOverflowError").IsKnown() {
+		t.Fatal("assistant message error is missing ContextOverflowError")
+	}
+}
+
+func TestAssistantMessageErrorDecodesStructuredOutputAndContextOverflowVariants(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		body string
+		want string
+	}{
+		{name: "structured", body: `{"name":"StructuredOutputError","data":{"message":"bad schema","retries":2}}`, want: ".AssistantMessageErrorStructuredOutputError"},
+		{name: "context overflow", body: `{"name":"ContextOverflowError","data":{"message":"too long","responseBody":"overflow"}}`, want: ".AssistantMessageErrorContextOverflowError"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			var msgErr opencode.AssistantMessageError
+			err := json.Unmarshal([]byte(tc.body), &msgErr)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if got := fmt.Sprintf("%T", msgErr.AsUnion()); !strings.HasSuffix(got, tc.want) {
+				t.Fatalf("unexpected assistant message error type: %s", got)
+			}
+		})
+	}
+}
+
 func packageTypeSpecsSessionTest(t *testing.T) map[string]*ast.TypeSpec {
 	t.Helper()
 	wd, err := os.Getwd()
