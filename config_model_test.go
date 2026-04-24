@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/GunsonJack/opencode-sdk-go"
+	"github.com/GunsonJack/opencode-sdk-go/shared"
 )
 
 func TestConfigFormatterSupportsBooleanAndObjectShapes(t *testing.T) {
@@ -468,5 +469,67 @@ func TestConfigPermissionRuleObjectMap(t *testing.T) {
 	}
 	if bashRule["rm -rf"] != "deny" {
 		t.Fatalf("unexpected bash rule: %#v", bashRule)
+	}
+}
+
+func TestConfigAutoupdateBoolVariant(t *testing.T) {
+	var cfg opencode.Config
+	err := json.Unmarshal([]byte(`{"autoupdate":true}`), &cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := cfg.Autoupdate.(shared.UnionBool); !ok {
+		t.Fatalf("expected bool autoupdate variant, got %T", cfg.Autoupdate)
+	}
+}
+
+func TestConfigAutoupdateStringVariant(t *testing.T) {
+	var cfg opencode.Config
+	err := json.Unmarshal([]byte(`{"autoupdate":"notify"}`), &cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s, ok := cfg.Autoupdate.(opencode.ConfigAutoupdateString)
+	if !ok {
+		t.Fatalf("expected string autoupdate variant, got %T", cfg.Autoupdate)
+	}
+	if string(s) != "notify" {
+		t.Fatalf("expected notify, got %q", s)
+	}
+}
+
+func TestConfigPluginStringVariant(t *testing.T) {
+	var cfg opencode.Config
+	err := json.Unmarshal([]byte(`{"plugin":["my-plugin"]}`), &cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(cfg.Plugin) != 1 {
+		t.Fatalf("expected 1 plugin, got %d", len(cfg.Plugin))
+	}
+	s, ok := cfg.Plugin[0].AsUnion().(opencode.ConfigPluginItemString)
+	if !ok {
+		t.Fatalf("expected string plugin variant, got %T", cfg.Plugin[0].AsUnion())
+	}
+	if string(s) != "my-plugin" {
+		t.Fatalf("expected my-plugin, got %q", s)
+	}
+}
+
+func TestConfigPluginTupleVariant(t *testing.T) {
+	var cfg opencode.Config
+	err := json.Unmarshal([]byte(`{"plugin":[["my-plugin",{"key":"value"}]]}`), &cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(cfg.Plugin) != 1 {
+		t.Fatalf("expected 1 plugin, got %d", len(cfg.Plugin))
+	}
+	tuple, ok := cfg.Plugin[0].AsUnion().(opencode.ConfigPluginItemTuple)
+	if !ok {
+		t.Fatalf("expected tuple plugin variant, got %T", cfg.Plugin[0].AsUnion())
+	}
+	if len(tuple) != 2 {
+		t.Fatalf("expected 2 tuple elements, got %d", len(tuple))
 	}
 }

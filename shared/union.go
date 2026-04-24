@@ -9,6 +9,7 @@ func (UnionString) ImplementsPermissionPatternUnion() {}
 type UnionBool bool
 
 func (UnionBool) ImplementsConfigProviderOptionsTimeoutUnion() {}
+func (UnionBool) ImplementsConfigAutoupdateUnion()              {}
 
 type UnionInt int64
 
