@@ -5,13 +5,109 @@ package opencode_test
 import (
 	"context"
 	"errors"
+	"io"
+	"net/http"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/GunsonJack/opencode-sdk-go"
 	"github.com/GunsonJack/opencode-sdk-go/internal/testutil"
 	"github.com/GunsonJack/opencode-sdk-go/option"
 )
+
+func TestMcpStatusUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Mcp.Status(context.Background(), opencode.McpStatusParams{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodGet {
+		t.Fatalf("expected GET, got: %s", method)
+	}
+	if gotPath != "/mcp" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+}
+
+func TestMcpAddUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Mcp.Add(context.Background(), opencode.McpAddParams{
+		Name: opencode.F("my-server"),
+		Config: opencode.F(opencode.McpAddConfigParam{
+			Type:    opencode.F("local"),
+			Command: opencode.F([]string{"npx", "server"}),
+		}),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodPost {
+		t.Fatalf("expected POST, got: %s", method)
+	}
+	if gotPath != "/mcp" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+}
+
+func TestMcpConnectUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`true`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Mcp.Connect(context.Background(), "my/server", opencode.McpConnectParams{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodPost {
+		t.Fatalf("expected POST, got: %s", method)
+	}
+	if gotPath != "/mcp/my%2Fserver/connect" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+}
 
 func TestMcpStatus(t *testing.T) {
 	t.Skip("Prism tests are disabled")
