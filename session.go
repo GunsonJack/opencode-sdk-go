@@ -1035,7 +1035,7 @@ type FilePartSourceParam struct {
 	URI        param.Field[string]                  `json:"uri"`
 	Kind       param.Field[int64]                   `json:"kind"`
 	Name       param.Field[string]                  `json:"name"`
-	Range      param.Field[interface{}]             `json:"range"`
+	Range      param.Field[SymbolSourceRangeParam]  `json:"range"`
 }
 
 func (r FilePartSourceParam) MarshalJSON() (data []byte, err error) {
