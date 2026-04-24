@@ -650,3 +650,171 @@ func TestQuestionRejectedEventDeserialization(t *testing.T) {
 		t.Fatalf("unexpected sessionID: %q", rejected.Properties.SessionID)
 	}
 }
+
+func TestPtyUpdatedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"pty.updated","properties":{"info":{"id":"pty_123","title":"bash","status":"running","command":"bash","args":[],"cwd":"/tmp","pid":1234}}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	updated, ok := evt.AsUnion().(opencode.EventListResponseEventPtyUpdated)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if updated.Properties.Info.ID != "pty_123" {
+		t.Fatalf("unexpected pty id: %q", updated.Properties.Info.ID)
+	}
+}
+
+func TestPtyDeletedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"pty.deleted","properties":{"id":"pty_123"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	deleted, ok := evt.AsUnion().(opencode.EventListResponseEventPtyDeleted)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if deleted.Properties.ID != "pty_123" {
+		t.Fatalf("unexpected id: %q", deleted.Properties.ID)
+	}
+}
+
+func TestMcpBrowserOpenFailedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"mcp.browser.open.failed","properties":{"mcpName":"demo","url":"https://example.com"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	failed, ok := evt.AsUnion().(opencode.EventListResponseEventMcpBrowserOpenFailed)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if failed.Properties.McpName != "demo" {
+		t.Fatalf("unexpected mcpName: %q", failed.Properties.McpName)
+	}
+	if failed.Properties.URL != "https://example.com" {
+		t.Fatalf("unexpected url: %q", failed.Properties.URL)
+	}
+}
+
+func TestLspUpdatedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"lsp.updated","properties":{}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, ok := evt.AsUnion().(opencode.EventListResponseEventLspUpdated)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+}
+
+func TestLspClientDiagnosticsEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"lsp.client.diagnostics","properties":{"serverID":"gopls","path":"/tmp/main.go"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	diag, ok := evt.AsUnion().(opencode.EventListResponseEventLspClientDiagnostics)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if diag.Properties.ServerID != "gopls" {
+		t.Fatalf("unexpected serverID: %q", diag.Properties.ServerID)
+	}
+	if diag.Properties.Path != "/tmp/main.go" {
+		t.Fatalf("unexpected path: %q", diag.Properties.Path)
+	}
+}
+
+func TestVcsBranchUpdatedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"vcs.branch.updated","properties":{"branch":"main"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	updated, ok := evt.AsUnion().(opencode.EventListResponseEventVcsBranchUpdated)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if updated.Properties.Branch != "main" {
+		t.Fatalf("unexpected branch: %q", updated.Properties.Branch)
+	}
+}
+
+func TestCommandExecutedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"command.executed","properties":{"name":"session.new","sessionID":"ses_123","arguments":"","messageID":"msg_123"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	executed, ok := evt.AsUnion().(opencode.EventListResponseEventCommandExecuted)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if executed.Properties.Name != "session.new" {
+		t.Fatalf("unexpected name: %q", executed.Properties.Name)
+	}
+	if executed.Properties.SessionID != "ses_123" {
+		t.Fatalf("unexpected sessionID: %q", executed.Properties.SessionID)
+	}
+}
+
+func TestServerInstanceDisposedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"server.instance.disposed","properties":{"directory":"/tmp/project"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	disposed, ok := evt.AsUnion().(opencode.EventListResponseEventServerInstanceDisposed)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if disposed.Properties.Directory != "/tmp/project" {
+		t.Fatalf("unexpected directory: %q", disposed.Properties.Directory)
+	}
+}
+
+func TestInstallationUpdateAvailableEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"installation.update-available","properties":{"version":"2.0.0"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	available, ok := evt.AsUnion().(opencode.EventListResponseEventInstallationUpdateAvailable)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if available.Properties.Version != "2.0.0" {
+		t.Fatalf("unexpected version: %q", available.Properties.Version)
+	}
+}
+
+func TestInstallationUpdatedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"installation.updated","properties":{"version":"2.0.0"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	updated, ok := evt.AsUnion().(opencode.EventListResponseEventInstallationUpdated)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+	if updated.Properties.Version != "2.0.0" {
+		t.Fatalf("unexpected version: %q", updated.Properties.Version)
+	}
+}
+
+func TestProjectUpdatedEventDeserialization(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"project.updated","properties":{"id":"proj_123","name":"my-project","path":"/tmp/project","icon":{},"commands":{},"time":{"created":0}}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, ok := evt.AsUnion().(opencode.EventListResponseEventProjectUpdated)
+	if !ok {
+		t.Fatalf("unexpected event type: %T", evt.AsUnion())
+	}
+}
