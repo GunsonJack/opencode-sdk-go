@@ -726,7 +726,7 @@ func init() {
 }
 
 type AssistantMessageErrorMessageOutputLengthError struct {
-	Data interface{}                                       `json:"data,required"`
+	Data map[string]interface{}                            `json:"data,required"`
 	Name AssistantMessageErrorMessageOutputLengthErrorName `json:"name,required"`
 	JSON assistantMessageErrorMessageOutputLengthErrorJSON `json:"-"`
 }
@@ -1588,6 +1588,7 @@ func (r partRetryPartErrorJSON) RawJSON() string {
 type PartRetryPartErrorData struct {
 	IsRetryable     bool                       `json:"isRetryable,required"`
 	Message         string                     `json:"message,required"`
+	Metadata        map[string]string          `json:"metadata"`
 	ResponseBody    string                     `json:"responseBody"`
 	ResponseHeaders map[string]string          `json:"responseHeaders"`
 	StatusCode      float64                    `json:"statusCode"`
@@ -1599,6 +1600,7 @@ type PartRetryPartErrorData struct {
 type partRetryPartErrorDataJSON struct {
 	IsRetryable     apijson.Field
 	Message         apijson.Field
+	Metadata        apijson.Field
 	ResponseBody    apijson.Field
 	ResponseHeaders apijson.Field
 	StatusCode      apijson.Field
@@ -1906,7 +1908,7 @@ type SessionSummaryDiff struct {
 	Deletions float64                `json:"deletions,required"`
 	File      string                 `json:"file,required"`
 	Patch     string                 `json:"patch,required"`
-	Status    string                 `json:"status"`
+	Status    SnapshotFileDiffStatus `json:"status"`
 	JSON      sessionSummaryDiffJSON `json:"-"`
 }
 
@@ -2430,7 +2432,7 @@ type ToolPartState struct {
 	// This field can have the runtime type of [[]FilePart].
 	Attachments interface{} `json:"attachments"`
 	Error       string      `json:"error"`
-	// This field can have the runtime type of [interface{}], [map[string]interface{}].
+	// This field can have the runtime type of [map[string]interface{}].
 	Input interface{} `json:"input"`
 	// This field can have the runtime type of [map[string]interface{}].
 	Metadata interface{} `json:"metadata"`
@@ -2722,7 +2724,7 @@ func (r ToolStatePendingStatus) IsKnown() bool {
 }
 
 type ToolStateRunning struct {
-	Input    interface{}            `json:"input,required"`
+	Input    map[string]interface{} `json:"input,required"`
 	Status   ToolStateRunningStatus `json:"status,required"`
 	Time     ToolStateRunningTime   `json:"time,required"`
 	Metadata map[string]interface{} `json:"metadata"`
@@ -2891,7 +2893,7 @@ type UserMessageSummaryDiff struct {
 	Deletions float64                    `json:"deletions,required"`
 	File      string                     `json:"file,required"`
 	Patch     string                     `json:"patch,required"`
-	Status    string                     `json:"status"`
+	Status    SnapshotFileDiffStatus     `json:"status"`
 	JSON      userMessageSummaryDiffJSON `json:"-"`
 }
 

@@ -68,7 +68,7 @@ func (r syncReplayResponseJSON) RawJSON() string { return r.raw }
 type SyncHistoryEvent struct {
 	ID          string                 `json:"id,required"`
 	AggregateID string                 `json:"aggregate_id,required"`
-	Seq         float64                `json:"seq,required"`
+	Seq         int64                  `json:"seq,required"`
 	Type        string                 `json:"type,required"`
 	Data        map[string]interface{} `json:"data,required"`
 	JSON        syncHistoryEventJSON   `json:"-"`

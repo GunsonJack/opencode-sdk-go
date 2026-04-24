@@ -77,7 +77,7 @@ func TestTuiExecuteCommandWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 	)
 	_, err := client.Tui.ExecuteCommand(context.TODO(), opencode.TuiExecuteCommandParams{
-		Command:   opencode.F("command"),
+		Command:   opencode.F(opencode.TuiCommandPromptSubmit),
 		Directory: opencode.F("directory"),
 		Workspace: opencode.F("workspace"),
 	})

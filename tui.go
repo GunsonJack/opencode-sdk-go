@@ -156,9 +156,9 @@ func (r TuiClearPromptParams) URLQuery() (v url.Values) {
 }
 
 type TuiExecuteCommandParams struct {
-	Command   param.Field[string] `json:"command,required"`
-	Directory param.Field[string] `query:"directory"`
-	Workspace param.Field[string] `query:"workspace"`
+	Command   param.Field[TuiCommand] `json:"command,required"`
+	Directory param.Field[string]     `query:"directory"`
+	Workspace param.Field[string]     `query:"workspace"`
 }
 
 func (r TuiExecuteCommandParams) MarshalJSON() (data []byte, err error) {
