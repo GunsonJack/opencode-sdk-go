@@ -2357,6 +2357,7 @@ type TextPartInputParam struct {
 	Text      param.Field[string]                 `json:"text,required"`
 	Type      param.Field[TextPartInputType]      `json:"type,required"`
 	ID        param.Field[string]                 `json:"id"`
+	Ignored   param.Field[bool]                   `json:"ignored"`
 	Metadata  param.Field[map[string]interface{}] `json:"metadata"`
 	Synthetic param.Field[bool]                   `json:"synthetic"`
 	Time      param.Field[TextPartInputTimeParam] `json:"time"`
