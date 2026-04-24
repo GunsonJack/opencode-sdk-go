@@ -4,6 +4,7 @@ package opencode
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -13,6 +14,7 @@ import (
 	"github.com/GunsonJack/opencode-sdk-go/internal/param"
 	"github.com/GunsonJack/opencode-sdk-go/internal/requestconfig"
 	"github.com/GunsonJack/opencode-sdk-go/option"
+	"github.com/GunsonJack/opencode-sdk-go/packages/ssestream"
 	"github.com/tidwall/gjson"
 )
 
@@ -35,6 +37,19 @@ func (r *GlobalService) Health(ctx context.Context, opts ...option.RequestOption
 	path := "global/health"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &res, opts...)
 	return
+}
+
+// Get global events.
+func (r *GlobalService) Event(ctx context.Context, opts ...option.RequestOption) (stream *ssestream.Stream[GlobalEvent]) {
+	var (
+		raw *http.Response
+		err error
+	)
+	opts = slices.Concat(r.Options, opts)
+	opts = append([]option.RequestOption{option.WithHeader("Accept", "text/event-stream")}, opts...)
+	path := "global/event"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, nil, &raw, opts...)
+	return ssestream.NewStream[GlobalEvent](ssestream.NewDecoder(raw), err)
 }
 
 // ConfigGet retrieves the global configuration.
@@ -88,6 +103,73 @@ func (r *GlobalHealthResponse) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r globalHealthResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+// GlobalEvent is the response envelope from GET /global/event.
+type GlobalEvent struct {
+	Directory string          `json:"directory,required"`
+	Project   string          `json:"project"`
+	Workspace string          `json:"workspace"`
+	Payload   interface{}     `json:"payload,required"`
+	JSON      globalEventJSON `json:"-"`
+}
+
+type globalEventJSON struct {
+	Directory   apijson.Field
+	Project     apijson.Field
+	Workspace   apijson.Field
+	Payload     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *GlobalEvent) UnmarshalJSON(data []byte) (err error) {
+	type globalEventEnvelope struct {
+		Directory string          `json:"directory,required"`
+		Project   string          `json:"project"`
+		Workspace string          `json:"workspace"`
+		Payload   json.RawMessage `json:"payload,required"`
+		JSON      globalEventJSON `json:"-"`
+	}
+
+	var envelope globalEventEnvelope
+	if err = apijson.UnmarshalRoot(data, &envelope); err != nil {
+		return err
+	}
+	if envelope.JSON.Directory.IsMissing() {
+		return fmt.Errorf("missing required field: directory")
+	}
+	if envelope.JSON.Payload.IsMissing() {
+		return fmt.Errorf("missing required field: payload")
+	}
+
+	*r = GlobalEvent{
+		Directory: envelope.Directory,
+		Project:   envelope.Project,
+		Workspace: envelope.Workspace,
+		JSON:      envelope.JSON,
+	}
+
+	parsed := gjson.ParseBytes(envelope.Payload)
+	if parsed.Get("type").String() == string(SyncEventTypeSync) {
+		var evt SyncEvent
+		if err = json.Unmarshal(envelope.Payload, &evt); err != nil {
+			return err
+		}
+		r.Payload = evt.AsUnion()
+		return nil
+	}
+
+	var evt EventListResponse
+	if err = json.Unmarshal(envelope.Payload, &evt); err != nil {
+		return err
+	}
+	r.Payload = evt.AsUnion()
+	return nil
+}
+
+func (r globalEventJSON) RawJSON() string {
 	return r.raw
 }
 

@@ -16,36 +16,37 @@ import (
 // interacting with the opencode API. You should not instantiate this client
 // directly, and instead use the [NewClient] method instead.
 type Client struct {
-	Options []option.RequestOption
-	Event   *EventService
-	Path    *PathService
-	App     *AppService
-	Agent   *AgentService
-	Find    *FindService
-	File    *FileService
-	Config  *ConfigService
-	Command *CommandService
-	Project *ProjectService
-	Session    *SessionService
-	Tui        *TuiService
-	Permission *PermissionService
-	Question   *QuestionService
-	Provider   *ProviderService
-	Auth       *AuthService
-	Lsp        *LspService
-	Formatter  *FormatterService
-	Global     *GlobalService
-	Instance   *InstanceService
-	Mcp        *McpService
-	Pty        *PtyService
-	Vcs        *VcsService
-	Worktree   *WorktreeService
-	Workspace  *WorkspaceService
-	Sync       *SyncService
-	Skill      *SkillService
-	Tool       *ToolService
-	Resource   *ResourceService
-	Console    *ConsoleService
+	Options             []option.RequestOption
+	Event               *EventService
+	Path                *PathService
+	App                 *AppService
+	Agent               *AgentService
+	Find                *FindService
+	File                *FileService
+	Config              *ConfigService
+	Command             *CommandService
+	Project             *ProjectService
+	Session             *SessionService
+	Tui                 *TuiService
+	Permission          *PermissionService
+	Question            *QuestionService
+	Provider            *ProviderService
+	Auth                *AuthService
+	Lsp                 *LspService
+	Formatter           *FormatterService
+	Global              *GlobalService
+	Instance            *InstanceService
+	Mcp                 *McpService
+	Pty                 *PtyService
+	Vcs                 *VcsService
+	Worktree            *WorktreeService
+	Workspace           *WorkspaceService
+	Sync                *SyncService
+	Skill               *SkillService
+	Tool                *ToolService
+	Resource            *ResourceService
+	Console             *ConsoleService
+	ExperimentalSession *ExperimentalSessionService
 }
 
 // DefaultClientOptions read from the environment (OPENCODE_BASE_URL). This should
@@ -96,6 +97,7 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Tool = NewToolService(opts...)
 	r.Resource = NewResourceService(opts...)
 	r.Console = NewConsoleService(opts...)
+	r.ExperimentalSession = NewExperimentalSessionService(opts...)
 
 	return
 }
