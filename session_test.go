@@ -1123,3 +1123,49 @@ func TestSessionUpdatePartWithOptionalParams(t *testing.T) {
 		t.Fatalf("err should be nil: %s", err.Error())
 	}
 }
+
+func TestSessionListUsesFullQuerySurface(t *testing.T) {
+	var gotQuery map[string]string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					gotQuery = map[string]string{}
+					for key, values := range req.URL.Query() {
+						if len(values) > 0 {
+							gotQuery[key] = values[0]
+						}
+					}
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`[]`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Session.List(context.Background(), opencode.SessionListParams{
+		Directory: opencode.F("/tmp/project"),
+		Workspace: opencode.F("ws_123"),
+		Roots:     opencode.F(true),
+		Start:     opencode.F(100.0),
+		Search:    opencode.F("agent"),
+		Limit:     opencode.F(int64(25)),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for key, want := range map[string]string{
+		"directory": "/tmp/project",
+		"workspace": "ws_123",
+		"roots":     "true",
+		"start":     "100",
+		"search":    "agent",
+		"limit":     "25",
+	} {
+		if gotQuery[key] != want {
+			t.Fatalf("unexpected %s query: got %q want %q", key, gotQuery[key], want)
+		}
+	}
+}
