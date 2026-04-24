@@ -4,6 +4,7 @@ package opencode_test
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
@@ -39,6 +40,54 @@ func TestSessionNewWithOptionalParams(t *testing.T) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
 		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestSessionAbortUsesQueryWithoutJSONBody(t *testing.T) {
+	var rawQuery string
+	var body []byte
+	var contentType string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					rawQuery = req.URL.RawQuery
+					contentType = req.Header.Get("Content-Type")
+					if req.Body != nil {
+						var err error
+						body, err = io.ReadAll(req.Body)
+						if err != nil {
+							return nil, err
+						}
+					}
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Session.Abort(context.Background(), "ses_123", opencode.SessionAbortParams{
+		Directory: opencode.F("/tmp/project"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(rawQuery, "directory=%2Ftmp%2Fproject") {
+		t.Fatalf("missing directory query: %s", rawQuery)
+	}
+	if !strings.Contains(rawQuery, "workspace=workspace") {
+		t.Fatalf("missing workspace query: %s", rawQuery)
+	}
+	if got := string(body); got != "" {
+		t.Fatalf("expected empty body, got: %s", got)
+	}
+	if contentType != "" {
+		t.Fatalf("expected no content-type for body-less request, got: %s", contentType)
 	}
 }
 
@@ -503,6 +552,54 @@ func TestSessionShareWithOptionalParams(t *testing.T) {
 	}
 }
 
+func TestSessionShareUsesQueryWithoutJSONBody(t *testing.T) {
+	var rawQuery string
+	var body []byte
+	var contentType string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					rawQuery = req.URL.RawQuery
+					contentType = req.Header.Get("Content-Type")
+					if req.Body != nil {
+						var err error
+						body, err = io.ReadAll(req.Body)
+						if err != nil {
+							return nil, err
+						}
+					}
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{"id":"ses_123","title":"shared","versionID":"ver_123","time":{"created":0,"updated":0},"projectID":"proj_123","parentSessionID":"","share":{"url":"https://example.com/share","id":"shr_123"},"messages":[]}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Session.Share(context.Background(), "ses_123", opencode.SessionShareParams{
+		Directory: opencode.F("/tmp/project"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(rawQuery, "directory=%2Ftmp%2Fproject") {
+		t.Fatalf("missing directory query: %s", rawQuery)
+	}
+	if !strings.Contains(rawQuery, "workspace=workspace") {
+		t.Fatalf("missing workspace query: %s", rawQuery)
+	}
+	if got := string(body); got != "" {
+		t.Fatalf("expected empty body, got: %s", got)
+	}
+	if contentType != "" {
+		t.Fatalf("expected no content-type for body-less request, got: %s", contentType)
+	}
+}
+
 func TestSessionShellWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
@@ -591,6 +688,54 @@ func TestSessionUnrevertWithOptionalParams(t *testing.T) {
 	}
 }
 
+func TestSessionUnrevertUsesQueryWithoutJSONBody(t *testing.T) {
+	var rawQuery string
+	var body []byte
+	var contentType string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					rawQuery = req.URL.RawQuery
+					contentType = req.Header.Get("Content-Type")
+					if req.Body != nil {
+						var err error
+						body, err = io.ReadAll(req.Body)
+						if err != nil {
+							return nil, err
+						}
+					}
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{"id":"ses_123","title":"session","versionID":"ver_123","time":{"created":0,"updated":0},"projectID":"proj_123","parentSessionID":"","share":{"url":"https://example.com/share","id":"shr_123"},"messages":[]}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Session.Unrevert(context.Background(), "ses_123", opencode.SessionUnrevertParams{
+		Directory: opencode.F("/tmp/project"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(rawQuery, "directory=%2Ftmp%2Fproject") {
+		t.Fatalf("missing directory query: %s", rawQuery)
+	}
+	if !strings.Contains(rawQuery, "workspace=workspace") {
+		t.Fatalf("missing workspace query: %s", rawQuery)
+	}
+	if got := string(body); got != "" {
+		t.Fatalf("expected empty body, got: %s", got)
+	}
+	if contentType != "" {
+		t.Fatalf("expected no content-type for body-less request, got: %s", contentType)
+	}
+}
+
 func TestSessionUnshareWithOptionalParams(t *testing.T) {
 	t.Skip("Prism tests are disabled")
 	baseURL := "http://localhost:4010"
@@ -616,5 +761,171 @@ func TestSessionUnshareWithOptionalParams(t *testing.T) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
 		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestSessionUnshareUsesQueryWithoutJSONBody(t *testing.T) {
+	var rawQuery string
+	var body []byte
+	var contentType string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					rawQuery = req.URL.RawQuery
+					contentType = req.Header.Get("Content-Type")
+					if req.Body != nil {
+						var err error
+						body, err = io.ReadAll(req.Body)
+						if err != nil {
+							return nil, err
+						}
+					}
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{"id":"ses_123","title":"unshared","versionID":"ver_123","time":{"created":0,"updated":0},"projectID":"proj_123","parentSessionID":"","share":{"url":"","id":""},"messages":[]}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Session.Unshare(context.Background(), "ses_123", opencode.SessionUnshareParams{
+		Directory: opencode.F("/tmp/project"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(rawQuery, "directory=%2Ftmp%2Fproject") {
+		t.Fatalf("missing directory query: %s", rawQuery)
+	}
+	if !strings.Contains(rawQuery, "workspace=workspace") {
+		t.Fatalf("missing workspace query: %s", rawQuery)
+	}
+	if got := string(body); got != "" {
+		t.Fatalf("expected empty body, got: %s", got)
+	}
+	if contentType != "" {
+		t.Fatalf("expected no content-type for body-less request, got: %s", contentType)
+	}
+}
+
+func TestSessionDeletePartUsesQueryWithoutJSONBody(t *testing.T) {
+	var rawQuery string
+	var body []byte
+	var contentType string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					rawQuery = req.URL.RawQuery
+					contentType = req.Header.Get("Content-Type")
+					if req.Body != nil {
+						var err error
+						body, err = io.ReadAll(req.Body)
+						if err != nil {
+							return nil, err
+						}
+					}
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Session.DeletePart(context.Background(), "ses_123", "msg_123", "part_123", opencode.SessionDeletePartParams{
+		Directory: opencode.F("/tmp/project"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(rawQuery, "directory=%2Ftmp%2Fproject") {
+		t.Fatalf("missing directory query: %s", rawQuery)
+	}
+	if !strings.Contains(rawQuery, "workspace=workspace") {
+		t.Fatalf("missing workspace query: %s", rawQuery)
+	}
+	if got := string(body); got != "" {
+		t.Fatalf("expected empty body, got: %s", got)
+	}
+	if contentType != "" {
+		t.Fatalf("expected no content-type for body-less request, got: %s", contentType)
+	}
+}
+
+func TestSessionPromptAsyncUsesQueryAndJSONBody(t *testing.T) {
+	var rawQuery string
+	var body []byte
+	var contentType string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					var err error
+					rawQuery = req.URL.RawQuery
+					contentType = req.Header.Get("Content-Type")
+					body, err = io.ReadAll(req.Body)
+					if err != nil {
+						return nil, err
+					}
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	err := client.Session.PromptAsync(context.Background(), "ses_123", opencode.SessionPromptAsyncParams{
+		Parts: opencode.F([]opencode.SessionPromptParamsPartUnion{opencode.TextPartInputParam{
+			Text: opencode.F("hello"),
+			Type: opencode.F(opencode.TextPartInputTypeText),
+		}}),
+		Directory: opencode.F("/tmp/project"),
+		Workspace: opencode.F("workspace"),
+		Agent:     opencode.F("agent"),
+		MessageID: opencode.F("msg_123"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(rawQuery, "directory=%2Ftmp%2Fproject") {
+		t.Fatalf("missing directory query: %s", rawQuery)
+	}
+	if !strings.Contains(rawQuery, "workspace=workspace") {
+		t.Fatalf("missing workspace query: %s", rawQuery)
+	}
+	var got map[string]any
+	if err := json.Unmarshal(body, &got); err != nil {
+		t.Fatalf("invalid json body: %v", err)
+	}
+	if got["agent"] != "agent" {
+		t.Fatalf("unexpected agent field: %#v", got["agent"])
+	}
+	if got["messageID"] != "msg_123" {
+		t.Fatalf("unexpected messageID field: %#v", got["messageID"])
+	}
+	parts, ok := got["parts"].([]any)
+	if !ok || len(parts) != 1 {
+		t.Fatalf("unexpected parts payload: %#v", got["parts"])
+	}
+	part, ok := parts[0].(map[string]any)
+	if !ok {
+		t.Fatalf("unexpected part payload: %#v", parts[0])
+	}
+	if part["text"] != "hello" || part["type"] != "text" {
+		t.Fatalf("unexpected part payload: %#v", part)
+	}
+	if contentType != "application/json" {
+		t.Fatalf("expected JSON content-type, got: %s", contentType)
 	}
 }

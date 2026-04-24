@@ -105,8 +105,6 @@ func (r WorktreeListParams) URLQuery() (v url.Values) {
 }
 
 type WorktreeRemoveParams struct {
-	// The optional query-level directory is not modeled separately because it
-	// conflicts with the required body field name in the SDK framework.
 	Directory param.Field[string] `json:"directory,required"`
 	Workspace param.Field[string] `query:"workspace"`
 }
@@ -116,15 +114,17 @@ func (r WorktreeRemoveParams) MarshalJSON() (data []byte, err error) {
 }
 
 func (r WorktreeRemoveParams) URLQuery() (v url.Values) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
+	v = url.Values{}
+	if r.Directory.Present {
+		v.Set("directory", r.Directory.String())
+	}
+	if r.Workspace.Present {
+		v.Set("workspace", r.Workspace.String())
+	}
+	return v
 }
 
 type WorktreeResetParams struct {
-	// The optional query-level directory is not modeled separately because it
-	// conflicts with the required body field name in the SDK framework.
 	Directory param.Field[string] `json:"directory,required"`
 	Workspace param.Field[string] `query:"workspace"`
 }
@@ -134,8 +134,12 @@ func (r WorktreeResetParams) MarshalJSON() (data []byte, err error) {
 }
 
 func (r WorktreeResetParams) URLQuery() (v url.Values) {
-	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
-		ArrayFormat:  apiquery.ArrayQueryFormatComma,
-		NestedFormat: apiquery.NestedQueryFormatBrackets,
-	})
+	v = url.Values{}
+	if r.Directory.Present {
+		v.Set("directory", r.Directory.String())
+	}
+	if r.Workspace.Present {
+		v.Set("workspace", r.Workspace.String())
+	}
+	return v
 }
