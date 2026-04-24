@@ -57,7 +57,12 @@ Response Types:
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethod</a>
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethodType</a>
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethodPrompt</a>
-- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethodPromptOption</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethodPromptUnion</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethodPromptText</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethodPromptTextType</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethodPromptSelect</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethodPromptSelectType</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethodPromptSelectOption</a>
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethodPromptWhen</a>
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthMethodPromptWhenOp</a>
 - <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">ProviderAuthAuthorization</a>

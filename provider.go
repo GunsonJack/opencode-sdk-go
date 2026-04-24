@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"reflect"
 	"slices"
 
 	"github.com/GunsonJack/opencode-sdk-go/internal/apijson"
@@ -14,6 +15,7 @@ import (
 	"github.com/GunsonJack/opencode-sdk-go/internal/param"
 	"github.com/GunsonJack/opencode-sdk-go/internal/requestconfig"
 	"github.com/GunsonJack/opencode-sdk-go/option"
+	"github.com/tidwall/gjson"
 )
 
 // ProviderService contains methods for interacting with the provider resource.
@@ -136,48 +138,167 @@ func (r ProviderAuthMethodType) IsKnown() bool {
 	return false
 }
 
-// ProviderAuthMethodPrompt is a prompt displayed during auth setup.
+// ProviderAuthMethodPrompt is a union type for auth prompts.
+// Use [ProviderAuthMethodPrompt.AsUnion] to access the underlying variant.
+//
+// Union satisfied by [ProviderAuthMethodPromptText] or [ProviderAuthMethodPromptSelect].
 type ProviderAuthMethodPrompt struct {
-	Type        string                           `json:"type,required"`
-	Key         string                           `json:"key,required"`
-	Message     string                           `json:"message,required"`
-	Placeholder string                           `json:"placeholder"`
-	Options     []ProviderAuthMethodPromptOption `json:"options"`
-	When        *ProviderAuthMethodPromptWhen    `json:"when"`
-	JSON        providerAuthMethodPromptJSON     `json:"-"`
+	Type    string                        `json:"type,required"`
+	Key     string                        `json:"key,required"`
+	Message string                        `json:"message,required"`
+	// This field can have the runtime type of [[]ProviderAuthMethodPromptSelectOption].
+	Options     interface{}                  `json:"options"`
+	Placeholder string                       `json:"placeholder"`
+	When        *ProviderAuthMethodPromptWhen `json:"when"`
+	JSON        providerAuthMethodPromptJSON `json:"-"`
+	union       ProviderAuthMethodPromptUnion
 }
 
-// providerAuthMethodPromptJSON contains the JSON metadata for the struct
-// [ProviderAuthMethodPrompt]
 type providerAuthMethodPromptJSON struct {
 	Type        apijson.Field
 	Key         apijson.Field
 	Message     apijson.Field
-	Placeholder apijson.Field
 	Options     apijson.Field
+	Placeholder apijson.Field
 	When        apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
 
 func (r *ProviderAuthMethodPrompt) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
+	*r = ProviderAuthMethodPrompt{}
+	err = apijson.UnmarshalRoot(data, &r.union)
+	if err != nil {
+		return err
+	}
+	return apijson.Port(r.union, &r)
 }
 
 func (r providerAuthMethodPromptJSON) RawJSON() string {
 	return r.raw
 }
 
-type ProviderAuthMethodPromptOption struct {
-	Label string                             `json:"label,required"`
-	Value string                             `json:"value,required"`
-	Hint  string                             `json:"hint"`
-	JSON  providerAuthMethodPromptOptionJSON `json:"-"`
+// AsUnion returns the underlying union variant.
+func (r ProviderAuthMethodPrompt) AsUnion() ProviderAuthMethodPromptUnion {
+	return r.union
 }
 
-// providerAuthMethodPromptOptionJSON contains the JSON metadata for the struct
-// [ProviderAuthMethodPromptOption]
-type providerAuthMethodPromptOptionJSON struct {
+// Union satisfied by [ProviderAuthMethodPromptText] or [ProviderAuthMethodPromptSelect].
+type ProviderAuthMethodPromptUnion interface {
+	implementsProviderAuthMethodPrompt()
+}
+
+func init() {
+	apijson.RegisterUnion(
+		reflect.TypeOf((*ProviderAuthMethodPromptUnion)(nil)).Elem(),
+		"type",
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "text",
+			Type:               reflect.TypeOf(ProviderAuthMethodPromptText{}),
+		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "select",
+			Type:               reflect.TypeOf(ProviderAuthMethodPromptSelect{}),
+		},
+	)
+}
+
+type ProviderAuthMethodPromptText struct {
+	Type        ProviderAuthMethodPromptTextType `json:"type,required"`
+	Key         string                           `json:"key,required"`
+	Message     string                           `json:"message,required"`
+	Placeholder string                           `json:"placeholder"`
+	When        *ProviderAuthMethodPromptWhen    `json:"when"`
+	JSON        providerAuthMethodPromptTextJSON `json:"-"`
+}
+
+type providerAuthMethodPromptTextJSON struct {
+	Type        apijson.Field
+	Key         apijson.Field
+	Message     apijson.Field
+	Placeholder apijson.Field
+	When        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ProviderAuthMethodPromptText) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r providerAuthMethodPromptTextJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProviderAuthMethodPromptText) implementsProviderAuthMethodPrompt() {}
+
+type ProviderAuthMethodPromptTextType string
+
+const (
+	ProviderAuthMethodPromptTextTypeText ProviderAuthMethodPromptTextType = "text"
+)
+
+func (r ProviderAuthMethodPromptTextType) IsKnown() bool {
+	switch r {
+	case ProviderAuthMethodPromptTextTypeText:
+		return true
+	}
+	return false
+}
+
+type ProviderAuthMethodPromptSelect struct {
+	Type    ProviderAuthMethodPromptSelectType    `json:"type,required"`
+	Key     string                                `json:"key,required"`
+	Message string                                `json:"message,required"`
+	Options []ProviderAuthMethodPromptSelectOption `json:"options,required"`
+	When    *ProviderAuthMethodPromptWhen          `json:"when"`
+	JSON    providerAuthMethodPromptSelectJSON     `json:"-"`
+}
+
+type providerAuthMethodPromptSelectJSON struct {
+	Type        apijson.Field
+	Key         apijson.Field
+	Message     apijson.Field
+	Options     apijson.Field
+	When        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ProviderAuthMethodPromptSelect) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r providerAuthMethodPromptSelectJSON) RawJSON() string {
+	return r.raw
+}
+
+func (r ProviderAuthMethodPromptSelect) implementsProviderAuthMethodPrompt() {}
+
+type ProviderAuthMethodPromptSelectType string
+
+const (
+	ProviderAuthMethodPromptSelectTypeSelect ProviderAuthMethodPromptSelectType = "select"
+)
+
+func (r ProviderAuthMethodPromptSelectType) IsKnown() bool {
+	switch r {
+	case ProviderAuthMethodPromptSelectTypeSelect:
+		return true
+	}
+	return false
+}
+
+type ProviderAuthMethodPromptSelectOption struct {
+	Label string                                   `json:"label,required"`
+	Value string                                   `json:"value,required"`
+	Hint  string                                   `json:"hint"`
+	JSON  providerAuthMethodPromptSelectOptionJSON `json:"-"`
+}
+
+type providerAuthMethodPromptSelectOptionJSON struct {
 	Label       apijson.Field
 	Value       apijson.Field
 	Hint        apijson.Field
@@ -185,11 +306,11 @@ type providerAuthMethodPromptOptionJSON struct {
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *ProviderAuthMethodPromptOption) UnmarshalJSON(data []byte) (err error) {
+func (r *ProviderAuthMethodPromptSelectOption) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r providerAuthMethodPromptOptionJSON) RawJSON() string {
+func (r providerAuthMethodPromptSelectOptionJSON) RawJSON() string {
 	return r.raw
 }
 
