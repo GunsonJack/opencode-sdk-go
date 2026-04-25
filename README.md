@@ -1,11 +1,11 @@
 # Opencode Go API Library
 
-<a href="https://pkg.go.dev/github.com/sst/opencode-sdk-go"><img src="https://pkg.go.dev/badge/github.com/sst/opencode-sdk-go.svg" alt="Go Reference"></a>
+<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go"><img src="https://pkg.go.dev/badge/github.com/GunsonJack/opencode-sdk-go.svg" alt="Go Reference"></a>
 
 The Opencode Go library provides convenient access to the [Opencode REST API](https://opencode.ai/docs)
 from applications written in Go.
 
-It is generated with [Stainless](https://www.stainless.com/).
+This is a manually maintained fork of the original SDK, adapted for use with custom OpenCode deployments.
 
 ## Installation
 
@@ -13,7 +13,7 @@ It is generated with [Stainless](https://www.stainless.com/).
 
 ```go
 import (
-	"github.com/sst/opencode-sdk-go" // imported as opencode
+	"github.com/GunsonJack/opencode-sdk-go" // imported as opencode
 )
 ```
 
@@ -24,7 +24,7 @@ Or to pin the version:
 <!-- x-release-please-start-version -->
 
 ```sh
-go get -u 'github.com/sst/opencode-sdk-go@v0.19.2'
+go get -u 'github.com/GunsonJack/opencode-sdk-go@v0.19.2'
 ```
 
 <!-- x-release-please-end -->
@@ -44,7 +44,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/sst/opencode-sdk-go"
+	"github.com/GunsonJack/opencode-sdk-go"
 )
 
 func main() {
@@ -57,6 +57,8 @@ func main() {
 }
 
 ```
+
+`opencode.NewClient()` reads `OPENCODE_BASE_URL` automatically. You can also set the base URL explicitly with `option.WithBaseURL("https://your-opencode.example")`.
 
 ### Request fields
 
@@ -150,7 +152,7 @@ client.Session.List(context.TODO(), ...,
 )
 ```
 
-See the [full list of request options](https://pkg.go.dev/github.com/sst/opencode-sdk-go/option).
+See the [full list of request options](https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go/option).
 
 ### Pagination
 
@@ -268,8 +270,8 @@ endpoints, params, or response properties, the library can still be used.
 
 #### Undocumented endpoints
 
-To make requests to undocumented endpoints, you can use `client.Get`, `client.Post`, and other HTTP verbs.
-`RequestOptions` on the client, such as retries, will be respected when making these requests.
+To make requests to undocumented endpoints, you can use `client.Execute(...)` as the generic helper, or `client.Get`, `client.Post`, and other HTTP verbs.
+`RequestOptions` on the client, such as retries, base URL overrides, and headers, will be respected when making these requests.
 
 ```go
 var (
@@ -356,7 +358,12 @@ This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) con
 
 We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
 
-We are keen for your feedback; please open an [issue](https://www.github.com/sst/opencode-sdk-go/issues) with questions, bugs, or suggestions.
+We are keen for your feedback; please open an [issue](https://www.github.com/GunsonJack/opencode-sdk-go/issues) with questions, bugs, or suggestions.
+
+## Maintenance
+
+This is a manually maintained fork. For details on how the vendored spec, mock server,
+and compatibility wrappers are managed, see the [maintenance guide](./docs/MAINTAINING.md).
 
 ## Contributing
 

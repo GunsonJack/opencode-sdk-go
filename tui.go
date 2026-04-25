@@ -4,15 +4,16 @@ package opencode
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/url"
 	"slices"
 
-	"github.com/sst/opencode-sdk-go/internal/apijson"
-	"github.com/sst/opencode-sdk-go/internal/apiquery"
-	"github.com/sst/opencode-sdk-go/internal/param"
-	"github.com/sst/opencode-sdk-go/internal/requestconfig"
-	"github.com/sst/opencode-sdk-go/option"
+	"github.com/GunsonJack/opencode-sdk-go/internal/apijson"
+	"github.com/GunsonJack/opencode-sdk-go/internal/apiquery"
+	"github.com/GunsonJack/opencode-sdk-go/internal/param"
+	"github.com/GunsonJack/opencode-sdk-go/internal/requestconfig"
+	"github.com/GunsonJack/opencode-sdk-go/option"
 )
 
 // TuiService contains methods and other services that help with interacting with
@@ -23,6 +24,7 @@ import (
 // the [NewTuiService] method instead.
 type TuiService struct {
 	Options []option.RequestOption
+	Control *TuiControlService
 }
 
 // NewTuiService generates a new service that applies the given options to each
@@ -31,6 +33,7 @@ type TuiService struct {
 func NewTuiService(opts ...option.RequestOption) (r *TuiService) {
 	r = &TuiService{}
 	r.Options = opts
+	r.Control = NewTuiControlService(opts...)
 	return
 }
 
@@ -58,7 +61,7 @@ func (r *TuiService) ExecuteCommand(ctx context.Context, params TuiExecuteComman
 	return
 }
 
-// Open the help dialog
+// OpenHelp opens the help dialog
 func (r *TuiService) OpenHelp(ctx context.Context, body TuiOpenHelpParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "tui/open-help"
@@ -66,7 +69,7 @@ func (r *TuiService) OpenHelp(ctx context.Context, body TuiOpenHelpParams, opts 
 	return
 }
 
-// Open the model dialog
+// OpenModels opens the model dialog
 func (r *TuiService) OpenModels(ctx context.Context, body TuiOpenModelsParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "tui/open-models"
@@ -74,7 +77,7 @@ func (r *TuiService) OpenModels(ctx context.Context, body TuiOpenModelsParams, o
 	return
 }
 
-// Open the session dialog
+// OpenSessions opens the session dialog
 func (r *TuiService) OpenSessions(ctx context.Context, body TuiOpenSessionsParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "tui/open-sessions"
@@ -82,11 +85,27 @@ func (r *TuiService) OpenSessions(ctx context.Context, body TuiOpenSessionsParam
 	return
 }
 
-// Open the theme dialog
+// OpenThemes opens the theme dialog
 func (r *TuiService) OpenThemes(ctx context.Context, body TuiOpenThemesParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
 	path := "tui/open-themes"
 	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	return
+}
+
+// Publish publishes an event to the TUI.
+func (r *TuiService) Publish(ctx context.Context, params TuiPublishParams, opts ...option.RequestOption) (res *bool, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "tui/publish"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return
+}
+
+// SelectSession selects a session in the TUI.
+func (r *TuiService) SelectSession(ctx context.Context, params TuiSelectSessionParams, opts ...option.RequestOption) (res *bool, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "tui/select-session"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
 	return
 }
 
@@ -109,6 +128,7 @@ func (r *TuiService) SubmitPrompt(ctx context.Context, body TuiSubmitPromptParam
 type TuiAppendPromptParams struct {
 	Text      param.Field[string] `json:"text,required"`
 	Directory param.Field[string] `query:"directory"`
+	Workspace param.Field[string] `query:"workspace"`
 }
 
 func (r TuiAppendPromptParams) MarshalJSON() (data []byte, err error) {
@@ -125,6 +145,7 @@ func (r TuiAppendPromptParams) URLQuery() (v url.Values) {
 
 type TuiClearPromptParams struct {
 	Directory param.Field[string] `query:"directory"`
+	Workspace param.Field[string] `query:"workspace"`
 }
 
 // URLQuery serializes [TuiClearPromptParams]'s query parameters as `url.Values`.
@@ -136,8 +157,11 @@ func (r TuiClearPromptParams) URLQuery() (v url.Values) {
 }
 
 type TuiExecuteCommandParams struct {
+	// The command to execute. This is a free-form string, not restricted to the
+	// TuiCommand enum (which only applies to TUI publish events).
 	Command   param.Field[string] `json:"command,required"`
 	Directory param.Field[string] `query:"directory"`
+	Workspace param.Field[string] `query:"workspace"`
 }
 
 func (r TuiExecuteCommandParams) MarshalJSON() (data []byte, err error) {
@@ -155,6 +179,7 @@ func (r TuiExecuteCommandParams) URLQuery() (v url.Values) {
 
 type TuiOpenHelpParams struct {
 	Directory param.Field[string] `query:"directory"`
+	Workspace param.Field[string] `query:"workspace"`
 }
 
 // URLQuery serializes [TuiOpenHelpParams]'s query parameters as `url.Values`.
@@ -167,6 +192,7 @@ func (r TuiOpenHelpParams) URLQuery() (v url.Values) {
 
 type TuiOpenModelsParams struct {
 	Directory param.Field[string] `query:"directory"`
+	Workspace param.Field[string] `query:"workspace"`
 }
 
 // URLQuery serializes [TuiOpenModelsParams]'s query parameters as `url.Values`.
@@ -179,6 +205,7 @@ func (r TuiOpenModelsParams) URLQuery() (v url.Values) {
 
 type TuiOpenSessionsParams struct {
 	Directory param.Field[string] `query:"directory"`
+	Workspace param.Field[string] `query:"workspace"`
 }
 
 // URLQuery serializes [TuiOpenSessionsParams]'s query parameters as `url.Values`.
@@ -191,6 +218,7 @@ func (r TuiOpenSessionsParams) URLQuery() (v url.Values) {
 
 type TuiOpenThemesParams struct {
 	Directory param.Field[string] `query:"directory"`
+	Workspace param.Field[string] `query:"workspace"`
 }
 
 // URLQuery serializes [TuiOpenThemesParams]'s query parameters as `url.Values`.
@@ -201,10 +229,223 @@ func (r TuiOpenThemesParams) URLQuery() (v url.Values) {
 	})
 }
 
+type TuiPublishParams struct {
+	Body      param.Field[TuiPublishBody] `json:"body"`
+	Directory param.Field[string]         `query:"directory"`
+	Workspace param.Field[string]         `query:"workspace"`
+}
+
+func (r TuiPublishParams) MarshalJSON() (data []byte, err error) {
+	if !r.Body.Present || r.Body.Null {
+		return nil, fmt.Errorf("missing required body for tui.publish")
+	}
+	return apijson.MarshalRoot(r.Body)
+}
+
+func (r TuiPublishParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+// TuiCommand represents one of the 16 known TUI commands.
+type TuiCommand string
+
+const (
+	TuiCommandSessionList         TuiCommand = "session.list"
+	TuiCommandSessionNew          TuiCommand = "session.new"
+	TuiCommandSessionShare        TuiCommand = "session.share"
+	TuiCommandSessionInterrupt    TuiCommand = "session.interrupt"
+	TuiCommandSessionCompact      TuiCommand = "session.compact"
+	TuiCommandSessionPageUp       TuiCommand = "session.page.up"
+	TuiCommandSessionPageDown     TuiCommand = "session.page.down"
+	TuiCommandSessionLineUp       TuiCommand = "session.line.up"
+	TuiCommandSessionLineDown     TuiCommand = "session.line.down"
+	TuiCommandSessionHalfPageUp   TuiCommand = "session.half.page.up"
+	TuiCommandSessionHalfPageDown TuiCommand = "session.half.page.down"
+	TuiCommandSessionFirst        TuiCommand = "session.first"
+	TuiCommandSessionLast         TuiCommand = "session.last"
+	TuiCommandPromptClear         TuiCommand = "prompt.clear"
+	TuiCommandPromptSubmit        TuiCommand = "prompt.submit"
+	TuiCommandAgentCycle          TuiCommand = "agent.cycle"
+)
+
+func (r TuiCommand) IsKnown() bool {
+	switch r {
+	case TuiCommandSessionList, TuiCommandSessionNew, TuiCommandSessionShare,
+		TuiCommandSessionInterrupt, TuiCommandSessionCompact,
+		TuiCommandSessionPageUp, TuiCommandSessionPageDown,
+		TuiCommandSessionLineUp, TuiCommandSessionLineDown,
+		TuiCommandSessionHalfPageUp, TuiCommandSessionHalfPageDown,
+		TuiCommandSessionFirst, TuiCommandSessionLast,
+		TuiCommandPromptClear, TuiCommandPromptSubmit,
+		TuiCommandAgentCycle:
+		return true
+	}
+	return false
+}
+
+// TuiPublishBody is the union type for TUI publish event bodies.
+// Satisfied by [TuiPublishBodyPromptAppend], [TuiPublishBodyCommandExecute],
+// [TuiPublishBodyToastShow], or [TuiPublishBodySessionSelect].
+type TuiPublishBody interface {
+	implementsTuiPublishBody()
+}
+
+type TuiPublishBodyPromptAppend struct {
+	Properties param.Field[TuiPublishBodyPromptAppendProperties] `json:"properties,required"`
+}
+
+func (r TuiPublishBodyPromptAppend) MarshalJSON() (data []byte, err error) {
+	if err := validateTuiPublishProperties("tui.prompt.append", r.Properties, func(properties TuiPublishBodyPromptAppendProperties) error {
+		if !properties.Text.Present {
+			return fmt.Errorf("missing required properties.text for tui.prompt.append")
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return marshalTuiPublishBody("tui.prompt.append", r.Properties)
+}
+
+func (r TuiPublishBodyPromptAppend) implementsTuiPublishBody() {}
+
+type TuiPublishBodyPromptAppendProperties struct {
+	Text param.Field[string] `json:"text,required"`
+}
+
+func (r TuiPublishBodyPromptAppendProperties) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type TuiPublishBodyCommandExecute struct {
+	Properties param.Field[TuiPublishBodyCommandExecuteProperties] `json:"properties,required"`
+}
+
+func (r TuiPublishBodyCommandExecute) MarshalJSON() (data []byte, err error) {
+	if err := validateTuiPublishProperties("tui.command.execute", r.Properties, func(properties TuiPublishBodyCommandExecuteProperties) error {
+		if !properties.Command.Present {
+			return fmt.Errorf("missing required properties.command for tui.command.execute")
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return marshalTuiPublishBody("tui.command.execute", r.Properties)
+}
+
+func (r TuiPublishBodyCommandExecute) implementsTuiPublishBody() {}
+
+type TuiPublishBodyCommandExecuteProperties struct {
+	Command param.Field[TuiCommand] `json:"command,required"`
+}
+
+func (r TuiPublishBodyCommandExecuteProperties) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type TuiPublishBodyToastShow struct {
+	Properties param.Field[TuiPublishBodyToastShowProperties] `json:"properties,required"`
+}
+
+func (r TuiPublishBodyToastShow) MarshalJSON() (data []byte, err error) {
+	if err := validateTuiPublishProperties("tui.toast.show", r.Properties, func(properties TuiPublishBodyToastShowProperties) error {
+		if !properties.Message.Present {
+			return fmt.Errorf("missing required properties.message for tui.toast.show")
+		}
+		if !properties.Variant.Present {
+			return fmt.Errorf("missing required properties.variant for tui.toast.show")
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return marshalTuiPublishBody("tui.toast.show", r.Properties)
+}
+
+func (r TuiPublishBodyToastShow) implementsTuiPublishBody() {}
+
+type TuiPublishBodyToastShowProperties struct {
+	Message  param.Field[string]                    `json:"message,required"`
+	Variant  param.Field[TuiShowToastParamsVariant] `json:"variant,required"`
+	Title    param.Field[string]                    `json:"title"`
+	Duration param.Field[float64]                   `json:"duration"`
+}
+
+func (r TuiPublishBodyToastShowProperties) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+type TuiPublishBodySessionSelect struct {
+	Properties param.Field[TuiPublishBodySessionSelectProperties] `json:"properties,required"`
+}
+
+func (r TuiPublishBodySessionSelect) MarshalJSON() (data []byte, err error) {
+	if err := validateTuiPublishProperties("tui.session.select", r.Properties, func(properties TuiPublishBodySessionSelectProperties) error {
+		if !properties.SessionID.Present {
+			return fmt.Errorf("missing required properties.sessionID for tui.session.select")
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return marshalTuiPublishBody("tui.session.select", r.Properties)
+}
+
+func (r TuiPublishBodySessionSelect) implementsTuiPublishBody() {}
+
+type TuiPublishBodySessionSelectProperties struct {
+	SessionID param.Field[string] `json:"sessionID,required"`
+}
+
+func (r TuiPublishBodySessionSelectProperties) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func marshalTuiPublishBody[T any](eventType string, properties param.Field[T]) ([]byte, error) {
+	return apijson.MarshalRoot(struct {
+		Type       string         `json:"type,required"`
+		Properties param.Field[T] `json:"properties,required"`
+	}{
+		Type:       eventType,
+		Properties: properties,
+	})
+}
+
+func validateTuiPublishProperties[T any](eventType string, properties param.Field[T], validate func(T) error) error {
+	if !properties.Present || properties.Null {
+		return fmt.Errorf("missing required properties for %s", eventType)
+	}
+	if properties.Raw != nil {
+		return nil
+	}
+	return validate(properties.Value)
+}
+
+type TuiSelectSessionParams struct {
+	SessionID param.Field[string] `json:"sessionID,required"`
+	Directory param.Field[string] `query:"directory"`
+	Workspace param.Field[string] `query:"workspace"`
+}
+
+func (r TuiSelectSessionParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r TuiSelectSessionParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
 type TuiShowToastParams struct {
 	Message   param.Field[string]                    `json:"message,required"`
 	Variant   param.Field[TuiShowToastParamsVariant] `json:"variant,required"`
 	Directory param.Field[string]                    `query:"directory"`
+	Workspace param.Field[string]                    `query:"workspace"`
+	Duration  param.Field[float64]                   `json:"duration"`
 	Title     param.Field[string]                    `json:"title"`
 }
 
@@ -239,10 +480,90 @@ func (r TuiShowToastParamsVariant) IsKnown() bool {
 
 type TuiSubmitPromptParams struct {
 	Directory param.Field[string] `query:"directory"`
+	Workspace param.Field[string] `query:"workspace"`
 }
 
 // URLQuery serializes [TuiSubmitPromptParams]'s query parameters as `url.Values`.
 func (r TuiSubmitPromptParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+// TuiControlService contains methods for interacting with the TUI control resource.
+type TuiControlService struct {
+	Options []option.RequestOption
+}
+
+// NewTuiControlService generates a new service.
+func NewTuiControlService(opts ...option.RequestOption) (r *TuiControlService) {
+	r = &TuiControlService{}
+	r.Options = opts
+	return
+}
+
+// Next gets the next pending control request from the TUI.
+func (r *TuiControlService) Next(ctx context.Context, query TuiControlNextParams, opts ...option.RequestOption) (res *TuiControlNextResponse, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "tui/control/next"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodGet, path, query, &res, opts...)
+	return
+}
+
+// Response sends a response to a TUI control request.
+func (r *TuiControlService) Response(ctx context.Context, params TuiControlResponseParams, opts ...option.RequestOption) (res *bool, err error) {
+	opts = slices.Concat(r.Options, opts)
+	path := "tui/control/response"
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, params, &res, opts...)
+	return
+}
+
+// TuiControlNextResponse is the response from GET /tui/control/next.
+type TuiControlNextResponse struct {
+	Path string                     `json:"path,required"`
+	Body interface{}                `json:"body,required"`
+	JSON tuiControlNextResponseJSON `json:"-"`
+}
+
+type tuiControlNextResponseJSON struct {
+	Path        apijson.Field
+	Body        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *TuiControlNextResponse) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r tuiControlNextResponseJSON) RawJSON() string {
+	return r.raw
+}
+
+type TuiControlNextParams struct {
+	Directory param.Field[string] `query:"directory"`
+	Workspace param.Field[string] `query:"workspace"`
+}
+
+func (r TuiControlNextParams) URLQuery() (v url.Values) {
+	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
+		ArrayFormat:  apiquery.ArrayQueryFormatComma,
+		NestedFormat: apiquery.NestedQueryFormatBrackets,
+	})
+}
+
+type TuiControlResponseParams struct {
+	Body      param.Field[interface{}] `json:"body"`
+	Directory param.Field[string]      `query:"directory"`
+	Workspace param.Field[string]      `query:"workspace"`
+}
+
+func (r TuiControlResponseParams) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r.Body)
+}
+
+func (r TuiControlResponseParams) URLQuery() (v url.Values) {
 	return apiquery.MarshalWithSettings(r, apiquery.QuerySettings{
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,

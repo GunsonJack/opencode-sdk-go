@@ -18,11 +18,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/sst/opencode-sdk-go/internal"
-	"github.com/sst/opencode-sdk-go/internal/apierror"
-	"github.com/sst/opencode-sdk-go/internal/apiform"
-	"github.com/sst/opencode-sdk-go/internal/apiquery"
-	"github.com/sst/opencode-sdk-go/internal/param"
+	"github.com/GunsonJack/opencode-sdk-go/internal"
+	"github.com/GunsonJack/opencode-sdk-go/internal/apierror"
+	"github.com/GunsonJack/opencode-sdk-go/internal/apiform"
+	"github.com/GunsonJack/opencode-sdk-go/internal/apiquery"
+	"github.com/GunsonJack/opencode-sdk-go/internal/param"
 )
 
 func getDefaultHeaders() map[string]string {
@@ -619,6 +619,16 @@ func PreRequestOptions(opts ...RequestOption) (RequestConfig, error) {
 		}
 	}
 	return cfg, nil
+}
+
+func EncodePathSegment(value string, name string) (string, error) {
+	if value == "" {
+		return "", fmt.Errorf("missing required %s parameter", name)
+	}
+	if value == "." || value == ".." {
+		return strings.ReplaceAll(value, ".", "%2E"), nil
+	}
+	return url.PathEscape(value), nil
 }
 
 // WithDefaultBaseURL returns a RequestOption that sets the client's default Base URL.

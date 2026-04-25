@@ -3,17 +3,22 @@
 package opencode_test
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
+	"net/url"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
-	"github.com/sst/opencode-sdk-go"
-	"github.com/sst/opencode-sdk-go/internal"
-	"github.com/sst/opencode-sdk-go/option"
+	"github.com/GunsonJack/opencode-sdk-go"
+	"github.com/GunsonJack/opencode-sdk-go/internal"
+	"github.com/GunsonJack/opencode-sdk-go/option"
 )
 
 type closureTransport struct {
@@ -330,7 +335,486 @@ func TestContextDeadlineStreamingWithRequestTimeout(t *testing.T) {
 	}
 }
 
+func TestTuiPublishSendsRawBody(t *testing.T) {
+	var body []byte
+	var query url.Values
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					query = req.URL.Query()
+					var err error
+					body, err = io.ReadAll(req.Body)
+					if err != nil {
+						return nil, err
+					}
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Tui.Publish(context.Background(), opencode.TuiPublishParams{
+		Body: opencode.F[opencode.TuiPublishBody](opencode.TuiPublishBodyToastShow{
+			Properties: opencode.F(opencode.TuiPublishBodyToastShowProperties{
+				Message: opencode.F("Done!"),
+				Variant: opencode.F(opencode.TuiShowToastParamsVariantSuccess),
+			}),
+		}),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := string(body); got != `{"properties":{"message":"Done!","variant":"success"},"type":"tui.toast.show"}` {
+		t.Fatalf("unexpected body: %s", got)
+	}
+	if got := query.Get("workspace"); got != "workspace" {
+		t.Fatalf("workspace query = %q, want %q", got, "workspace")
+	}
+}
+
+func TestTuiPublishSendsDirectoryQueryWithRawBody(t *testing.T) {
+	var query url.Values
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					query = req.URL.Query()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Tui.Publish(context.Background(), opencode.TuiPublishParams{
+		Body: opencode.F[opencode.TuiPublishBody](opencode.TuiPublishBodyPromptAppend{
+			Properties: opencode.F(opencode.TuiPublishBodyPromptAppendProperties{Text: opencode.F("hello")}),
+		}),
+		Directory: opencode.F("directory"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := query.Get("directory"); got != "directory" {
+		t.Fatalf("directory query = %q, want %q", got, "directory")
+	}
+}
+
+func TestTuiPublishRequiresBody(t *testing.T) {
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					t.Fatal("request should not be sent")
+					return nil, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Tui.Publish(context.Background(), opencode.TuiPublishParams{})
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if err.Error() != "missing required body for tui.publish" {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestTuiControlResponseSendsRawBody(t *testing.T) {
+	var body []byte
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					var err error
+					body, err = io.ReadAll(req.Body)
+					if err != nil {
+						return nil, err
+					}
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Tui.Control.Response(context.Background(), opencode.TuiControlResponseParams{
+		Body:      opencode.F[interface{}](map[string]interface{}{"ok": true}),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := string(body); got != `{"ok":true}` {
+		t.Fatalf("unexpected body: %s", got)
+	}
+}
+
+func TestSessionPromptAsyncReturnsMeaningfulSuccess(t *testing.T) {
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{
+						StatusCode: http.StatusNoContent,
+						Body:       io.NopCloser(strings.NewReader("")),
+					}, nil
+				},
+			},
+		}),
+	)
+
+	err := client.Session.PromptAsync(context.Background(), "ses_123", opencode.SessionPromptAsyncParams{
+		Parts: opencode.F([]opencode.SessionPromptParamsPartUnion{opencode.TextPartInputParam{
+			Text: opencode.F("hello"),
+			Type: opencode.F(opencode.TextPartInputTypeText),
+		}}),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestEventQuestionRepliedAnswersDecode(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"question.replied","properties":{"sessionID":"ses_1","requestID":"que_1","answers":[["a"],["b","c"]]}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	q, ok := evt.AsUnion().(opencode.EventListResponseEventQuestionReplied)
+	if !ok {
+		t.Fatalf("unexpected event type: %#v", evt.AsUnion())
+	}
+	want := []opencode.QuestionAnswer{{"a"}, {"b", "c"}}
+	if !reflect.DeepEqual(q.Properties.Answers, want) {
+		t.Fatalf("unexpected answers: %#v", q.Properties.Answers)
+	}
+}
+
+func TestEventPermissionRepliedFieldsDecode(t *testing.T) {
+	var evt opencode.EventListResponse
+	err := json.Unmarshal([]byte(`{"type":"permission.replied","properties":{"sessionID":"ses_1","requestID":"per_1","reply":"once"}}`), &evt)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	p, ok := evt.AsUnion().(opencode.EventListResponseEventPermissionReplied)
+	if !ok {
+		t.Fatalf("unexpected event type: %#v", evt.AsUnion())
+	}
+	if p.Properties.RequestID != "per_1" {
+		t.Fatalf("unexpected requestID: %q", p.Properties.RequestID)
+	}
+	if p.Properties.Reply != opencode.PermissionReplyParamsReplyOnce {
+		t.Fatalf("unexpected reply: %q", p.Properties.Reply)
+	}
+}
+
+func TestAppProvidersAcceptsDirectoryForCompatibility(t *testing.T) {
+	var rawQuery string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					rawQuery = req.URL.RawQuery
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{"default":{},"providers":[]}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.App.Providers(context.Background(), opencode.AppProvidersParams{Directory: opencode.F("dir")})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(rawQuery, "directory=dir") {
+		t.Fatalf("missing directory query: %s", rawQuery)
+	}
+}
+
+func TestConfigModeBuildAndPlanCompatibility(t *testing.T) {
+	var cfg opencode.Config
+	err := json.Unmarshal([]byte(`{"mode":{"build":{"model":"x"},"plan":{"model":"y"}}}`), &cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Mode.Build.Model != "x" || cfg.Mode.Plan.Model != "y" {
+		t.Fatalf("bad mode decode: %#v", cfg.Mode)
+	}
+}
+
+func TestSessionCommandSerializesFileParts(t *testing.T) {
+	var body []byte
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					var err error
+					body, err = io.ReadAll(req.Body)
+					if err != nil {
+						return nil, err
+					}
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{"info":{"id":"msg_1","agent":"build","cost":0,"mode":"primary","modelID":"model","parentID":"msg_0","path":{"cwd":"/tmp","root":"/tmp"},"providerID":"provider","role":"assistant","sessionID":"ses_123","time":{"created":0},"tokens":{"cache":{"read":0,"write":0},"input":0,"output":0,"reasoning":0}},"parts":[]}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Session.Command(context.Background(), "ses_123", opencode.SessionCommandParams{
+		Arguments: opencode.F("args"),
+		Command:   opencode.F("cmd"),
+		Parts: opencode.F([]opencode.SessionCommandParamsPart{opencode.FilePartInputParam{
+			Mime: opencode.F("text/plain"),
+			Type: opencode.F(opencode.FilePartInputTypeFile),
+			URL:  opencode.F("file:///tmp/example.txt"),
+		}}),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := string(body); got != `{"arguments":"args","command":"cmd","parts":[{"mime":"text/plain","type":"file","url":"file:///tmp/example.txt"}]}` {
+		t.Fatalf("unexpected body: %s", got)
+	}
+}
+
+func TestDebugLogDoesNotBlockStreamingResponse(t *testing.T) {
+	var logs bytes.Buffer
+	release := make(chan struct{})
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       &blockingReadCloser{release: release},
+						Header:     http.Header{"Content-Type": []string{"text/event-stream"}},
+					}, nil
+				},
+			},
+		}),
+		option.WithDebugLog(log.New(&logs, "", 0)),
+	)
+
+	done := make(chan struct{})
+	go func() {
+		_ = client.Event.ListStreaming(context.Background(), opencode.EventListParams{})
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(100 * time.Millisecond):
+		close(release)
+		<-done
+		t.Fatalf("ListStreaming blocked while debug logging stream response; logs=%s", logs.String())
+	}
+	close(release)
+}
+
+func TestAuthSetEscapesProviderIDPathSegment(t *testing.T) {
+	var path string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					path = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Auth.Set(context.Background(), "provider/with space", opencode.AuthSetParamsAPI{
+		Type: opencode.F("api"),
+		Key:  opencode.F("sk-test-key"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if path != "/auth/provider%2Fwith%20space" {
+		t.Fatalf("unexpected path: %s", path)
+	}
+}
+
+func TestAuthSetPreservesDotDotProviderIDPathSegment(t *testing.T) {
+	var path string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					path = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Auth.Set(context.Background(), "..", opencode.AuthSetParamsAPI{
+		Type: opencode.F("api"),
+		Key:  opencode.F("sk-test-key"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if path != "/auth/%2E%2E" {
+		t.Fatalf("unexpected path: %s", path)
+	}
+}
+
+func TestAuthSetRejectsEmptyProviderID(t *testing.T) {
+	called := false
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					called = true
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Auth.Set(context.Background(), "", opencode.AuthSetParamsAPI{
+		Type: opencode.F("api"),
+		Key:  opencode.F("sk-test-key"),
+	})
+	if err == nil {
+		t.Fatal("expected missing providerID error")
+	}
+	if called {
+		t.Fatal("request should not be sent when providerID is empty")
+	}
+}
+
+func TestAuthRemoveEscapesProviderIDPathSegment(t *testing.T) {
+	var path string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					path = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Auth.Remove(context.Background(), "provider/with space")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if path != "/auth/provider%2Fwith%20space" {
+		t.Fatalf("unexpected path: %s", path)
+	}
+}
+
+func TestAuthRemovePreservesDotDotProviderIDPathSegment(t *testing.T) {
+	var path string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					path = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Auth.Remove(context.Background(), "..")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if path != "/auth/%2E%2E" {
+		t.Fatalf("unexpected path: %s", path)
+	}
+}
+
+func TestAuthRemoveRejectsEmptyProviderID(t *testing.T) {
+	called := false
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					called = true
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.Auth.Remove(context.Background(), "")
+	if err == nil {
+		t.Fatal("expected missing providerID error")
+	}
+	if called {
+		t.Fatal("request should not be sent when providerID is empty")
+	}
+}
+
 type readerFunc func([]byte) (int, error)
 
 func (f readerFunc) Read(p []byte) (int, error) { return f(p) }
 func (f readerFunc) Close() error               { return nil }
+
+type blockingReadCloser struct {
+	release chan struct{}
+	read    bool
+}
+
+func (r *blockingReadCloser) Read(p []byte) (int, error) {
+	if !r.read {
+		r.read = true
+		return copy(p, []byte("event: message\ndata: {\"type\":\"session.idle\",\"properties\":{\"sessionID\":\"ses_123\"}}\n\n")), nil
+	}
+	<-r.release
+	return 0, io.EOF
+}
+
+func (r *blockingReadCloser) Close() error { return nil }

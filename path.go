@@ -8,11 +8,11 @@ import (
 	"net/url"
 	"slices"
 
-	"github.com/sst/opencode-sdk-go/internal/apijson"
-	"github.com/sst/opencode-sdk-go/internal/apiquery"
-	"github.com/sst/opencode-sdk-go/internal/param"
-	"github.com/sst/opencode-sdk-go/internal/requestconfig"
-	"github.com/sst/opencode-sdk-go/option"
+	"github.com/GunsonJack/opencode-sdk-go/internal/apijson"
+	"github.com/GunsonJack/opencode-sdk-go/internal/apiquery"
+	"github.com/GunsonJack/opencode-sdk-go/internal/param"
+	"github.com/GunsonJack/opencode-sdk-go/internal/requestconfig"
+	"github.com/GunsonJack/opencode-sdk-go/option"
 )
 
 // PathService contains methods and other services that help with interacting with
@@ -45,6 +45,7 @@ func (r *PathService) Get(ctx context.Context, query PathGetParams, opts ...opti
 type Path struct {
 	Config    string   `json:"config,required"`
 	Directory string   `json:"directory,required"`
+	Home      string   `json:"home,required"`
 	State     string   `json:"state,required"`
 	Worktree  string   `json:"worktree,required"`
 	JSON      pathJSON `json:"-"`
@@ -54,6 +55,7 @@ type Path struct {
 type pathJSON struct {
 	Config      apijson.Field
 	Directory   apijson.Field
+	Home        apijson.Field
 	State       apijson.Field
 	Worktree    apijson.Field
 	raw         string
@@ -70,6 +72,7 @@ func (r pathJSON) RawJSON() string {
 
 type PathGetParams struct {
 	Directory param.Field[string] `query:"directory"`
+	Workspace param.Field[string] `query:"workspace"`
 }
 
 // URLQuery serializes [PathGetParams]'s query parameters as `url.Values`.

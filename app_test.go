@@ -5,12 +5,16 @@ package opencode_test
 import (
 	"context"
 	"errors"
+	"io"
+	"net/http"
 	"os"
+	"reflect"
+	"strings"
 	"testing"
 
-	"github.com/sst/opencode-sdk-go"
-	"github.com/sst/opencode-sdk-go/internal/testutil"
-	"github.com/sst/opencode-sdk-go/option"
+	"github.com/GunsonJack/opencode-sdk-go"
+	"github.com/GunsonJack/opencode-sdk-go/internal/testutil"
+	"github.com/GunsonJack/opencode-sdk-go/option"
 )
 
 func TestAppLogWithOptionalParams(t *testing.T) {
@@ -56,7 +60,7 @@ func TestAppProvidersWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 	)
 	_, err := client.App.Providers(context.TODO(), opencode.AppProvidersParams{
-		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
 		var apierr *opencode.Error
@@ -64,5 +68,46 @@ func TestAppProvidersWithOptionalParams(t *testing.T) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
 		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestAppLogSendsWorkspaceInQuery(t *testing.T) {
+	var rawQuery string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					rawQuery = req.URL.RawQuery
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader("true")),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+
+	_, err := client.App.Log(context.Background(), opencode.AppLogParams{
+		Level:     opencode.F(opencode.AppLogParamsLevelInfo),
+		Message:   opencode.F("message"),
+		Service:   opencode.F("service"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(rawQuery, "workspace=workspace") {
+		t.Fatalf("missing workspace query: %s", rawQuery)
+	}
+}
+
+func TestAppLogIncludesWorkspaceQueryCompatibility(t *testing.T) {
+	field, ok := reflect.TypeOf(opencode.AppLogParams{}).FieldByName("Workspace")
+	if !ok {
+		t.Fatal("AppLogParams lacks the spec-required workspace query support for app.log")
+	}
+	if got := field.Tag.Get("query"); got != "workspace" {
+		t.Fatalf("AppLogParams.Workspace should use query:\"workspace\", got %q", got)
 	}
 }

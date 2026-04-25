@@ -8,11 +8,11 @@ import (
 	"net/url"
 	"slices"
 
-	"github.com/sst/opencode-sdk-go/internal/apijson"
-	"github.com/sst/opencode-sdk-go/internal/apiquery"
-	"github.com/sst/opencode-sdk-go/internal/param"
-	"github.com/sst/opencode-sdk-go/internal/requestconfig"
-	"github.com/sst/opencode-sdk-go/option"
+	"github.com/GunsonJack/opencode-sdk-go/internal/apijson"
+	"github.com/GunsonJack/opencode-sdk-go/internal/apiquery"
+	"github.com/GunsonJack/opencode-sdk-go/internal/param"
+	"github.com/GunsonJack/opencode-sdk-go/internal/requestconfig"
+	"github.com/GunsonJack/opencode-sdk-go/option"
 )
 
 // AgentService contains methods and other services that help with interacting with
@@ -43,12 +43,15 @@ func (r *AgentService) List(ctx context.Context, query AgentListParams, opts ...
 }
 
 type Agent struct {
-	BuiltIn     bool                   `json:"builtIn,required"`
-	Mode        AgentMode              `json:"mode,required"`
 	Name        string                 `json:"name,required"`
+	Mode        AgentMode              `json:"mode,required"`
+	Permission  []PermissionRule       `json:"permission,required"`
 	Options     map[string]interface{} `json:"options,required"`
-	Permission  AgentPermission        `json:"permission,required"`
-	Tools       map[string]bool        `json:"tools,required"`
+	Native      bool                   `json:"native"`
+	Hidden      bool                   `json:"hidden"`
+	Color       string                 `json:"color"`
+	Variant     string                 `json:"variant"`
+	Steps       int64                  `json:"steps"`
 	Description string                 `json:"description"`
 	Model       AgentModel             `json:"model"`
 	Prompt      string                 `json:"prompt"`
@@ -59,12 +62,15 @@ type Agent struct {
 
 // agentJSON contains the JSON metadata for the struct [Agent]
 type agentJSON struct {
-	BuiltIn     apijson.Field
-	Mode        apijson.Field
 	Name        apijson.Field
-	Options     apijson.Field
+	Mode        apijson.Field
 	Permission  apijson.Field
-	Tools       apijson.Field
+	Options     apijson.Field
+	Native      apijson.Field
+	Hidden      apijson.Field
+	Color       apijson.Field
+	Variant     apijson.Field
+	Steps       apijson.Field
 	Description apijson.Field
 	Model       apijson.Field
 	Prompt      apijson.Field
@@ -98,78 +104,6 @@ func (r AgentMode) IsKnown() bool {
 	return false
 }
 
-type AgentPermission struct {
-	Bash     map[string]AgentPermissionBash `json:"bash,required"`
-	Edit     AgentPermissionEdit            `json:"edit,required"`
-	Webfetch AgentPermissionWebfetch        `json:"webfetch"`
-	JSON     agentPermissionJSON            `json:"-"`
-}
-
-// agentPermissionJSON contains the JSON metadata for the struct [AgentPermission]
-type agentPermissionJSON struct {
-	Bash        apijson.Field
-	Edit        apijson.Field
-	Webfetch    apijson.Field
-	raw         string
-	ExtraFields map[string]apijson.Field
-}
-
-func (r *AgentPermission) UnmarshalJSON(data []byte) (err error) {
-	return apijson.UnmarshalRoot(data, r)
-}
-
-func (r agentPermissionJSON) RawJSON() string {
-	return r.raw
-}
-
-type AgentPermissionBash string
-
-const (
-	AgentPermissionBashAsk   AgentPermissionBash = "ask"
-	AgentPermissionBashAllow AgentPermissionBash = "allow"
-	AgentPermissionBashDeny  AgentPermissionBash = "deny"
-)
-
-func (r AgentPermissionBash) IsKnown() bool {
-	switch r {
-	case AgentPermissionBashAsk, AgentPermissionBashAllow, AgentPermissionBashDeny:
-		return true
-	}
-	return false
-}
-
-type AgentPermissionEdit string
-
-const (
-	AgentPermissionEditAsk   AgentPermissionEdit = "ask"
-	AgentPermissionEditAllow AgentPermissionEdit = "allow"
-	AgentPermissionEditDeny  AgentPermissionEdit = "deny"
-)
-
-func (r AgentPermissionEdit) IsKnown() bool {
-	switch r {
-	case AgentPermissionEditAsk, AgentPermissionEditAllow, AgentPermissionEditDeny:
-		return true
-	}
-	return false
-}
-
-type AgentPermissionWebfetch string
-
-const (
-	AgentPermissionWebfetchAsk   AgentPermissionWebfetch = "ask"
-	AgentPermissionWebfetchAllow AgentPermissionWebfetch = "allow"
-	AgentPermissionWebfetchDeny  AgentPermissionWebfetch = "deny"
-)
-
-func (r AgentPermissionWebfetch) IsKnown() bool {
-	switch r {
-	case AgentPermissionWebfetchAsk, AgentPermissionWebfetchAllow, AgentPermissionWebfetchDeny:
-		return true
-	}
-	return false
-}
-
 type AgentModel struct {
 	ModelID    string         `json:"modelID,required"`
 	ProviderID string         `json:"providerID,required"`
@@ -193,6 +127,7 @@ func (r agentModelJSON) RawJSON() string {
 }
 
 type AgentListParams struct {
+	Workspace param.Field[string] `query:"workspace"`
 	Directory param.Field[string] `query:"directory"`
 }
 

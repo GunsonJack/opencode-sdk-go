@@ -28,6 +28,12 @@ func Port(from any, to any) error {
 		return fmt.Errorf("destination must be a non-nil pointer to a struct (%v %v)", toType, toType.Kind())
 	}
 
+	// If the source is not a struct (e.g. a union resolved to a primitive type),
+	// there are no fields to port, so return early.
+	if fromType.Kind() != reflect.Struct {
+		return nil
+	}
+
 	values := map[string]reflect.Value{}
 	fields := map[string]reflect.Value{}
 

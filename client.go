@@ -8,26 +8,38 @@ import (
 	"os"
 	"slices"
 
-	"github.com/sst/opencode-sdk-go/internal/requestconfig"
-	"github.com/sst/opencode-sdk-go/option"
+	"github.com/GunsonJack/opencode-sdk-go/internal/requestconfig"
+	"github.com/GunsonJack/opencode-sdk-go/option"
 )
 
 // Client creates a struct with services and top level methods that help with
 // interacting with the opencode API. You should not instantiate this client
 // directly, and instead use the [NewClient] method instead.
 type Client struct {
-	Options []option.RequestOption
-	Event   *EventService
-	Path    *PathService
-	App     *AppService
-	Agent   *AgentService
-	Find    *FindService
-	File    *FileService
-	Config  *ConfigService
-	Command *CommandService
-	Project *ProjectService
-	Session *SessionService
-	Tui     *TuiService
+	Options             []option.RequestOption
+	Event               *EventService
+	Path                *PathService
+	App                 *AppService
+	Find                *FindService
+	File                *FileService
+	Config              *ConfigService
+	Command             *CommandService
+	Project             *ProjectService
+	Session             *SessionService
+	Tui                 *TuiService
+	Permission          *PermissionService
+	Question            *QuestionService
+	Provider            *ProviderService
+	Auth                *AuthService
+	Lsp                 *LspService
+	Formatter           *FormatterService
+	Global              *GlobalService
+	Instance            *InstanceService
+	Mcp                 *McpService
+	Pty                 *PtyService
+	Vcs                 *VcsService
+	Experimental        *ExperimentalService
+	Sync                *SyncService
 }
 
 // DefaultClientOptions read from the environment (OPENCODE_BASE_URL). This should
@@ -52,7 +64,6 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Event = NewEventService(opts...)
 	r.Path = NewPathService(opts...)
 	r.App = NewAppService(opts...)
-	r.Agent = NewAgentService(opts...)
 	r.Find = NewFindService(opts...)
 	r.File = NewFileService(opts...)
 	r.Config = NewConfigService(opts...)
@@ -60,6 +71,19 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Project = NewProjectService(opts...)
 	r.Session = NewSessionService(opts...)
 	r.Tui = NewTuiService(opts...)
+	r.Permission = NewPermissionService(opts...)
+	r.Question = NewQuestionService(opts...)
+	r.Provider = NewProviderService(opts...)
+	r.Auth = NewAuthService(opts...)
+	r.Lsp = NewLspService(opts...)
+	r.Formatter = NewFormatterService(opts...)
+	r.Global = NewGlobalService(opts...)
+	r.Instance = NewInstanceService(opts...)
+	r.Mcp = NewMcpService(opts...)
+	r.Pty = NewPtyService(opts...)
+	r.Vcs = NewVcsService(opts...)
+	r.Experimental = NewExperimentalService(opts...)
+	r.Sync = NewSyncService(opts...)
 
 	return
 }

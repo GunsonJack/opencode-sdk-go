@@ -3,7 +3,7 @@
 package shared
 
 import (
-	"github.com/sst/opencode-sdk-go/internal/apijson"
+	"github.com/GunsonJack/opencode-sdk-go/internal/apijson"
 )
 
 type MessageAbortedError struct {
@@ -188,6 +188,88 @@ const (
 func (r UnknownErrorName) IsKnown() bool {
 	switch r {
 	case UnknownErrorNameUnknownError:
+		return true
+	}
+	return false
+}
+
+type BadRequestError struct {
+	Data    interface{}              `json:"data,required"`
+	Errors  []map[string]interface{} `json:"errors,required"`
+	Success bool                     `json:"success,required"`
+	JSON    badRequestErrorJSON      `json:"-"`
+}
+
+// badRequestErrorJSON contains the JSON metadata for the struct
+// [BadRequestError]
+type badRequestErrorJSON struct {
+	Data        apijson.Field
+	Errors      apijson.Field
+	Success     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *BadRequestError) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r badRequestErrorJSON) RawJSON() string {
+	return r.raw
+}
+
+type NotFoundError struct {
+	Data NotFoundErrorData `json:"data,required"`
+	Name NotFoundErrorName `json:"name,required"`
+	JSON notFoundErrorJSON `json:"-"`
+}
+
+// notFoundErrorJSON contains the JSON metadata for the struct [NotFoundError]
+type notFoundErrorJSON struct {
+	Data        apijson.Field
+	Name        apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *NotFoundError) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r notFoundErrorJSON) RawJSON() string {
+	return r.raw
+}
+
+type NotFoundErrorData struct {
+	Message string                `json:"message,required"`
+	JSON    notFoundErrorDataJSON `json:"-"`
+}
+
+// notFoundErrorDataJSON contains the JSON metadata for the struct
+// [NotFoundErrorData]
+type notFoundErrorDataJSON struct {
+	Message     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *NotFoundErrorData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r notFoundErrorDataJSON) RawJSON() string {
+	return r.raw
+}
+
+type NotFoundErrorName string
+
+const (
+	NotFoundErrorNameNotFoundError NotFoundErrorName = "NotFoundError"
+)
+
+func (r NotFoundErrorName) IsKnown() bool {
+	switch r {
+	case NotFoundErrorNameNotFoundError:
 		return true
 	}
 	return false

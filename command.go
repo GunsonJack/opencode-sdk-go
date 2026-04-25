@@ -8,11 +8,11 @@ import (
 	"net/url"
 	"slices"
 
-	"github.com/sst/opencode-sdk-go/internal/apijson"
-	"github.com/sst/opencode-sdk-go/internal/apiquery"
-	"github.com/sst/opencode-sdk-go/internal/param"
-	"github.com/sst/opencode-sdk-go/internal/requestconfig"
-	"github.com/sst/opencode-sdk-go/option"
+	"github.com/GunsonJack/opencode-sdk-go/internal/apijson"
+	"github.com/GunsonJack/opencode-sdk-go/internal/apiquery"
+	"github.com/GunsonJack/opencode-sdk-go/internal/param"
+	"github.com/GunsonJack/opencode-sdk-go/internal/requestconfig"
+	"github.com/GunsonJack/opencode-sdk-go/option"
 )
 
 // CommandService contains methods and other services that help with interacting
@@ -43,13 +43,15 @@ func (r *CommandService) List(ctx context.Context, query CommandListParams, opts
 }
 
 type Command struct {
-	Name        string      `json:"name,required"`
-	Template    string      `json:"template,required"`
-	Agent       string      `json:"agent"`
-	Description string      `json:"description"`
-	Model       string      `json:"model"`
-	Subtask     bool        `json:"subtask"`
-	JSON        commandJSON `json:"-"`
+	Name        string        `json:"name,required"`
+	Template    string        `json:"template,required"`
+	Agent       string        `json:"agent"`
+	Description string        `json:"description"`
+	Hints       []string      `json:"hints,required"`
+	Model       string        `json:"model"`
+	Source      CommandSource `json:"source"`
+	Subtask     bool          `json:"subtask"`
+	JSON        commandJSON   `json:"-"`
 }
 
 // commandJSON contains the JSON metadata for the struct [Command]
@@ -58,7 +60,9 @@ type commandJSON struct {
 	Template    apijson.Field
 	Agent       apijson.Field
 	Description apijson.Field
+	Hints       apijson.Field
 	Model       apijson.Field
+	Source      apijson.Field
 	Subtask     apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
@@ -72,8 +76,25 @@ func (r commandJSON) RawJSON() string {
 	return r.raw
 }
 
+type CommandSource string
+
+const (
+	CommandSourceCommand CommandSource = "command"
+	CommandSourceMcp     CommandSource = "mcp"
+	CommandSourceSkill   CommandSource = "skill"
+)
+
+func (r CommandSource) IsKnown() bool {
+	switch r {
+	case CommandSourceCommand, CommandSourceMcp, CommandSourceSkill:
+		return true
+	}
+	return false
+}
+
 type CommandListParams struct {
 	Directory param.Field[string] `query:"directory"`
+	Workspace param.Field[string] `query:"workspace"`
 }
 
 // URLQuery serializes [CommandListParams]'s query parameters as `url.Values`.

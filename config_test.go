@@ -8,9 +8,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/sst/opencode-sdk-go"
-	"github.com/sst/opencode-sdk-go/internal/testutil"
-	"github.com/sst/opencode-sdk-go/option"
+	"github.com/GunsonJack/opencode-sdk-go"
+	"github.com/GunsonJack/opencode-sdk-go/internal/testutil"
+	"github.com/GunsonJack/opencode-sdk-go/option"
 )
 
 func TestConfigGetWithOptionalParams(t *testing.T) {
@@ -26,7 +26,56 @@ func TestConfigGetWithOptionalParams(t *testing.T) {
 		option.WithBaseURL(baseURL),
 	)
 	_, err := client.Config.Get(context.TODO(), opencode.ConfigGetParams{
-		Directory: opencode.F("directory"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		var apierr *opencode.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestConfigUpdateWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := opencode.NewClient(
+		option.WithBaseURL(baseURL),
+	)
+	_, err := client.Config.Update(context.TODO(), opencode.ConfigUpdateParams{
+		Model:     opencode.F("gpt-4o"),
+		Workspace: opencode.F("workspace"),
+	})
+	if err != nil {
+		var apierr *opencode.Error
+		if errors.As(err, &apierr) {
+			t.Log(string(apierr.DumpRequest(true)))
+		}
+		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestConfigProvidersWithOptionalParams(t *testing.T) {
+	t.Skip("Prism tests are disabled")
+	baseURL := "http://localhost:4010"
+	if envURL, ok := os.LookupEnv("TEST_API_BASE_URL"); ok {
+		baseURL = envURL
+	}
+	if !testutil.CheckTestServer(t, baseURL) {
+		return
+	}
+	client := opencode.NewClient(
+		option.WithBaseURL(baseURL),
+	)
+	_, err := client.Config.Providers(context.TODO(), opencode.ConfigProvidersParams{
+		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
 		var apierr *opencode.Error

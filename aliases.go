@@ -3,8 +3,8 @@
 package opencode
 
 import (
-	"github.com/sst/opencode-sdk-go/internal/apierror"
-	"github.com/sst/opencode-sdk-go/shared"
+	"github.com/GunsonJack/opencode-sdk-go/internal/apierror"
+	"github.com/GunsonJack/opencode-sdk-go/shared"
 )
 
 type Error = apierror.Error
@@ -44,3 +44,18 @@ type UnknownErrorName = shared.UnknownErrorName
 
 // This is an alias to an internal value.
 const UnknownErrorNameUnknownError = shared.UnknownErrorNameUnknownError
+
+// This is an alias to an internal type.
+type BadRequestError = shared.BadRequestError
+
+// This is an alias to an internal type.
+type NotFoundError = shared.NotFoundError
+
+// This is an alias to an internal type.
+type NotFoundErrorData = shared.NotFoundErrorData
+
+// This is an alias to an internal type.
+type NotFoundErrorName = shared.NotFoundErrorName
+
+// This is an alias to an internal value.
+const NotFoundErrorNameNotFoundError = shared.NotFoundErrorNameNotFoundError

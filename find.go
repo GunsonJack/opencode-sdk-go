@@ -8,11 +8,11 @@ import (
 	"net/url"
 	"slices"
 
-	"github.com/sst/opencode-sdk-go/internal/apijson"
-	"github.com/sst/opencode-sdk-go/internal/apiquery"
-	"github.com/sst/opencode-sdk-go/internal/param"
-	"github.com/sst/opencode-sdk-go/internal/requestconfig"
-	"github.com/sst/opencode-sdk-go/option"
+	"github.com/GunsonJack/opencode-sdk-go/internal/apijson"
+	"github.com/GunsonJack/opencode-sdk-go/internal/apiquery"
+	"github.com/GunsonJack/opencode-sdk-go/internal/param"
+	"github.com/GunsonJack/opencode-sdk-go/internal/requestconfig"
+	"github.com/GunsonJack/opencode-sdk-go/option"
 )
 
 // FindService contains methods and other services that help with interacting with
@@ -291,8 +291,12 @@ func (r findTextResponseSubmatchesMatchJSON) RawJSON() string {
 }
 
 type FindFilesParams struct {
-	Query     param.Field[string] `query:"query,required"`
-	Directory param.Field[string] `query:"directory"`
+	Query     param.Field[string]              `query:"query,required"`
+	Dirs      param.Field[FindFilesParamsDirs] `query:"dirs"`
+	Directory param.Field[string]              `query:"directory"`
+	Limit     param.Field[int64]               `query:"limit"`
+	Type      param.Field[FindFilesParamsType] `query:"type"`
+	Workspace param.Field[string]              `query:"workspace"`
 }
 
 // URLQuery serializes [FindFilesParams]'s query parameters as `url.Values`.
@@ -306,6 +310,7 @@ func (r FindFilesParams) URLQuery() (v url.Values) {
 type FindSymbolsParams struct {
 	Query     param.Field[string] `query:"query,required"`
 	Directory param.Field[string] `query:"directory"`
+	Workspace param.Field[string] `query:"workspace"`
 }
 
 // URLQuery serializes [FindSymbolsParams]'s query parameters as `url.Values`.
@@ -319,6 +324,7 @@ func (r FindSymbolsParams) URLQuery() (v url.Values) {
 type FindTextParams struct {
 	Pattern   param.Field[string] `query:"pattern,required"`
 	Directory param.Field[string] `query:"directory"`
+	Workspace param.Field[string] `query:"workspace"`
 }
 
 // URLQuery serializes [FindTextParams]'s query parameters as `url.Values`.
@@ -327,4 +333,34 @@ func (r FindTextParams) URLQuery() (v url.Values) {
 		ArrayFormat:  apiquery.ArrayQueryFormatComma,
 		NestedFormat: apiquery.NestedQueryFormatBrackets,
 	})
+}
+
+type FindFilesParamsDirs string
+
+const (
+	FindFilesParamsDirsTrue  FindFilesParamsDirs = "true"
+	FindFilesParamsDirsFalse FindFilesParamsDirs = "false"
+)
+
+func (r FindFilesParamsDirs) IsKnown() bool {
+	switch r {
+	case FindFilesParamsDirsTrue, FindFilesParamsDirsFalse:
+		return true
+	}
+	return false
+}
+
+type FindFilesParamsType string
+
+const (
+	FindFilesParamsTypeFile      FindFilesParamsType = "file"
+	FindFilesParamsTypeDirectory FindFilesParamsType = "directory"
+)
+
+func (r FindFilesParamsType) IsKnown() bool {
+	switch r {
+	case FindFilesParamsTypeFile, FindFilesParamsTypeDirectory:
+		return true
+	}
+	return false
 }
