@@ -69,26 +69,26 @@ func (r *SessionService) List(ctx context.Context, query SessionListParams, opts
 }
 
 // Delete a session and all its data
-func (r *SessionService) Delete(ctx context.Context, id string, body SessionDeleteParams, opts ...option.RequestOption) (res *bool, err error) {
+func (r *SessionService) Delete(ctx context.Context, id string, query SessionDeleteParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
 	id, err = requestconfig.EncodePathSegment(id, "id")
 	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s", id)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, query, &res, opts...)
 	return
 }
 
 // Abort a session
-func (r *SessionService) Abort(ctx context.Context, id string, body SessionAbortParams, opts ...option.RequestOption) (res *bool, err error) {
+func (r *SessionService) Abort(ctx context.Context, id string, query SessionAbortParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
 	id, err = requestconfig.EncodePathSegment(id, "id")
 	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/abort", id)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, query, &res, opts...)
 	return
 }
 
@@ -193,14 +193,14 @@ func (r *SessionService) Revert(ctx context.Context, id string, params SessionRe
 }
 
 // Share a session
-func (r *SessionService) Share(ctx context.Context, id string, body SessionShareParams, opts ...option.RequestOption) (res *Session, err error) {
+func (r *SessionService) Share(ctx context.Context, id string, query SessionShareParams, opts ...option.RequestOption) (res *Session, err error) {
 	opts = slices.Concat(r.Options, opts)
 	id, err = requestconfig.EncodePathSegment(id, "id")
 	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/share", id)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, query, &res, opts...)
 	return
 }
 
@@ -229,26 +229,26 @@ func (r *SessionService) Summarize(ctx context.Context, id string, params Sessio
 }
 
 // Restore all reverted messages
-func (r *SessionService) Unrevert(ctx context.Context, id string, body SessionUnrevertParams, opts ...option.RequestOption) (res *Session, err error) {
+func (r *SessionService) Unrevert(ctx context.Context, id string, query SessionUnrevertParams, opts ...option.RequestOption) (res *Session, err error) {
 	opts = slices.Concat(r.Options, opts)
 	id, err = requestconfig.EncodePathSegment(id, "id")
 	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/unrevert", id)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodPost, path, query, &res, opts...)
 	return
 }
 
 // Unshare the session
-func (r *SessionService) Unshare(ctx context.Context, id string, body SessionUnshareParams, opts ...option.RequestOption) (res *Session, err error) {
+func (r *SessionService) Unshare(ctx context.Context, id string, query SessionUnshareParams, opts ...option.RequestOption) (res *Session, err error) {
 	opts = slices.Concat(r.Options, opts)
 	id, err = requestconfig.EncodePathSegment(id, "id")
 	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("session/%s/share", id)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, query, &res, opts...)
 	return
 }
 
@@ -297,7 +297,7 @@ func (r *SessionService) Diff(ctx context.Context, id string, query SessionDiffP
 }
 
 // Delete a message from a session
-func (r *SessionService) DeleteMessage(ctx context.Context, id string, messageID string, body SessionDeleteMessageParams, opts ...option.RequestOption) (res *bool, err error) {
+func (r *SessionService) DeleteMessage(ctx context.Context, id string, messageID string, query SessionDeleteMessageParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
 	id, err = requestconfig.EncodePathSegment(id, "id")
 	if err != nil {
@@ -308,7 +308,7 @@ func (r *SessionService) DeleteMessage(ctx context.Context, id string, messageID
 		return
 	}
 	path := fmt.Sprintf("session/%s/message/%s", id, messageID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, query, &res, opts...)
 	return
 }
 
@@ -333,7 +333,7 @@ func (r *SessionService) UpdatePart(ctx context.Context, id string, messageID st
 }
 
 // Delete a part
-func (r *SessionService) DeletePart(ctx context.Context, id string, messageID string, partID string, body SessionDeletePartParams, opts ...option.RequestOption) (res *bool, err error) {
+func (r *SessionService) DeletePart(ctx context.Context, id string, messageID string, partID string, query SessionDeletePartParams, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
 	id, err = requestconfig.EncodePathSegment(id, "id")
 	if err != nil {
@@ -348,7 +348,7 @@ func (r *SessionService) DeletePart(ctx context.Context, id string, messageID st
 		return
 	}
 	path := fmt.Sprintf("session/%s/message/%s/part/%s", id, messageID, partID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, body, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, query, &res, opts...)
 	return
 }
 

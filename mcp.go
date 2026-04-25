@@ -380,23 +380,40 @@ func (r McpAddParams) URLQuery() (v url.Values) {
 	})
 }
 
-// McpAddConfigParam represents the configuration for an MCP server.
-// This is a flattened union of McpLocalConfig and McpRemoteConfig from the spec
+// McpAddConfigParam is the config body for POST /mcp.
+//
+// This is a flattened union of McpLocalConfig and McpRemoteConfig
 // (anyOf discriminated by Type).
 //
-// For local servers, set Type to "local" and provide Command (required for local).
-// For remote servers, set Type to "remote" and provide URL (required for remote).
+// For local servers, set Type to "local" and provide Command (required for local):
+//
+//	opencode.McpAddConfigParam{
+//	    Type:    opencode.F("local"),
+//	    Command: opencode.F([]string{"npx", "my-mcp-server"}),
+//	}
+//
+// For remote servers, set Type to "remote" and provide URL (required for remote):
+//
+//	opencode.McpAddConfigParam{
+//	    Type: opencode.F("remote"),
+//	    URL:  opencode.F("https://mcp.example.com"),
+//	}
+//
+// Fields from the non-matching variant are ignored during serialization when not
+// set (i.e., URL is not serialized for local configs unless explicitly provided).
 type McpAddConfigParam struct {
-	// The config type: "local" or "remote".
+	// The config type: "local" or "remote". (required)
 	Type param.Field[string] `json:"type,required"`
-	// Command to run. Required when Type is "local".
+	// Command to run (array of strings). Required when Type is "local".
+	// Ignored for remote configs unless explicitly set.
 	Command     param.Field[[]string]          `json:"command"`
 	Environment param.Field[map[string]string] `json:"environment"`
 	// URL of the remote server. Required when Type is "remote".
+	// Ignored for local configs unless explicitly set.
 	URL     param.Field[string]                      `json:"url"`
 	Headers param.Field[map[string]string]           `json:"headers"`
 	OAuth   param.Field[McpAddConfigOAuthUnionParam] `json:"oauth"`
-	// Shared fields
+	// Shared fields (apply to both local and remote configs).
 	Enabled param.Field[bool]    `json:"enabled"`
 	Timeout param.Field[float64] `json:"timeout"`
 }

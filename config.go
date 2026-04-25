@@ -1151,7 +1151,7 @@ type ConfigProviderModel struct {
 	Status       ConfigProviderModelsStatus        `json:"status"`
 	Temperature  bool                              `json:"temperature"`
 	ToolCall     bool                              `json:"tool_call"`
-	Variants     map[string]map[string]interface{} `json:"variants"`
+	Variants     map[string]ConfigProviderModelVariant `json:"variants"`
 	JSON         configProviderModelJSON           `json:"-"`
 }
 
@@ -1185,6 +1185,29 @@ func (r *ConfigProviderModel) UnmarshalJSON(data []byte) (err error) {
 }
 
 func (r configProviderModelJSON) RawJSON() string {
+	return r.raw
+}
+
+// ConfigProviderModelVariant represents variant-specific configuration for a model.
+type ConfigProviderModelVariant struct {
+	// Disable this variant for the model.
+	Disabled bool                          `json:"disabled"`
+	JSON     configProviderModelVariantJSON `json:"-"`
+}
+
+// configProviderModelVariantJSON contains the JSON metadata for the struct
+// [ConfigProviderModelVariant]
+type configProviderModelVariantJSON struct {
+	Disabled    apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *ConfigProviderModelVariant) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r configProviderModelVariantJSON) RawJSON() string {
 	return r.raw
 }
 

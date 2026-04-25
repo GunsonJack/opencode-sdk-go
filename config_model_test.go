@@ -304,11 +304,16 @@ func TestConfigProviderModelMatchesSpecSurface(t *testing.T) {
 	if model.Headers["x-demo"] != "1" {
 		t.Fatalf("expected header x-demo=1, got %#v", model.Headers)
 	}
-	if _, ok := model.Variants["fast"]; !ok {
+	fast, ok := model.Variants["fast"]
+	if !ok {
 		t.Fatalf("expected fast variant, got %#v", model.Variants)
 	}
-	if got := model.Variants["fast"]["note"]; got != "keep" {
-		t.Fatalf("expected variant note keep, got %#v", got)
+	if !fast.Disabled {
+		t.Fatal("expected fast variant disabled=true")
+	}
+	// Extra fields (like "note") should still be captured via JSON metadata
+	if raw, ok := fast.JSON.ExtraFields["note"]; !ok || raw.IsMissing() {
+		t.Fatal("expected extra field 'note' to be captured in JSON metadata")
 	}
 	if model.ReleaseDate != "2025-01-01" {
 		t.Fatalf("expected release date to round-trip, got %q", model.ReleaseDate)
