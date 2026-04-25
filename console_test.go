@@ -28,7 +28,7 @@ func TestConsoleGet(t *testing.T) {
 	client := opencode.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Console.Get(context.TODO(), opencode.ConsoleGetParams{
+	_, err := client.Experimental.Console.Get(context.TODO(), opencode.ConsoleGetParams{
 		Directory: opencode.F("/tmp/test"),
 		Workspace: opencode.F("workspace"),
 	})
@@ -53,7 +53,7 @@ func TestConsoleListOrgs(t *testing.T) {
 	client := opencode.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Console.ListOrgs(context.TODO(), opencode.ConsoleListOrgsParams{
+	_, err := client.Experimental.Console.ListOrgs(context.TODO(), opencode.ConsoleListOrgsParams{
 		Directory: opencode.F("/tmp/test"),
 		Workspace: opencode.F("workspace"),
 	})
@@ -76,7 +76,7 @@ func TestConsoleSwitchOrgWithOptionalParams(t *testing.T) {
 		return
 	}
 	client := opencode.NewClient(option.WithBaseURL(baseURL))
-	_, err := client.Console.SwitchOrg(context.TODO(), opencode.ConsoleSwitchOrgParams{
+	_, err := client.Experimental.Console.SwitchOrg(context.TODO(), opencode.ConsoleSwitchOrgParams{
 		AccountID: opencode.F("acct_123"),
 		OrgID:     opencode.F("org_456"),
 		Directory: opencode.F("directory"),
@@ -108,7 +108,7 @@ func TestConsoleGetUsesCorrectMethodAndPath(t *testing.T) {
 			},
 		}),
 	)
-	_, err := client.Console.Get(context.Background(), opencode.ConsoleGetParams{
+	_, err := client.Experimental.Console.Get(context.Background(), opencode.ConsoleGetParams{
 		Directory: opencode.F("/tmp/test"),
 		Workspace: opencode.F("ws_123"),
 	})
@@ -140,7 +140,7 @@ func TestConsoleListOrgsUsesCorrectMethodAndPath(t *testing.T) {
 			},
 		}),
 	)
-	_, err := client.Console.ListOrgs(context.Background(), opencode.ConsoleListOrgsParams{
+	_, err := client.Experimental.Console.ListOrgs(context.Background(), opencode.ConsoleListOrgsParams{
 		Directory: opencode.F("/tmp/test"),
 		Workspace: opencode.F("ws_123"),
 	})
@@ -172,7 +172,7 @@ func TestConsoleSwitchOrgUsesCorrectMethodAndPath(t *testing.T) {
 			},
 		}),
 	)
-	_, err := client.Console.SwitchOrg(context.Background(), opencode.ConsoleSwitchOrgParams{
+	_, err := client.Experimental.Console.SwitchOrg(context.Background(), opencode.ConsoleSwitchOrgParams{
 		AccountID: opencode.F("acct_123"),
 		OrgID:     opencode.F("org_456"),
 		Directory: opencode.F("/tmp/test"),

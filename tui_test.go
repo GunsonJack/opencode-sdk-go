@@ -4,8 +4,10 @@ package opencode_test
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/GunsonJack/opencode-sdk-go"
@@ -201,7 +203,12 @@ func TestTuiPublish(t *testing.T) {
 	}
 	client := opencode.NewClient(option.WithBaseURL(baseURL))
 	_, err := client.Tui.Publish(context.TODO(), opencode.TuiPublishParams{
-		Body:      opencode.F[opencode.TuiPublishBody](opencode.TuiPublishBodyToastShow{Type: opencode.F("toast.show")}),
+		Body: opencode.F[opencode.TuiPublishBody](opencode.TuiPublishBodyToastShow{
+			Properties: opencode.F(opencode.TuiPublishBodyToastShowProperties{
+				Message: opencode.F("message"),
+				Variant: opencode.F(opencode.TuiShowToastParamsVariantInfo),
+			}),
+		}),
 		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
@@ -210,6 +217,105 @@ func TestTuiPublish(t *testing.T) {
 			t.Log(string(apierr.DumpRequest(true)))
 		}
 		t.Fatalf("err should be nil: %s", err.Error())
+	}
+}
+
+func TestTuiPublishBodyMarshalingMatchesSpec(t *testing.T) {
+	tests := []struct {
+		name string
+		body opencode.TuiPublishBody
+		want string
+	}{
+		{
+			name: "prompt append",
+			body: opencode.TuiPublishBodyPromptAppend{
+				Properties: opencode.F(opencode.TuiPublishBodyPromptAppendProperties{Text: opencode.F("hello")}),
+			},
+			want: `{"properties":{"text":"hello"},"type":"tui.prompt.append"}`,
+		},
+		{
+			name: "command execute",
+			body: opencode.TuiPublishBodyCommandExecute{
+				Properties: opencode.F(opencode.TuiPublishBodyCommandExecuteProperties{Command: opencode.F(opencode.TuiCommandSessionNew)}),
+			},
+			want: `{"properties":{"command":"session.new"},"type":"tui.command.execute"}`,
+		},
+		{
+			name: "toast show",
+			body: opencode.TuiPublishBodyToastShow{
+				Properties: opencode.F(opencode.TuiPublishBodyToastShowProperties{
+					Message: opencode.F("Done!"),
+					Variant: opencode.F(opencode.TuiShowToastParamsVariantSuccess),
+					Title:   opencode.F("Result"),
+				}),
+			},
+			want: `{"properties":{"message":"Done!","title":"Result","variant":"success"},"type":"tui.toast.show"}`,
+		},
+		{
+			name: "session select",
+			body: opencode.TuiPublishBodySessionSelect{
+				Properties: opencode.F(opencode.TuiPublishBodySessionSelectProperties{SessionID: opencode.F("ses_123")}),
+			},
+			want: `{"properties":{"sessionID":"ses_123"},"type":"tui.session.select"}`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := json.Marshal(tt.body)
+			if err != nil {
+				t.Fatalf("json.Marshal() error = %v", err)
+			}
+			if string(got) != tt.want {
+				t.Fatalf("json.Marshal() = %s, want %s", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestTuiPublishBodyMarshalingRequiresProperties(t *testing.T) {
+	tests := []struct {
+		name string
+		body opencode.TuiPublishBody
+		want string
+	}{
+		{
+			name: "prompt append text",
+			body: opencode.TuiPublishBodyPromptAppend{Properties: opencode.F(opencode.TuiPublishBodyPromptAppendProperties{})},
+			want: "missing required properties.text for tui.prompt.append",
+		},
+		{
+			name: "command execute command",
+			body: opencode.TuiPublishBodyCommandExecute{Properties: opencode.F(opencode.TuiPublishBodyCommandExecuteProperties{})},
+			want: "missing required properties.command for tui.command.execute",
+		},
+		{
+			name: "toast show message",
+			body: opencode.TuiPublishBodyToastShow{Properties: opencode.F(opencode.TuiPublishBodyToastShowProperties{Variant: opencode.F(opencode.TuiShowToastParamsVariantInfo)})},
+			want: "missing required properties.message for tui.toast.show",
+		},
+		{
+			name: "toast show variant",
+			body: opencode.TuiPublishBodyToastShow{Properties: opencode.F(opencode.TuiPublishBodyToastShowProperties{Message: opencode.F("Done!")})},
+			want: "missing required properties.variant for tui.toast.show",
+		},
+		{
+			name: "session select sessionID",
+			body: opencode.TuiPublishBodySessionSelect{Properties: opencode.F(opencode.TuiPublishBodySessionSelectProperties{})},
+			want: "missing required properties.sessionID for tui.session.select",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := json.Marshal(tt.body)
+			if err == nil {
+				t.Fatal("json.Marshal() error = nil, want error")
+			}
+			if !strings.Contains(err.Error(), tt.want) {
+				t.Fatalf("json.Marshal() error = %q, want substring %q", err.Error(), tt.want)
+			}
+		})
 	}
 }
 

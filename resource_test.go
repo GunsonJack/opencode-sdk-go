@@ -28,7 +28,7 @@ func TestResourceList(t *testing.T) {
 	client := opencode.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Resource.List(context.TODO(), opencode.ResourceListParams{
+	_, err := client.Experimental.Resource.List(context.TODO(), opencode.ResourceListParams{
 		Directory: opencode.F("/tmp/test"),
 		Workspace: opencode.F("workspace"),
 	})
@@ -58,7 +58,7 @@ func TestResourceListUsesCorrectMethodAndPath(t *testing.T) {
 			},
 		}),
 	)
-	_, err := client.Resource.List(context.Background(), opencode.ResourceListParams{
+	_, err := client.Experimental.Resource.List(context.Background(), opencode.ResourceListParams{
 		Directory: opencode.F("/tmp/test"),
 		Workspace: opencode.F("ws_123"),
 	})

@@ -30,7 +30,7 @@ func NewAuthService(opts ...option.RequestOption) (r *AuthService) {
 }
 
 // Set credentials for a provider.
-func (r *AuthService) Set(ctx context.Context, providerID string, params AuthSetParams, opts ...option.RequestOption) (res *bool, err error) {
+func (r *AuthService) Set(ctx context.Context, providerID string, params AuthSetParamsUnion, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
 	providerID, err = requestconfig.EncodePathSegment(providerID, "providerID")
 	if err != nil {
@@ -42,14 +42,14 @@ func (r *AuthService) Set(ctx context.Context, providerID string, params AuthSet
 }
 
 // Remove credentials for a provider.
-func (r *AuthService) Remove(ctx context.Context, providerID string, params AuthRemoveParams, opts ...option.RequestOption) (res *bool, err error) {
+func (r *AuthService) Remove(ctx context.Context, providerID string, opts ...option.RequestOption) (res *bool, err error) {
 	opts = slices.Concat(r.Options, opts)
 	providerID, err = requestconfig.EncodePathSegment(providerID, "providerID")
 	if err != nil {
 		return
 	}
 	path := fmt.Sprintf("auth/%s", providerID)
-	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, params, &res, opts...)
+	err = requestconfig.ExecuteNewRequest(ctx, http.MethodDelete, path, nil, &res, opts...)
 	return
 }
 
@@ -220,8 +220,18 @@ func (r AuthWellKnown) implementsAuth() {}
 
 // Params
 
+// AuthSetParamsUnion is the credential union request body for PUT /auth/{providerID}.
+//
+// Satisfied by [AuthSetParamsOAuth], [AuthSetParamsAPI], [AuthSetParamsWellKnown],
+// or the deprecated flattened [AuthSetParams] compatibility wrapper.
+type AuthSetParamsUnion interface {
+	implementsAuthSetParamsUnion()
+	MarshalJSON() (data []byte, err error)
+}
+
+// Deprecated: use [AuthSetParamsOAuth], [AuthSetParamsAPI], or
+// [AuthSetParamsWellKnown] to avoid mixing fields across credential variants.
 type AuthSetParams struct {
-	// The credential type: "oauth", "api", or "wellknown".
 	Type param.Field[string] `json:"type,required"`
 	// OAuth fields
 	Refresh       param.Field[string]  `json:"refresh"`
@@ -240,4 +250,51 @@ func (r AuthSetParams) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
 }
 
+func (r AuthSetParams) implementsAuthSetParamsUnion() {}
+
+type AuthSetParamsOAuth struct {
+	Type          param.Field[string]  `json:"type,required"`
+	Refresh       param.Field[string]  `json:"refresh,required"`
+	Access        param.Field[string]  `json:"access,required"`
+	Expires       param.Field[float64] `json:"expires,required"`
+	AccountID     param.Field[string]  `json:"accountId"`
+	EnterpriseURL param.Field[string]  `json:"enterpriseUrl"`
+}
+
+func (r AuthSetParamsOAuth) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r AuthSetParamsOAuth) implementsAuthSetParamsUnion() {}
+
+type AuthSetParamsAPI struct {
+	Type     param.Field[string]            `json:"type,required"`
+	Key      param.Field[string]            `json:"key,required"`
+	Metadata param.Field[map[string]string] `json:"metadata"`
+}
+
+func (r AuthSetParamsAPI) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r AuthSetParamsAPI) implementsAuthSetParamsUnion() {}
+
+type AuthSetParamsWellKnown struct {
+	Type  param.Field[string] `json:"type,required"`
+	Key   param.Field[string] `json:"key,required"`
+	Token param.Field[string] `json:"token,required"`
+}
+
+func (r AuthSetParamsWellKnown) MarshalJSON() (data []byte, err error) {
+	return apijson.MarshalRoot(r)
+}
+
+func (r AuthSetParamsWellKnown) implementsAuthSetParamsUnion() {}
+
+// Deprecated: this type no longer affects the wire request. It is accepted only
+// as a no-op compatibility option for [AuthService.Remove].
 type AuthRemoveParams struct{}
+
+func (r AuthRemoveParams) Apply(*requestconfig.RequestConfig) error {
+	return nil
+}

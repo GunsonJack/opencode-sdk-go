@@ -35,7 +35,7 @@ func TestExperimentalSessionListUsesTypedClientPathAndFullQuerySurface(t *testin
 		}),
 	)
 
-	_, err := client.ExperimentalSession.List(context.Background(), opencode.ExperimentalSessionListParams{
+	_, err := client.Experimental.Session.List(context.Background(), opencode.ExperimentalSessionListParams{
 		Directory: opencode.F("/tmp/project"),
 		Workspace: opencode.F("ws_123"),
 		Roots:     opencode.F(true),

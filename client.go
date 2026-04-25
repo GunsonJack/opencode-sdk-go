@@ -20,7 +20,6 @@ type Client struct {
 	Event               *EventService
 	Path                *PathService
 	App                 *AppService
-	Agent               *AgentService
 	Find                *FindService
 	File                *FileService
 	Config              *ConfigService
@@ -39,14 +38,8 @@ type Client struct {
 	Mcp                 *McpService
 	Pty                 *PtyService
 	Vcs                 *VcsService
-	Worktree            *WorktreeService
-	Workspace           *WorkspaceService
+	Experimental        *ExperimentalService
 	Sync                *SyncService
-	Skill               *SkillService
-	Tool                *ToolService
-	Resource            *ResourceService
-	Console             *ConsoleService
-	ExperimentalSession *ExperimentalSessionService
 }
 
 // DefaultClientOptions read from the environment (OPENCODE_BASE_URL). This should
@@ -71,7 +64,6 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Event = NewEventService(opts...)
 	r.Path = NewPathService(opts...)
 	r.App = NewAppService(opts...)
-	r.Agent = NewAgentService(opts...)
 	r.Find = NewFindService(opts...)
 	r.File = NewFileService(opts...)
 	r.Config = NewConfigService(opts...)
@@ -90,14 +82,8 @@ func NewClient(opts ...option.RequestOption) (r *Client) {
 	r.Mcp = NewMcpService(opts...)
 	r.Pty = NewPtyService(opts...)
 	r.Vcs = NewVcsService(opts...)
-	r.Worktree = NewWorktreeService(opts...)
-	r.Workspace = NewWorkspaceService(opts...)
+	r.Experimental = NewExperimentalService(opts...)
 	r.Sync = NewSyncService(opts...)
-	r.Skill = NewSkillService(opts...)
-	r.Tool = NewToolService(opts...)
-	r.Resource = NewResourceService(opts...)
-	r.Console = NewConsoleService(opts...)
-	r.ExperimentalSession = NewExperimentalSessionService(opts...)
 
 	return
 }

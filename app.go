@@ -25,6 +25,8 @@ import (
 // the [NewAppService] method instead.
 type AppService struct {
 	Options []option.RequestOption
+	Agents  *AgentService
+	Skills  *SkillService
 }
 
 // NewAppService generates a new service that applies the given options to each
@@ -33,6 +35,8 @@ type AppService struct {
 func NewAppService(opts ...option.RequestOption) (r *AppService) {
 	r = &AppService{}
 	r.Options = opts
+	r.Agents = NewAgentService(opts...)
+	r.Skills = NewSkillService(opts...)
 	return
 }
 

@@ -28,7 +28,7 @@ func TestWorktreeListWithOptionalParams(t *testing.T) {
 	client := opencode.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Worktree.List(context.TODO(), opencode.WorktreeListParams{
+	_, err := client.Experimental.Worktree.List(context.TODO(), opencode.WorktreeListParams{
 		Directory: opencode.F("directory"),
 		Workspace: opencode.F("workspace"),
 	})
@@ -53,7 +53,7 @@ func TestWorktreeCreateWithOptionalParams(t *testing.T) {
 	client := opencode.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Worktree.Create(context.TODO(), opencode.WorktreeCreateParams{
+	_, err := client.Experimental.Worktree.Create(context.TODO(), opencode.WorktreeCreateParams{
 		Name:         opencode.F("name"),
 		StartCommand: opencode.F("startCommand"),
 		Directory:    opencode.F("directory"),
@@ -68,14 +68,77 @@ func TestWorktreeCreateWithOptionalParams(t *testing.T) {
 	}
 }
 
+func TestWorktreeCreateUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`{"name":"wt","branch":"main","directory":"/tmp/wt"}`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Experimental.Worktree.Create(context.Background(), opencode.WorktreeCreateParams{
+		Name:      opencode.F("wt"),
+		Directory: opencode.F("/tmp/project"),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodPost {
+		t.Fatalf("expected POST, got: %s", method)
+	}
+	if gotPath != "/experimental/worktree" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+}
+
+func TestWorktreeListUsesCorrectMethodAndPath(t *testing.T) {
+	var method, gotPath string
+	client := opencode.NewClient(
+		option.WithHTTPClient(&http.Client{
+			Transport: &closureTransport{
+				fn: func(req *http.Request) (*http.Response, error) {
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Body:       io.NopCloser(strings.NewReader(`[]`)),
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+					}, nil
+				},
+			},
+		}),
+	)
+	_, err := client.Experimental.Worktree.List(context.Background(), opencode.WorktreeListParams{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if method != http.MethodGet {
+		t.Fatalf("expected GET, got: %s", method)
+	}
+	if gotPath != "/experimental/worktree" {
+		t.Fatalf("unexpected path: %s", gotPath)
+	}
+}
+
 func TestWorktreeRemoveSendsDirectoryInQueryAndBody(t *testing.T) {
-	var rawQuery string
+	var method, gotPath, rawQuery string
 	var body []byte
 	client := opencode.NewClient(
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
 				fn: func(req *http.Request) (*http.Response, error) {
 					var err error
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
 					rawQuery = req.URL.RawQuery
 					body, err = io.ReadAll(req.Body)
 					if err != nil {
@@ -91,13 +154,19 @@ func TestWorktreeRemoveSendsDirectoryInQueryAndBody(t *testing.T) {
 		}),
 	)
 
-	_, err := client.Worktree.Remove(context.Background(), opencode.WorktreeRemoveParams{
+	_, err := client.Experimental.Worktree.Remove(context.Background(), opencode.WorktreeRemoveParams{
 		Directory:      opencode.F("/tmp/worktree"),
 		QueryDirectory: opencode.F("/tmp/worktree"),
 		Workspace:      opencode.F("workspace"),
 	})
 	if err != nil {
 		t.Fatal(err)
+	}
+	if method != http.MethodDelete {
+		t.Fatalf("expected DELETE, got: %s", method)
+	}
+	if gotPath != "/experimental/worktree" {
+		t.Fatalf("unexpected path: %s", gotPath)
 	}
 	if !strings.Contains(rawQuery, "directory=%2Ftmp%2Fworktree") {
 		t.Fatalf("missing directory query: %s", rawQuery)
@@ -111,13 +180,15 @@ func TestWorktreeRemoveSendsDirectoryInQueryAndBody(t *testing.T) {
 }
 
 func TestWorktreeResetSendsDirectoryInQueryAndBody(t *testing.T) {
-	var rawQuery string
+	var method, gotPath, rawQuery string
 	var body []byte
 	client := opencode.NewClient(
 		option.WithHTTPClient(&http.Client{
 			Transport: &closureTransport{
 				fn: func(req *http.Request) (*http.Response, error) {
 					var err error
+					method = req.Method
+					gotPath = req.URL.EscapedPath()
 					rawQuery = req.URL.RawQuery
 					body, err = io.ReadAll(req.Body)
 					if err != nil {
@@ -133,13 +204,19 @@ func TestWorktreeResetSendsDirectoryInQueryAndBody(t *testing.T) {
 		}),
 	)
 
-	_, err := client.Worktree.Reset(context.Background(), opencode.WorktreeResetParams{
+	_, err := client.Experimental.Worktree.Reset(context.Background(), opencode.WorktreeResetParams{
 		Directory:      opencode.F("/tmp/worktree"),
 		QueryDirectory: opencode.F("/tmp/worktree"),
 		Workspace:      opencode.F("workspace"),
 	})
 	if err != nil {
 		t.Fatal(err)
+	}
+	if method != http.MethodPost {
+		t.Fatalf("expected POST, got: %s", method)
+	}
+	if gotPath != "/experimental/worktree/reset" {
+		t.Fatalf("unexpected path: %s", gotPath)
 	}
 	if !strings.Contains(rawQuery, "directory=%2Ftmp%2Fworktree") {
 		t.Fatalf("missing directory query: %s", rawQuery)

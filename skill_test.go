@@ -28,7 +28,7 @@ func TestSkillList(t *testing.T) {
 	client := opencode.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Skill.List(context.TODO(), opencode.SkillListParams{
+	_, err := client.App.Skills.List(context.TODO(), opencode.SkillListParams{
 		Directory: opencode.F("/tmp/test"),
 		Workspace: opencode.F("workspace"),
 	})
@@ -59,7 +59,7 @@ func TestSkillListUsesCorrectMethodAndPath(t *testing.T) {
 			},
 		}),
 	)
-	_, err := client.Skill.List(context.Background(), opencode.SkillListParams{
+	_, err := client.App.Skills.List(context.Background(), opencode.SkillListParams{
 		Directory: opencode.F("/tmp/project"),
 		Workspace: opencode.F("ws_123"),
 	})

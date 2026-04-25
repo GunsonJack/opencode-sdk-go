@@ -28,7 +28,7 @@ func TestAgentListWithOptionalParams(t *testing.T) {
 	client := opencode.NewClient(
 		option.WithBaseURL(baseURL),
 	)
-	_, err := client.Agent.List(context.TODO(), opencode.AgentListParams{
+	_, err := client.App.Agents.List(context.TODO(), opencode.AgentListParams{
 		Workspace: opencode.F("workspace"),
 	})
 	if err != nil {
@@ -58,7 +58,7 @@ func TestAgentListUsesCorrectMethodAndPath(t *testing.T) {
 			},
 		}),
 	)
-	_, err := client.Agent.List(context.Background(), opencode.AgentListParams{
+	_, err := client.App.Agents.List(context.Background(), opencode.AgentListParams{
 		Workspace: opencode.F("ws_123"),
 	})
 	if err != nil {

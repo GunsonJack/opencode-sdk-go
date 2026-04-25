@@ -44,10 +44,34 @@ Response Types:
 
 Note: `AppProvidersResponse` is deprecated; app/config providers use `ConfigProvidersResponse` with `Providers` and `Default` fields. The deprecated `App.Providers` wrapper still accepts both `directory` and `workspace` query params for compatibility.
 
+## Core
+
 Methods:
 
 - <code title="post /log">client.App.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AppService.Log">Log</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AppLogParams">AppLogParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="get /config/providers">client.App.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AppService.Providers">Providers</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AppProvidersParams">AppProvidersParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConfigProvidersResponse">ConfigProvidersResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code> **Deprecated: use Config.Providers**
+
+## Agents
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Agent">Agent</a>
+
+Note: Agent now uses `[]PermissionRule` for permissions (defined in Session response types).
+
+Methods:
+
+- <code title="get /agent">client.App.Agents.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AgentService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AgentListParams">AgentListParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Agent">Agent</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+## Skills
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#SkillItem">SkillItem</a>
+
+Methods:
+
+- <code title="get /skill">client.App.Skills.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#SkillService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#SkillListParams">SkillListParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#SkillItem">SkillItem</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # Provider
 
@@ -86,20 +110,19 @@ Response Types:
 
 Methods:
 
-- <code title="put /auth/{providerID}">client.Auth.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AuthService.Set">Set</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, providerID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AuthSetParams">AuthSetParams</a>) (bool, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="delete /auth/{providerID}">client.Auth.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AuthService.Remove">Remove</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, providerID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AuthRemoveParams">AuthRemoveParams</a>) (bool, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="put /auth/{providerID}">client.Auth.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AuthService.Set">Set</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, providerID <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AuthSetParamsUnion">AuthSetParamsUnion</a>) (*<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="delete /auth/{providerID}">client.Auth.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AuthService.Remove">Remove</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, providerID <a href="https://pkg.go.dev/builtin#string">string</a>, opts ...<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go/option">option</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go/option#RequestOption">RequestOption</a>) (*<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
-# Agent
+Request variants for `Auth.Set`:
 
-Response Types:
+- Preferred: <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AuthSetParamsAPI">AuthSetParamsAPI</a>
+- Preferred: <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AuthSetParamsOAuth">AuthSetParamsOAuth</a>
+- Preferred: <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AuthSetParamsWellKnown">AuthSetParamsWellKnown</a>
+- Deprecated compatibility wrapper: <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AuthSetParams">AuthSetParams</a>
 
-- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Agent">Agent</a>
+Deprecated compatibility for `Auth.Remove`:
 
-Note: Agent now uses `[]PermissionRule` for permissions (defined in Session response types).
-
-Methods:
-
-- <code title="get /agent">client.Agent.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AgentService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#AgentListParams">AgentListParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Agent">Agent</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- `opencode.AuthRemoveParams{}` may still be passed as a no-op variadic option for backward compatibility; no request body is sent.
 
 # Find
 
@@ -322,6 +345,13 @@ Response Types:
 
 Methods:
 
+`client.Tui.Publish` accepts these publish body variants:
+
+- `opencode.TuiPublishBodyPromptAppend` -> `{"type":"tui.prompt.append","properties":{"text":...}}`
+- `opencode.TuiPublishBodyCommandExecute` -> `{"type":"tui.command.execute","properties":{"command":...}}`
+- `opencode.TuiPublishBodyToastShow` -> `{"type":"tui.toast.show","properties":{"message":...,"variant":...,"title"?:...,"duration"?:...}}`
+- `opencode.TuiPublishBodySessionSelect` -> `{"type":"tui.session.select","properties":{"sessionID":...}}`
+
 - <code title="post /tui/append-prompt">client.Tui.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiService.AppendPrompt">AppendPrompt</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiAppendPromptParams">TuiAppendPromptParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /tui/clear-prompt">client.Tui.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiService.ClearPrompt">ClearPrompt</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, body <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiClearPromptParams">TuiClearPromptParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /tui/execute-command">client.Tui.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiService.ExecuteCommand">ExecuteCommand</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#TuiExecuteCommandParams">TuiExecuteCommandParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
@@ -443,7 +473,9 @@ Methods:
 - <code title="get /vcs">client.Vcs.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#VcsService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#VcsGetParams">VcsGetParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#VcsInfo">VcsInfo</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="get /vcs/diff">client.Vcs.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#VcsService.Diff">Diff</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#VcsDiffParams">VcsDiffParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#VcsFileDiff">VcsFileDiff</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
-# Worktree
+# Experimental
+
+## Worktree
 
 Response Types:
 
@@ -451,12 +483,12 @@ Response Types:
 
 Methods:
 
-- <code title="post /worktree">client.Worktree.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorktreeService.Create">Create</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorktreeCreateParams">WorktreeCreateParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Worktree">Worktree</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="get /worktree">client.Worktree.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorktreeService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorktreeListParams">WorktreeListParams</a>) ([]<a href="https://pkg.go.dev/builtin#string">string</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="delete /worktree">client.Worktree.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorktreeService.Remove">Remove</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorktreeRemoveParams">WorktreeRemoveParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="post /worktree/reset">client.Worktree.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorktreeService.Reset">Reset</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorktreeResetParams">WorktreeResetParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /experimental/worktree">client.Experimental.Worktree.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorktreeService.Create">Create</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorktreeCreateParams">WorktreeCreateParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Worktree">Worktree</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /experimental/worktree">client.Experimental.Worktree.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorktreeService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorktreeListParams">WorktreeListParams</a>) ([]<a href="https://pkg.go.dev/builtin#string">string</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="delete /experimental/worktree">client.Experimental.Worktree.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorktreeService.Remove">Remove</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorktreeRemoveParams">WorktreeRemoveParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /experimental/worktree/reset">client.Experimental.Worktree.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorktreeService.Reset">Reset</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorktreeResetParams">WorktreeResetParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
-# Workspace
+## Workspace
 
 Response Types:
 
@@ -468,12 +500,55 @@ Response Types:
 
 Methods:
 
-- <code title="post /experimental/workspace">client.Workspace.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceService.Create">Create</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceCreateParams">WorkspaceCreateParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Workspace">Workspace</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="get /experimental/workspace">client.Workspace.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceListParams">WorkspaceListParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Workspace">Workspace</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="get /experimental/workspace/status">client.Workspace.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceService.Status">Status</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceStatusParams">WorkspaceStatusParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceStatusResponse">WorkspaceStatusResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="get /experimental/workspace/adaptor">client.Workspace.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceService.Adaptors">Adaptors</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceAdaptorsParams">WorkspaceAdaptorsParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceAdaptor">WorkspaceAdaptor</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="delete /experimental/workspace/{id}">client.Workspace.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceService.Remove">Remove</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceRemoveParams">WorkspaceRemoveParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Workspace">Workspace</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="post /experimental/workspace/{id}/session-restore">client.Workspace.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceService.SessionRestore">SessionRestore</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceSessionRestoreParams">WorkspaceSessionRestoreParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceSessionRestoreResponse">WorkspaceSessionRestoreResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /experimental/workspace">client.Experimental.Workspace.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceService.Create">Create</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceCreateParams">WorkspaceCreateParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Workspace">Workspace</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /experimental/workspace">client.Experimental.Workspace.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceListParams">WorkspaceListParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Workspace">Workspace</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /experimental/workspace/status">client.Experimental.Workspace.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceService.Status">Status</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceStatusParams">WorkspaceStatusParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceStatusResponse">WorkspaceStatusResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /experimental/workspace/adaptor">client.Experimental.Workspace.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceService.Adaptors">Adaptors</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceAdaptorsParams">WorkspaceAdaptorsParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceAdaptor">WorkspaceAdaptor</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="delete /experimental/workspace/{id}">client.Experimental.Workspace.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceService.Remove">Remove</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceRemoveParams">WorkspaceRemoveParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#Workspace">Workspace</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /experimental/workspace/{id}/session-restore">client.Experimental.Workspace.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceService.SessionRestore">SessionRestore</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, id <a href="https://pkg.go.dev/builtin#string">string</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceSessionRestoreParams">WorkspaceSessionRestoreParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#WorkspaceSessionRestoreResponse">WorkspaceSessionRestoreResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+## Resource
+
+Note: Uses `McpResource` type from the Mcp service.
+
+Methods:
+
+- <code title="get /experimental/resource">client.Experimental.Resource.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ResourceService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ResourceListParams">ResourceListParams</a>) (map[string]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#McpResource">McpResource</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+## Console
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleState">ConsoleState</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleListOrgsResponse">ConsoleListOrgsResponse</a>
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleOrg">ConsoleOrg</a>
+
+Methods:
+
+- <code title="get /experimental/console">client.Experimental.Console.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleGetParams">ConsoleGetParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleState">ConsoleState</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /experimental/console/orgs">client.Experimental.Console.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleService.ListOrgs">ListOrgs</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleListOrgsParams">ConsoleListOrgsParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleListOrgsResponse">ConsoleListOrgsResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="post /experimental/console/switch">client.Experimental.Console.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleService.SwitchOrg">SwitchOrg</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleSwitchOrgParams">ConsoleSwitchOrgParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+## Session
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#GlobalSession">GlobalSession</a>
+
+Methods:
+
+- <code title="get /experimental/session">client.Experimental.Session.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ExperimentalSessionService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ExperimentalSessionListParams">ExperimentalSessionListParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#GlobalSession">GlobalSession</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+
+## Tool
+
+Response Types:
+
+- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ToolListItem">ToolListItem</a>
+
+Methods:
+
+- <code title="get /experimental/tool">client.Experimental.Tool.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ToolService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ToolListParams">ToolListParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ToolListItem">ToolListItem</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
+- <code title="get /experimental/tool/ids">client.Experimental.Tool.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ToolService.IDs">IDs</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ToolIDsParams">ToolIDsParams</a>) ([]<a href="https://pkg.go.dev/builtin#string">string</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 
 # Sync
 
@@ -487,56 +562,3 @@ Methods:
 - <code title="post /sync/start">client.Sync.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#SyncService.Start">Start</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#SyncStartParams">SyncStartParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /sync/replay">client.Sync.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#SyncService.Replay">Replay</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#SyncReplayParams">SyncReplayParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#SyncReplayResponse">SyncReplayResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
 - <code title="post /sync/history">client.Sync.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#SyncService.History">History</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#SyncHistoryParams">SyncHistoryParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#SyncHistoryEvent">SyncHistoryEvent</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-
-# Skill
-
-Response Types:
-
-- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#SkillItem">SkillItem</a>
-
-Methods:
-
-- <code title="get /skill">client.Skill.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#SkillService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#SkillListParams">SkillListParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#SkillItem">SkillItem</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-
-# Tool
-
-Response Types:
-
-- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ToolListItem">ToolListItem</a>
-
-Methods:
-
-- <code title="get /experimental/tool">client.Tool.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ToolService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ToolListParams">ToolListParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ToolListItem">ToolListItem</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="get /experimental/tool/ids">client.Tool.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ToolService.IDs">IDs</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ToolIDsParams">ToolIDsParams</a>) ([]<a href="https://pkg.go.dev/builtin#string">string</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-
-# Resource
-
-Note: Uses `McpResource` type from the Mcp service.
-
-Methods:
-
-- <code title="get /experimental/resource">client.Resource.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ResourceService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ResourceListParams">ResourceListParams</a>) (map[string]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#McpResource">McpResource</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-
-# Console
-
-Response Types:
-
-- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleState">ConsoleState</a>
-- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleListOrgsResponse">ConsoleListOrgsResponse</a>
-- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleOrg">ConsoleOrg</a>
-
-Methods:
-
-- <code title="get /experimental/console">client.Console.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleService.Get">Get</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleGetParams">ConsoleGetParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleState">ConsoleState</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="get /experimental/console/orgs">client.Console.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleService.ListOrgs">ListOrgs</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleListOrgsParams">ConsoleListOrgsParams</a>) (<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleListOrgsResponse">ConsoleListOrgsResponse</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-- <code title="post /experimental/console/switch">client.Console.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleService.SwitchOrg">SwitchOrg</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, params <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ConsoleSwitchOrgParams">ConsoleSwitchOrgParams</a>) (<a href="https://pkg.go.dev/builtin#bool">bool</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>
-
-# ExperimentalSession
-
-Response Types:
-
-- <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#GlobalSession">GlobalSession</a>
-
-Methods:
-
-- <code title="get /experimental/session">client.ExperimentalSession.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ExperimentalSessionService.List">List</a>(ctx <a href="https://pkg.go.dev/context">context</a>.<a href="https://pkg.go.dev/context#Context">Context</a>, query <a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#ExperimentalSessionListParams">ExperimentalSessionListParams</a>) ([]<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go">opencode</a>.<a href="https://pkg.go.dev/github.com/GunsonJack/opencode-sdk-go#GlobalSession">GlobalSession</a>, <a href="https://pkg.go.dev/builtin#error">error</a>)</code>

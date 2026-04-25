@@ -4,6 +4,7 @@ package opencode
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/url"
 	"slices"
@@ -235,6 +236,9 @@ type TuiPublishParams struct {
 }
 
 func (r TuiPublishParams) MarshalJSON() (data []byte, err error) {
+	if !r.Body.Present || r.Body.Null {
+		return nil, fmt.Errorf("missing required body for tui.publish")
+	}
 	return apijson.MarshalRoot(r.Body)
 }
 
@@ -290,12 +294,19 @@ type TuiPublishBody interface {
 }
 
 type TuiPublishBodyPromptAppend struct {
-	Type       param.Field[string]                               `json:"type,required"` // always "tui.prompt.append"
 	Properties param.Field[TuiPublishBodyPromptAppendProperties] `json:"properties,required"`
 }
 
 func (r TuiPublishBodyPromptAppend) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+	if err := validateTuiPublishProperties("tui.prompt.append", r.Properties, func(properties TuiPublishBodyPromptAppendProperties) error {
+		if !properties.Text.Present {
+			return fmt.Errorf("missing required properties.text for tui.prompt.append")
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return marshalTuiPublishBody("tui.prompt.append", r.Properties)
 }
 
 func (r TuiPublishBodyPromptAppend) implementsTuiPublishBody() {}
@@ -309,12 +320,19 @@ func (r TuiPublishBodyPromptAppendProperties) MarshalJSON() (data []byte, err er
 }
 
 type TuiPublishBodyCommandExecute struct {
-	Type       param.Field[string]                                 `json:"type,required"` // always "tui.command.execute"
 	Properties param.Field[TuiPublishBodyCommandExecuteProperties] `json:"properties,required"`
 }
 
 func (r TuiPublishBodyCommandExecute) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+	if err := validateTuiPublishProperties("tui.command.execute", r.Properties, func(properties TuiPublishBodyCommandExecuteProperties) error {
+		if !properties.Command.Present {
+			return fmt.Errorf("missing required properties.command for tui.command.execute")
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return marshalTuiPublishBody("tui.command.execute", r.Properties)
 }
 
 func (r TuiPublishBodyCommandExecute) implementsTuiPublishBody() {}
@@ -328,12 +346,22 @@ func (r TuiPublishBodyCommandExecuteProperties) MarshalJSON() (data []byte, err 
 }
 
 type TuiPublishBodyToastShow struct {
-	Type       param.Field[string]                            `json:"type,required"` // always "tui.toast.show"
 	Properties param.Field[TuiPublishBodyToastShowProperties] `json:"properties,required"`
 }
 
 func (r TuiPublishBodyToastShow) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+	if err := validateTuiPublishProperties("tui.toast.show", r.Properties, func(properties TuiPublishBodyToastShowProperties) error {
+		if !properties.Message.Present {
+			return fmt.Errorf("missing required properties.message for tui.toast.show")
+		}
+		if !properties.Variant.Present {
+			return fmt.Errorf("missing required properties.variant for tui.toast.show")
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return marshalTuiPublishBody("tui.toast.show", r.Properties)
 }
 
 func (r TuiPublishBodyToastShow) implementsTuiPublishBody() {}
@@ -350,12 +378,19 @@ func (r TuiPublishBodyToastShowProperties) MarshalJSON() (data []byte, err error
 }
 
 type TuiPublishBodySessionSelect struct {
-	Type       param.Field[string]                                `json:"type,required"` // always "tui.session.select"
 	Properties param.Field[TuiPublishBodySessionSelectProperties] `json:"properties,required"`
 }
 
 func (r TuiPublishBodySessionSelect) MarshalJSON() (data []byte, err error) {
-	return apijson.MarshalRoot(r)
+	if err := validateTuiPublishProperties("tui.session.select", r.Properties, func(properties TuiPublishBodySessionSelectProperties) error {
+		if !properties.SessionID.Present {
+			return fmt.Errorf("missing required properties.sessionID for tui.session.select")
+		}
+		return nil
+	}); err != nil {
+		return nil, err
+	}
+	return marshalTuiPublishBody("tui.session.select", r.Properties)
 }
 
 func (r TuiPublishBodySessionSelect) implementsTuiPublishBody() {}
@@ -366,6 +401,26 @@ type TuiPublishBodySessionSelectProperties struct {
 
 func (r TuiPublishBodySessionSelectProperties) MarshalJSON() (data []byte, err error) {
 	return apijson.MarshalRoot(r)
+}
+
+func marshalTuiPublishBody[T any](eventType string, properties param.Field[T]) ([]byte, error) {
+	return apijson.MarshalRoot(struct {
+		Type       string         `json:"type,required"`
+		Properties param.Field[T] `json:"properties,required"`
+	}{
+		Type:       eventType,
+		Properties: properties,
+	})
+}
+
+func validateTuiPublishProperties[T any](eventType string, properties param.Field[T], validate func(T) error) error {
+	if !properties.Present || properties.Null {
+		return fmt.Errorf("missing required properties for %s", eventType)
+	}
+	if properties.Raw != nil {
+		return nil
+	}
+	return validate(properties.Value)
 }
 
 type TuiSelectSessionParams struct {
