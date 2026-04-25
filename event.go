@@ -1476,40 +1476,47 @@ type EventListResponseEventSessionErrorPropertiesErrorUnion interface {
 func init() {
 	apijson.RegisterUnion(
 		reflect.TypeOf((*EventListResponseEventSessionErrorPropertiesErrorUnion)(nil)).Elem(),
-		"",
+		"name",
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(shared.ProviderAuthError{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "ProviderAuthError",
+			Type:               reflect.TypeOf(shared.ProviderAuthError{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(shared.UnknownError{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "UnknownError",
+			Type:               reflect.TypeOf(shared.UnknownError{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(EventListResponseEventSessionErrorPropertiesErrorMessageOutputLengthError{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "MessageOutputLengthError",
+			Type:               reflect.TypeOf(EventListResponseEventSessionErrorPropertiesErrorMessageOutputLengthError{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(shared.MessageAbortedError{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "MessageAbortedError",
+			Type:               reflect.TypeOf(shared.MessageAbortedError{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(AssistantMessageErrorStructuredOutputError{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "StructuredOutputError",
+			Type:               reflect.TypeOf(AssistantMessageErrorStructuredOutputError{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(AssistantMessageErrorContextOverflowError{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "ContextOverflowError",
+			Type:               reflect.TypeOf(AssistantMessageErrorContextOverflowError{}),
 		},
 		apijson.UnionVariant{
-			TypeFilter: gjson.JSON,
-			Type:       reflect.TypeOf(EventListResponseEventSessionErrorPropertiesErrorAPIError{}),
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "APIError",
+			Type:               reflect.TypeOf(EventListResponseEventSessionErrorPropertiesErrorAPIError{}),
 		},
 	)
 }
 
 type EventListResponseEventSessionErrorPropertiesErrorMessageOutputLengthError struct {
-	Data interface{}                                                                   `json:"data,required"`
+	Data EventListResponseEventSessionErrorPropertiesErrorMessageOutputLengthErrorData `json:"data,required"`
 	Name EventListResponseEventSessionErrorPropertiesErrorMessageOutputLengthErrorName `json:"name,required"`
 	JSON eventListResponseEventSessionErrorPropertiesErrorMessageOutputLengthErrorJSON `json:"-"`
 }
@@ -1547,6 +1554,28 @@ func (r EventListResponseEventSessionErrorPropertiesErrorMessageOutputLengthErro
 		return true
 	}
 	return false
+}
+
+type EventListResponseEventSessionErrorPropertiesErrorMessageOutputLengthErrorData struct {
+	Message string                                                                            `json:"message,required"`
+	JSON    eventListResponseEventSessionErrorPropertiesErrorMessageOutputLengthErrorDataJSON `json:"-"`
+}
+
+// eventListResponseEventSessionErrorPropertiesErrorMessageOutputLengthErrorDataJSON
+// contains the JSON metadata for the struct
+// [EventListResponseEventSessionErrorPropertiesErrorMessageOutputLengthErrorData]
+type eventListResponseEventSessionErrorPropertiesErrorMessageOutputLengthErrorDataJSON struct {
+	Message     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *EventListResponseEventSessionErrorPropertiesErrorMessageOutputLengthErrorData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r eventListResponseEventSessionErrorPropertiesErrorMessageOutputLengthErrorDataJSON) RawJSON() string {
+	return r.raw
 }
 
 type EventListResponseEventSessionErrorPropertiesErrorAPIError struct {

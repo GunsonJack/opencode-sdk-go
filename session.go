@@ -717,11 +717,6 @@ func init() {
 		},
 		apijson.UnionVariant{
 			TypeFilter:         gjson.JSON,
-			DiscriminatorValue: "APIError",
-			Type:               reflect.TypeOf(AssistantMessageErrorAPIError{}),
-		},
-		apijson.UnionVariant{
-			TypeFilter:         gjson.JSON,
 			DiscriminatorValue: "StructuredOutputError",
 			Type:               reflect.TypeOf(AssistantMessageErrorStructuredOutputError{}),
 		},
@@ -730,11 +725,16 @@ func init() {
 			DiscriminatorValue: "ContextOverflowError",
 			Type:               reflect.TypeOf(AssistantMessageErrorContextOverflowError{}),
 		},
+		apijson.UnionVariant{
+			TypeFilter:         gjson.JSON,
+			DiscriminatorValue: "APIError",
+			Type:               reflect.TypeOf(AssistantMessageErrorAPIError{}),
+		},
 	)
 }
 
 type AssistantMessageErrorMessageOutputLengthError struct {
-	Data map[string]interface{}                            `json:"data,required"`
+	Data AssistantMessageErrorMessageOutputLengthErrorData `json:"data,required"`
 	Name AssistantMessageErrorMessageOutputLengthErrorName `json:"name,required"`
 	JSON assistantMessageErrorMessageOutputLengthErrorJSON `json:"-"`
 }
@@ -770,6 +770,27 @@ func (r AssistantMessageErrorMessageOutputLengthErrorName) IsKnown() bool {
 		return true
 	}
 	return false
+}
+
+type AssistantMessageErrorMessageOutputLengthErrorData struct {
+	Message string                                                `json:"message,required"`
+	JSON    assistantMessageErrorMessageOutputLengthErrorDataJSON `json:"-"`
+}
+
+// assistantMessageErrorMessageOutputLengthErrorDataJSON contains the JSON metadata
+// for the struct [AssistantMessageErrorMessageOutputLengthErrorData]
+type assistantMessageErrorMessageOutputLengthErrorDataJSON struct {
+	Message     apijson.Field
+	raw         string
+	ExtraFields map[string]apijson.Field
+}
+
+func (r *AssistantMessageErrorMessageOutputLengthErrorData) UnmarshalJSON(data []byte) (err error) {
+	return apijson.UnmarshalRoot(data, r)
+}
+
+func (r assistantMessageErrorMessageOutputLengthErrorDataJSON) RawJSON() string {
+	return r.raw
 }
 
 type AssistantMessageErrorAPIError struct {
@@ -1338,7 +1359,7 @@ type Part struct {
 	Command     string   `json:"command"`
 	Cost        float64  `json:"cost"`
 	Description string   `json:"description"`
-	// This field can have the runtime type of [PartRetryPartError].
+	// This field can have the runtime type of [RetryPartError].
 	Error    interface{} `json:"error"`
 	Filename string      `json:"filename"`
 	// This field can have the runtime type of [[]string].
@@ -1362,7 +1383,7 @@ type Part struct {
 	TailStartID string      `json:"tail_start_id"`
 	Text        string      `json:"text"`
 	// This field can have the runtime type of [TextPartTime], [ReasoningPartTime],
-	// [PartRetryPartTime].
+	// [RetryPartTime].
 	Time interface{} `json:"time"`
 	// This field can have the runtime type of [StepFinishPartTokens].
 	Tokens interface{} `json:"tokens"`
@@ -1428,15 +1449,15 @@ func (r *Part) UnmarshalJSON(data []byte) (err error) {
 // for more type safety.
 //
 // Possible runtime types of the union are [TextPart], [ReasoningPart], [FilePart],
-// [ToolPart], [StepStartPart], [StepFinishPart], [SnapshotPart], [PartPatchPart],
-// [AgentPart], [PartRetryPart], [SubtaskPart], [CompactionPart].
+// [ToolPart], [StepStartPart], [StepFinishPart], [SnapshotPart], [PatchPart],
+// [AgentPart], [RetryPart], [SubtaskPart], [CompactionPart].
 func (r Part) AsUnion() PartUnion {
 	return r.union
 }
 
 // Union satisfied by [TextPart], [ReasoningPart], [FilePart], [ToolPart],
-// [StepStartPart], [StepFinishPart], [SnapshotPart], [PartPatchPart], [AgentPart],
-// [PartRetryPart], [SubtaskPart] or [CompactionPart].
+// [StepStartPart], [StepFinishPart], [SnapshotPart], [PatchPart], [AgentPart],
+// [RetryPart], [SubtaskPart] or [CompactionPart].
 type PartUnion interface {
 	implementsPart()
 }
@@ -1483,7 +1504,7 @@ func init() {
 		apijson.UnionVariant{
 			TypeFilter:         gjson.JSON,
 			DiscriminatorValue: "patch",
-			Type:               reflect.TypeOf(PartPatchPart{}),
+			Type:               reflect.TypeOf(PatchPart{}),
 		},
 		apijson.UnionVariant{
 			TypeFilter:         gjson.JSON,
@@ -1493,7 +1514,7 @@ func init() {
 		apijson.UnionVariant{
 			TypeFilter:         gjson.JSON,
 			DiscriminatorValue: "retry",
-			Type:               reflect.TypeOf(PartRetryPart{}),
+			Type:               reflect.TypeOf(RetryPart{}),
 		},
 		apijson.UnionVariant{
 			TypeFilter:         gjson.JSON,
@@ -1508,18 +1529,18 @@ func init() {
 	)
 }
 
-type PartPatchPart struct {
+type PatchPart struct {
 	ID        string            `json:"id,required"`
 	Files     []string          `json:"files,required"`
 	Hash      string            `json:"hash,required"`
 	MessageID string            `json:"messageID,required"`
 	SessionID string            `json:"sessionID,required"`
-	Type      PartPatchPartType `json:"type,required"`
-	JSON      partPatchPartJSON `json:"-"`
+	Type      PatchPartType `json:"type,required"`
+	JSON      patchPartJSON `json:"-"`
 }
 
-// partPatchPartJSON contains the JSON metadata for the struct [PartPatchPart]
-type partPatchPartJSON struct {
+// patchPartJSON contains the JSON metadata for the struct [PatchPart]
+type patchPartJSON struct {
 	ID          apijson.Field
 	Files       apijson.Field
 	Hash        apijson.Field
@@ -1530,25 +1551,25 @@ type partPatchPartJSON struct {
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *PartPatchPart) UnmarshalJSON(data []byte) (err error) {
+func (r *PatchPart) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r partPatchPartJSON) RawJSON() string {
+func (r patchPartJSON) RawJSON() string {
 	return r.raw
 }
 
-func (r PartPatchPart) implementsPart() {}
+func (r PatchPart) implementsPart() {}
 
-type PartPatchPartType string
+type PatchPartType string
 
 const (
-	PartPatchPartTypePatch PartPatchPartType = "patch"
+	PatchPartTypePatch PatchPartType = "patch"
 )
 
-func (r PartPatchPartType) IsKnown() bool {
+func (r PatchPartType) IsKnown() bool {
 	switch r {
-	case PartPatchPartTypePatch:
+	case PatchPartTypePatch:
 		return true
 	}
 	return false
@@ -1581,19 +1602,19 @@ func (r PatchPartInputType) IsKnown() bool {
 	return false
 }
 
-type PartRetryPart struct {
+type RetryPart struct {
 	ID        string             `json:"id,required"`
 	Attempt   float64            `json:"attempt,required"`
-	Error     PartRetryPartError `json:"error,required"`
+	Error     RetryPartError `json:"error,required"`
 	MessageID string             `json:"messageID,required"`
 	SessionID string             `json:"sessionID,required"`
-	Time      PartRetryPartTime  `json:"time,required"`
-	Type      PartRetryPartType  `json:"type,required"`
-	JSON      partRetryPartJSON  `json:"-"`
+	Time      RetryPartTime  `json:"time,required"`
+	Type      RetryPartType  `json:"type,required"`
+	JSON      retryPartJSON  `json:"-"`
 }
 
-// partRetryPartJSON contains the JSON metadata for the struct [PartRetryPart]
-type partRetryPartJSON struct {
+// retryPartJSON contains the JSON metadata for the struct [RetryPart]
+type retryPartJSON struct {
 	ID          apijson.Field
 	Attempt     apijson.Field
 	Error       apijson.Field
@@ -1605,52 +1626,52 @@ type partRetryPartJSON struct {
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *PartRetryPart) UnmarshalJSON(data []byte) (err error) {
+func (r *RetryPart) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r partRetryPartJSON) RawJSON() string {
+func (r retryPartJSON) RawJSON() string {
 	return r.raw
 }
 
-func (r PartRetryPart) implementsPart() {}
+func (r RetryPart) implementsPart() {}
 
-type PartRetryPartError struct {
-	Data PartRetryPartErrorData `json:"data,required"`
-	Name PartRetryPartErrorName `json:"name,required"`
-	JSON partRetryPartErrorJSON `json:"-"`
+type RetryPartError struct {
+	Data RetryPartErrorData `json:"data,required"`
+	Name RetryPartErrorName `json:"name,required"`
+	JSON retryPartErrorJSON `json:"-"`
 }
 
-// partRetryPartErrorJSON contains the JSON metadata for the struct
-// [PartRetryPartError]
-type partRetryPartErrorJSON struct {
+// retryPartErrorJSON contains the JSON metadata for the struct
+// [RetryPartError]
+type retryPartErrorJSON struct {
 	Data        apijson.Field
 	Name        apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *PartRetryPartError) UnmarshalJSON(data []byte) (err error) {
+func (r *RetryPartError) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r partRetryPartErrorJSON) RawJSON() string {
+func (r retryPartErrorJSON) RawJSON() string {
 	return r.raw
 }
 
-type PartRetryPartErrorData struct {
+type RetryPartErrorData struct {
 	IsRetryable     bool                       `json:"isRetryable,required"`
 	Message         string                     `json:"message,required"`
 	Metadata        map[string]string          `json:"metadata"`
 	ResponseBody    string                     `json:"responseBody"`
 	ResponseHeaders map[string]string          `json:"responseHeaders"`
 	StatusCode      float64                    `json:"statusCode"`
-	JSON            partRetryPartErrorDataJSON `json:"-"`
+	JSON            retryPartErrorDataJSON `json:"-"`
 }
 
-// partRetryPartErrorDataJSON contains the JSON metadata for the struct
-// [PartRetryPartErrorData]
-type partRetryPartErrorDataJSON struct {
+// retryPartErrorDataJSON contains the JSON metadata for the struct
+// [RetryPartErrorData]
+type retryPartErrorDataJSON struct {
 	IsRetryable     apijson.Field
 	Message         apijson.Field
 	Metadata        apijson.Field
@@ -1661,58 +1682,58 @@ type partRetryPartErrorDataJSON struct {
 	ExtraFields     map[string]apijson.Field
 }
 
-func (r *PartRetryPartErrorData) UnmarshalJSON(data []byte) (err error) {
+func (r *RetryPartErrorData) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r partRetryPartErrorDataJSON) RawJSON() string {
+func (r retryPartErrorDataJSON) RawJSON() string {
 	return r.raw
 }
 
-type PartRetryPartErrorName string
+type RetryPartErrorName string
 
 const (
-	PartRetryPartErrorNameAPIError PartRetryPartErrorName = "APIError"
+	RetryPartErrorNameAPIError RetryPartErrorName = "APIError"
 )
 
-func (r PartRetryPartErrorName) IsKnown() bool {
+func (r RetryPartErrorName) IsKnown() bool {
 	switch r {
-	case PartRetryPartErrorNameAPIError:
+	case RetryPartErrorNameAPIError:
 		return true
 	}
 	return false
 }
 
-type PartRetryPartTime struct {
+type RetryPartTime struct {
 	Created float64               `json:"created,required"`
-	JSON    partRetryPartTimeJSON `json:"-"`
+	JSON    retryPartTimeJSON `json:"-"`
 }
 
-// partRetryPartTimeJSON contains the JSON metadata for the struct
-// [PartRetryPartTime]
-type partRetryPartTimeJSON struct {
+// retryPartTimeJSON contains the JSON metadata for the struct
+// [RetryPartTime]
+type retryPartTimeJSON struct {
 	Created     apijson.Field
 	raw         string
 	ExtraFields map[string]apijson.Field
 }
 
-func (r *PartRetryPartTime) UnmarshalJSON(data []byte) (err error) {
+func (r *RetryPartTime) UnmarshalJSON(data []byte) (err error) {
 	return apijson.UnmarshalRoot(data, r)
 }
 
-func (r partRetryPartTimeJSON) RawJSON() string {
+func (r retryPartTimeJSON) RawJSON() string {
 	return r.raw
 }
 
-type PartRetryPartType string
+type RetryPartType string
 
 const (
-	PartRetryPartTypeRetry PartRetryPartType = "retry"
+	RetryPartTypeRetry RetryPartType = "retry"
 )
 
-func (r PartRetryPartType) IsKnown() bool {
+func (r RetryPartType) IsKnown() bool {
 	switch r {
-	case PartRetryPartTypeRetry:
+	case RetryPartTypeRetry:
 		return true
 	}
 	return false
